@@ -26,6 +26,7 @@ public class Zoff {
     private String addSongUrl;
     private ArrayList<Video> videoList = new ArrayList<>();
     private Player player;
+    private int kek;
 
     public Zoff(String room, Player player){
        room.replace(" ","");
