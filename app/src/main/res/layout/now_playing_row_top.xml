@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+android:layout_width="fill_parent"
+android:layout_height="wrap_content"
+android:orientation="vertical"
+    android:paddingBottom="5dp"
+    android:paddingTop="10dp">
+
+
+    <ImageView
+    android:layout_width="fill_parent"
+    android:layout_height="150dp"
+    android:id="@+id/imageView"
+    android:scaleType="centerCrop"/>
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textSize="13dp"
+        android:background="@drawable/gray_rectangle"
+        android:textColor="@color/zoff_white"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:paddingBottom="4dp"
+        android:paddingTop="5dp"
+        android:layout_below="@+id/imageView"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="8dp"
+        android:gravity="center">
+    </TextView>
+
+    <ProgressBar
+        style="?android:attr/progressBarStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/progressBar"
+        android:layout_marginLeft="51dp"
+        android:layout_marginStart="51dp"
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:visibility="gone" />
+
+</RelativeLayout>

@@ -1,0 +1,26 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" tools:context=".Main">
+
+    <item android:id="@+id/action_search"
+        android:title="Search"
+        app:showAsAction="ifRoom|collapseActionView"
+        android:icon="@drawable/search"
+        android:actionLayout="@layout/actionbar_search_layout"/>
+
+
+
+
+    <item android:id="@+id/action_next" android:title="@string/action_next"
+        android:icon="@drawable/skip"
+        app:showAsAction="ifRoom" />
+
+
+    <item android:id="@+id/action_zoff_settings" android:title="Settings" app:showAsAction="ifRoom"
+        android:icon="@drawable/settings2"/>
+    <item android:id="@+id/action_shuffle" android:title="Shuffle" app:showAsAction="never"
+     />
+
+
+
+</menu>

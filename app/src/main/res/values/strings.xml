@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Zoff</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="app_name">Zöff</string>
+
+
+    <!--Menus-->
+    <string name="action_pause">Pause</string>
+    <string name="action_next">Next</string>
+    <string name="action_play">Play</string>
+    <string name="action_refresh">Refresh</string>
     <string name="action_settings">Settings</string>
 
 </resources>

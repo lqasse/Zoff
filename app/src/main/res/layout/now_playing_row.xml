@@ -4,17 +4,22 @@
 android:layout_width="wrap_content"
 android:layout_height="wrap_content"
 android:orientation="horizontal"
-android:paddingTop="5dp"
-android:paddingBottom="5dp"
-    android:background="#000">
+    android:paddingBottom="6dp"
+    android:id="@+id/layout">
 
 
-<ImageView
+
+
+    <ImageView
     android:layout_width="120dp"
     android:layout_height="65dp"
     android:id="@+id/imageView"
-    android:layout_marginRight="5dp"
-    android:scaleType="centerCrop"/>
+        android:scaleType="centerCrop"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:background="@drawable/shadow_black"
+        android:padding="6dp" />
 
     <LinearLayout
     android:orientation="vertical"
@@ -23,20 +28,21 @@ android:paddingBottom="5dp"
     android:layout_toRightOf="@+id/imageView"
     android:layout_toEndOf="@+id/imageView"
     android:id="@+id/linearLayout"
-    android:layout_marginLeft="10dp">
+    android:layout_marginLeft="10dp"
+     >
 
 
-    <TextView
+        <TextView
         android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Title"
-        android:textSize="15dp"
-        android:textColor="#efefef"
+        android:textSize="12dp"
+        android:textColor="@color/zoff_black"
         android:layout_alignParentTop="true"
         android:layout_toRightOf="@+id/imageView"
         android:layout_toEndOf="@+id/imageView"
-        android:lines="1">
+        android:maxLines="2">
     </TextView>
 
 
@@ -50,8 +56,21 @@ android:paddingBottom="5dp"
         android:layout_toRightOf="@+id/imageView"
         android:layout_toEndOf="@+id/imageView"
         android:lines="1"
-        android:textColor="#ffbdbdbd">
+        android:textColor="@color/zoff_black">
     </TextView>
-</LinearLayout>
+
+    </LinearLayout>
+
+    <ProgressBar
+        style="?android:attr/progressBarStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/progressBar"
+        android:layout_marginLeft="51dp"
+        android:layout_marginStart="51dp"
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:visibility="visible" />
 
 </RelativeLayout>

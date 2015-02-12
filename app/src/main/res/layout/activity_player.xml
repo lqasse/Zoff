@@ -1,0 +1,40 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+
+    android:orientation="vertical"
+    android:focusableInTouchMode="true"
+    android:id="@+id/root"
+    android:weightSum="1"
+    android:background="@drawable/bg">
+
+
+    <fragment
+        android:name="com.google.android.youtube.player.YouTubePlayerFragment"
+        android:id="@+id/youtube_player"
+        android:layout_width="fill_parent"
+        android:layout_height="200dp"
+        android:background="#fff"
+        android:layout_gravity="left" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:id="@+id/titleView"
+        android:textColor="@color/zoff_white"
+        android:background="@drawable/gray_rectangle"
+        android:gravity="center"
+        android:textSize="13dp"
+        android:layout_marginTop="8dp"
+        android:paddingLeft="5dp"
+        android:paddingTop="5dp"
+        android:paddingRight="5dp"
+        android:paddingBottom="4dp" />
+
+    <ListView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/videoList" />
+
+</LinearLayout>

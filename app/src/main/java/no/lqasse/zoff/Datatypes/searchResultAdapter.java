@@ -1,4 +1,4 @@
-package no.lqasse.zoff;
+package no.lqasse.zoff.Datatypes;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -8,26 +8,32 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+
 
 import java.net.URL;
 import java.util.ArrayList;
 
+import no.lqasse.zoff.R;
+
 /**
- * Created by lassedrevland on 12.12.14.
+ * Created by lassedrevland on 09.12.14.
  */
-public class nowPlayingAdapter extends ArrayAdapter<Video> {
+public class searchResultAdapter extends ArrayAdapter<searchResult> {
     private final Context context;
     //private final String[] values;
-    private final ArrayList<Video> results;
+    private final ArrayList<searchResult> searchResults;
 
-    public nowPlayingAdapter(Context context, ArrayList<Video> results) {
-        super(context, R.layout.now_playing_row, results);
+    public searchResultAdapter(Context context, ArrayList<searchResult> searchResults) {
+        super(context, R.layout.search_row, searchResults);
         this.context = context;
-        this.results = results;
-
+        this.searchResults = searchResults;
     }
 
     private static
@@ -36,7 +42,9 @@ public class nowPlayingAdapter extends ArrayAdapter<Video> {
         String imageURL;
         Bitmap bitmap;
         int position;
+        ProgressBar progressBar;
     }
+
 
 
     @Override
@@ -44,40 +52,54 @@ public class nowPlayingAdapter extends ArrayAdapter<Video> {
         ViewHolder viewHolder = null;
 
 
+
+
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View rowView = inflater.inflate(R.layout.now_playing_row, parent, false);
+        View rowView = inflater.inflate(R.layout.search_row, parent, false);
         ImageView imageView = (ImageView) rowView.findViewById(R.id.imageView);
+        ProgressBar progressBar = (ProgressBar) rowView.findViewById(R.id.progressBar);
 
         viewHolder = new ViewHolder();
         viewHolder.imageView = imageView;
-        viewHolder.imageURL = results.get(position).getThumbMed();
+        viewHolder.imageURL = searchResults.get(position).getThumbSmall();
         viewHolder.position = position;
+        viewHolder.progressBar = progressBar;
 
-        if (results.get(position).getImgSmall() == null){
+        if (searchResults.get(position).getImgSmall() == null){
             new downloadImage().execute(viewHolder);
         } else {
-            imageView.setImageBitmap(results.get(position).getImgSmall());
+            imageView.setImageBitmap(searchResults.get(position).getImgSmall());
+            progressBar.setVisibility(View.GONE);
         }
 
 
+        //convertView.setTag(viewHolder);
+
         TextView title = (TextView) rowView.findViewById(R.id.title);
-        TextView votes = (TextView) rowView.findViewById(R.id.votesView);
+        TextView viewCount = (TextView) rowView.findViewById(R.id.viewCount);
+        TextView duration = (TextView) rowView.findViewById(R.id.durationView);
 
 
-        title.setText(results.get(position).getTitle());
-        votes.setText(results.get(position).getVotes());
+
+        title.setText(searchResults.get(position).getTitle());
+        String views = searchResults.get(position).getViewCountLocalized();
+        duration.setText(searchResults.get(position).getDuration());
+        viewCount.setText(views);
         //textView.setText(values[position]);
         // change the icon for Windows and iPhone
         //String s = values[position];
 
 
+
+
+
         return rowView;
     }
 
-    private class downloadImage extends AsyncTask<ViewHolder, Void, ViewHolder> {
 
 
+    private class downloadImage extends AsyncTask<ViewHolder, Void, ViewHolder>{
 
         @Override
         protected ViewHolder doInBackground(ViewHolder... params){
@@ -99,11 +121,20 @@ public class nowPlayingAdapter extends ArrayAdapter<Video> {
             if (result.bitmap == null){
                 Log.d("FAIL", "NO IMAGE");
             } else {
+               result.progressBar.setVisibility(View.GONE);
+
+                Animation a = new AlphaAnimation(0.00f,1.00f);
+                a.setInterpolator(new DecelerateInterpolator());
+                a.setDuration(700);
                 result.imageView.setImageBitmap(result.bitmap);
-                results.get(result.position).setImgSmall(result.bitmap);
+                result.imageView.setAnimation(a);
+                result.imageView.startAnimation(a);
+               searchResults.get(result.position).setImgSmall(result.bitmap);
             }
         }
 
     }
 
-}
+
+
+    }
