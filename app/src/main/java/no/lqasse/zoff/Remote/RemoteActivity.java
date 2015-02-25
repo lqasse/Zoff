@@ -46,6 +46,7 @@ public class RemoteActivity extends ActionBarActivity {
     private final String PREFS_FILE = "no.lqasse.zoff.prefs";
     private String ROOM_NAME;
     private String ROOM_PASS;
+    //kek
 
     private Zoff zoff;
     private Menu menu;
