@@ -34,7 +34,6 @@ import java.util.ArrayList;
 
 import no.lqasse.zoff.Datatypes.TOAST_TYPES;
 import no.lqasse.zoff.Datatypes.Zoff;
-import no.lqasse.zoff.Datatypes.ZoffListner;
 import no.lqasse.zoff.NotificationService;
 import no.lqasse.zoff.R;
 import no.lqasse.zoff.Search.SearchActivity;

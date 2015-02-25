@@ -53,6 +53,6 @@
         android:textColor="@color/zoff_white"
         android:gravity="center"
         android:layout_marginTop="10dp"
- 
-        />
+
+        android:enabled="false" />
 </RelativeLayout>
