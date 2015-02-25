@@ -1,4 +1,4 @@
-package no.lqasse.zoff.Datatypes;
+package no.lqasse.zoff.Search;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -76,13 +76,15 @@ public class searchResultAdapter extends ArrayAdapter<searchResult> {
 
         //convertView.setTag(viewHolder);
 
-        TextView title = (TextView) rowView.findViewById(R.id.title);
+        TextView title = (TextView) rowView.findViewById(R.id.titleView);
+        TextView channelTitle = (TextView) rowView.findViewById(R.id.channelTitle);
         TextView viewCount = (TextView) rowView.findViewById(R.id.viewCount);
         TextView duration = (TextView) rowView.findViewById(R.id.durationView);
 
 
 
         title.setText(searchResults.get(position).getTitle());
+        channelTitle.setText(searchResults.get(position).getChannelTitle());
         String views = searchResults.get(position).getViewCountLocalized();
         duration.setText(searchResults.get(position).getDuration());
         viewCount.setText(views);

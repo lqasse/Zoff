@@ -12,7 +12,7 @@
 
     <EditText
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:id="@+id/searchQueryView"
         android:layout_alignBottom="@+id/postSettingsBtn"
         android:layout_alignParentStart="true"
@@ -20,14 +20,15 @@
         android:layout_toStartOf="@+id/postSettingsBtn"
         android:layout_toLeftOf="@+id/postSettingsBtn"
 
-        android:hint="Søk på Youtube..."
+        android:hint="Search Youtube..."
         android:layout_weight="0.92"
-        android:textColor="@color/zoff_pink"
+        android:textColor="@color/zoff_white"
         android:inputType="text|textNoSuggestions"
-        android:textColorHint="@color/zoff_white"
+        android:textColorHint="@color/zoff_gray"
         android:imeOptions="actionSearch"
         android:singleLine="true"
-        android:textCursorDrawable="@null"/>
+        android:textCursorDrawable="@null"
+        android:background="@drawable/gray_rectangle" />
 
     <ListView
         android:layout_width="fill_parent"
@@ -38,9 +39,21 @@
     <ProgressBar
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/progressBar"
+        android:id="@+id/progressBar2"
         android:layout_gravity="center_horizontal"
         android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:visibility="invisible" />
+
+    <ProgressBar
+        style="?android:attr/progressBarStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/progressBar"
+        android:layout_alignTop="@+id/searchQueryView"
+        android:layout_alignRight="@+id/searchQueryView"
+        android:layout_alignEnd="@+id/searchQueryView"
+        android:layout_above="@+id/searchResultsView"
+        android:layout_marginRight="5dp" />
 
 </RelativeLayout>

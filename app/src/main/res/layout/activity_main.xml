@@ -50,7 +50,7 @@
         android:paddingRight="10dp"
         android:paddingBottom="4dp"
         android:textColorHint="@color/zoff_gray"
-        android:textColor="@color/zoff_pink"
+        android:textColor="@color/zoff_white"
         android:gravity="center"
         android:layout_marginTop="10dp"
  

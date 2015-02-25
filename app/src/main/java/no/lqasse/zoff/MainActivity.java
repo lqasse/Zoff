@@ -1,6 +1,7 @@
 package no.lqasse.zoff;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
@@ -8,16 +9,15 @@ import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -25,11 +25,12 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.InetAddress;
 
 import no.lqasse.zoff.Player.PlayerActivity;
+import no.lqasse.zoff.Remote.RemoteActivity;
 
 
 public class MainActivity extends ActionBarActivity  {
@@ -37,35 +38,38 @@ public class MainActivity extends ActionBarActivity  {
 
     private String ZOFF_ACTIVECHANNELS_URL = "http://zoff.no/Proggis/php/activechannels.php";
     private AutoCompleteTextView acEditText;
+    private Runnable checkInetAccess;
+    private Handler h;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        final getSuggestions suggestions = new getSuggestions();
-
-
-
-        String[] input = {ZOFF_ACTIVECHANNELS_URL};
-        suggestions.execute(input);
-
-
-
-
-
         acEditText = (AutoCompleteTextView) findViewById(R.id.acEditText);
+        h = new Handler();
+        checkInetAccess = new Runnable() {
+            @Override
+            public void run() {
 
-        //Get room suggestions
+                Boolean hasInetAccess = isOnline();
+                if (hasInetAccess && !acEditText.isEnabled()){
+                    String[] input = {ZOFF_ACTIVECHANNELS_URL};
+                    getSuggestions suggestions = new getSuggestions();
+                    suggestions.execute(input);
+                    acEditText.setEnabled(true);
+                    acEditText.setText("");
+                } else if(!hasInetAccess){
+                    acEditText.setEnabled(false);
+                    acEditText.setText("No Internet access");
+                    h.removeCallbacks(this);
+                    h.postDelayed(checkInetAccess, 1000);
+                }
 
+            }
+        };
 
+        h.post(checkInetAccess);
 
-
-
-
-
-
-        //initializeDebug();
-        //initialize();
 
         final Toast t = Toast.makeText(this,"Name must be letters or digits ONLY", Toast.LENGTH_SHORT);
 
@@ -91,6 +95,13 @@ public class MainActivity extends ActionBarActivity  {
 
         });
 
+        acEditText.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                initialize();
+            }
+        });
+
 
 
 
@@ -99,6 +110,11 @@ public class MainActivity extends ActionBarActivity  {
 
     }
 
+    @Override
+    protected void onStop() {
+        h.removeCallbacks(checkInetAccess);
+        super.onStop();
+    }
 
     private void initialize(){
 
@@ -112,20 +128,22 @@ public class MainActivity extends ActionBarActivity  {
 
             i = new Intent(this, RemoteActivity.class);
         }
-        //EditText text = (EditText) findViewById(R.id.editText);
+
 
 
         i.putExtra("ROOM_NAME", acEditText.getText().toString());
 
-        startActivity(i);
+        if (isOnline()){
+            startActivity(i);
+            h.removeCallbacks(checkInetAccess);
+        } else {
+            h.post(checkInetAccess);
 
-        /*
+        }
 
-        new Player(this,text.getText().toString());
-        InputMethodManager imm = (InputMethodManager)getSystemService(
-                Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(text.getWindowToken(), 0);
-        */
+
+
+
 
 
     }
@@ -138,46 +156,11 @@ public class MainActivity extends ActionBarActivity  {
 
         startActivity(i);
 
-        /*
-
-        new Player(this,text.getText().toString());
-        InputMethodManager imm = (InputMethodManager)getSystemService(
-                Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(text.getWindowToken(), 0);
-        */
 
 
     }
 
 
-
-
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        //getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 
     private boolean isValidRoom(){
 
@@ -258,6 +241,21 @@ public class MainActivity extends ActionBarActivity  {
 
 
         }
+    }
+
+    public boolean isOnline() {
+
+        Runtime runtime = Runtime.getRuntime();
+        try {
+
+            Process ipProcess = runtime.exec("/system/bin/ping -c 1 8.8.8.8");
+            int     exitValue = ipProcess.waitFor();
+            return (exitValue == 0);
+
+        } catch (IOException e)          { e.printStackTrace(); }
+        catch (InterruptedException e) { e.printStackTrace(); }
+
+        return false;
     }
 
 

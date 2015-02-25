@@ -1,4 +1,4 @@
-package no.lqasse.zoff;
+package no.lqasse.zoff.Search;
 
 import android.app.NotificationManager;
 import android.content.Context;
@@ -15,10 +15,9 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -36,10 +35,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
-import no.lqasse.zoff.Datatypes.searchResult;
-import no.lqasse.zoff.Datatypes.searchResultAdapter;
+import no.lqasse.zoff.R;
+import no.lqasse.zoff.Search.searchResult;
+import no.lqasse.zoff.Search.searchResultAdapter;
 
 
 /**
@@ -50,40 +52,53 @@ public class SearchActivity extends ActionBarActivity {
     private final String API_KEY = "AIzaSyD3aXvu3LeE4mLwUOYU3UIIUbb0Z4v41NY";
     private final String YOUTUBE_MAX_RESULTS = "25";
     private String VIDEO_CATEGORIES = "&videoCategoryId=10";
-    private final String URL_YOUTUBE_QUERY_PT1 = "https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=" + YOUTUBE_MAX_RESULTS + "&q=";
+    private final String URL_YOUTUBE_QUERY_PT1 = "https://www.googleapis.com/youtube/v3/search?part=snippet&nextPageT&maxResults=" + YOUTUBE_MAX_RESULTS + "&q=";
     private final String URL_YOUTUBE_QUERY_PT2 = "&type=video&key=" + API_KEY;
     private final String URL_YOUTUBE_DETAILS_PT1 = "https://www.googleapis.com/youtube/v3/videos?id=";
     private final String URL_YOUTUBE_DETAILS_PT2 = "&part=contentDetails,statistics&key=" + API_KEY;
+    private String NEXT_PAGE_TOKEN = "";
+
 
     private final int AUTOSEARCH_DELAY_MILLIS = 600;
     private final int YOUTUBE_SEARCH = 0;
     private final int YOUTUBE_DETAILS = 1;
     private final int ZOFF_ADD = 2;
+    private final int APPEND_VIDEOS =3;
     private String ROOM_NAME = "ROOM_NAME";
     private String ROOM_PASS = "ROOM_PASS";
     private Boolean ALL_VIDEOS = true;
     private Boolean LONG_SONGS = true;
     private String ZOFF_URL = "http://www.zoff.no/";
-    private ArrayList<searchResult> results;
+
+
 
     private ProgressBar progressBar;
     private EditText queryView;
+    private ListView resultsView;
+    private ArrayList<searchResult> results = new ArrayList<>();
+    private searchResultAdapter searchResultAdapter;
+
 
     private Handler handler = new Handler();
     private Runnable delaySearch;
     private doGetRequest doGetRequest = new doGetRequest();
 
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        getSupportActionBar().setTitle("Search...");
+
 
         Intent i = getIntent();
         Bundle b = i.getExtras();
         ROOM_NAME = b.getString(ROOM_NAME);
         ROOM_PASS = b.getString(ROOM_PASS);
-        ALL_VIDEOS = b.getBoolean("ALL_VIDEOS");
+        ALL_VIDEOS = b.getBoolean("ALL_VIDEOS_ALLOWED");
         LONG_SONGS = b.getBoolean("LONG_SONGS");
         ZOFF_URL = ZOFF_URL + ROOM_NAME + "/php/change.php?";
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
@@ -94,8 +109,10 @@ public class SearchActivity extends ActionBarActivity {
 
 
 
-        doYoutubeSearch();
+
         queryView = (EditText) findViewById(R.id.searchQueryView);
+        doYoutubeSearch(true,false);
+
 
         queryView.addTextChangedListener(new TextWatcher() {
             @Override
@@ -131,7 +148,7 @@ public class SearchActivity extends ActionBarActivity {
                     InputMethodManager imm = (InputMethodManager) getSystemService(
                             Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(queryView.getWindowToken(), 0);
-                    doYoutubeSearch();
+                    doYoutubeSearch(false,false);
                     handled = true;
                 }
                 return handled;
@@ -141,20 +158,75 @@ public class SearchActivity extends ActionBarActivity {
         delaySearch = new Runnable() {
             @Override
             public void run() {
-                doYoutubeSearch();
+                doYoutubeSearch(false,false);
             }
         };
 
 
+
+
+        searchResultAdapter = new searchResultAdapter(this, results);
+        resultsView = (ListView) findViewById(R.id.searchResultsView);
+        resultsView.setAdapter(searchResultAdapter);
+
+
+
+
+        resultsView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                addVideo(position);
+                return true;
+            }
+        });
+
+        resultsView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                    Toast t = Toast.makeText(getBaseContext(), "Click and hold to add videos", Toast.LENGTH_SHORT);
+                    View v = t.getView();
+                    v.setBackgroundResource(R.drawable.toast_background);
+                    t.show();
+
+
+            }
+        });
+
+        resultsView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+
+
+                if (resultsView.getLastVisiblePosition() == results.size()-1 && !NEXT_PAGE_TOKEN.equals("")){
+                    doYoutubeSearch(true,true);
+                    Log.d("Scroll", "Loading next page");
+
+                }
+            }
+        });
+
+
     }
 
-
-    private void doYoutubeSearch() {
+    private void doYoutubeSearch(Boolean ignoreEmpty, Boolean nextPage) {
 
 
         progressBar.setVisibility(View.VISIBLE);
-        ListView resultsView = (ListView) findViewById(R.id.searchResultsView);
-        resultsView.setVisibility(View.GONE);
+
+        String type;
+        if (!nextPage){
+            NEXT_PAGE_TOKEN = "";
+            type = Integer.toString(YOUTUBE_SEARCH);
+        } else {
+            type = Integer.toString(APPEND_VIDEOS);
+
+        }
 
 
         if (doGetRequest.getStatus() == AsyncTask.Status.RUNNING) {
@@ -164,38 +236,36 @@ public class SearchActivity extends ActionBarActivity {
 
 
         String[] input = new String[2];
-        EditText et = (EditText) findViewById(R.id.searchQueryView);
-        Log.d("Search", "Searched for " + et.getText().toString());
 
-        //Hide keyboard
-        /*
-        InputMethodManager imm = (InputMethodManager)getSystemService(
-                Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(et.getWindowToken(), 0);
-        */
 
-        String query = et.getText().toString();
-        //random query generator
-        Date dato = new Date();
-        if (query.equals("")) {
-            query = Integer.toString(dato.getDate());
+        String query = queryView.getText().toString();
 
-        }
         query = query.replace(" ", "%20");
 
-        String searchString = URL_YOUTUBE_QUERY_PT1 + query + URL_YOUTUBE_QUERY_PT2 + allVideos() + longSongs();
+        String searchString = URL_YOUTUBE_QUERY_PT1 + query + URL_YOUTUBE_QUERY_PT2 + allVideos() + longSongs() + nextPage();
 
 
         input[0] = searchString;
-        input[1] = Integer.toString(YOUTUBE_SEARCH); //Define get result
+        input[1] = type; //Define get result
 
-        doGetRequest = new doGetRequest();
-        doGetRequest.execute(input);
+        if (!query.equals("")) {
+            doGetRequest = new doGetRequest();
+            doGetRequest.execute(input);
+
+        } else if (ignoreEmpty) {
+            doGetRequest = new doGetRequest();
+            doGetRequest.execute(input);
+        } else {
+            progressBar.setVisibility(View.INVISIBLE);
+        }
+
+
+
 
 
     }
 
-    private void handleYTdata(String s) {
+    private void handleYTdata(String s,Boolean appendResults) {
 
         JSONObject json = null;
         ArrayList<String> ids = new ArrayList();
@@ -206,25 +276,37 @@ public class SearchActivity extends ActionBarActivity {
 
 
         } catch (Exception e) {
-            Log.d("DowddnloadFinished exception", e.getLocalizedMessage());
+            Log.d(" exception", e.getLocalizedMessage());
         }
 
-        results = new ArrayList<searchResult>();
+        if (!appendResults){
+            results.clear();
+        }
+
+
 
 
         searchResult searchResult;
         try {
+            if (json.has("nextPageToken")){
+                NEXT_PAGE_TOKEN = json.getString("nextPageToken");
+            } else {
+                NEXT_PAGE_TOKEN = "";
+            }
+
             JSONArray jArray = json.getJSONArray("items");
 
 
             for (int i = 0; i < jArray.length() - 1; i++) {
-                String title = "";
-                String description = "";
-                String videoID = "";
-                String publishedAt = "";
-                String thumbDefault = "";
-                String thumbMedium = "";
-                String thumbHigh = "";
+
+                String title;
+                String channelTitle;
+                String description;
+                String videoID;
+                String publishedAt;
+                String thumbDefault;
+                String thumbMedium;
+                String thumbHigh;
 
                 json = jArray.getJSONObject(i);
 
@@ -235,7 +317,9 @@ public class SearchActivity extends ActionBarActivity {
 
 
                 json = json.getJSONObject("snippet");
+                publishedAt = json.getString("publishedAt");
                 title = json.getString("title");
+                channelTitle = json.getString("channelTitle");
 
                 //Decode string from html
                 title = Html.fromHtml(title).toString();
@@ -252,7 +336,7 @@ public class SearchActivity extends ActionBarActivity {
                 thumbHigh = thumbHighObject.getString("url");
 
 
-                searchResult = new searchResult(title, description, videoID, thumbDefault, thumbMedium, thumbHigh);
+                searchResult = new searchResult(title, channelTitle,description, publishedAt,videoID, thumbDefault, thumbMedium, thumbHigh);
                 results.add(searchResult);
             }
 
@@ -267,14 +351,21 @@ public class SearchActivity extends ActionBarActivity {
             //Get Statistics and details for video
 
 
+            //Notify changes to listview
+            progressBar.setVisibility(View.GONE);
+            searchResultAdapter.notifyDataSetChanged();
 
-            populateSearchResults(results);
+            if (!appendResults){
+                resultsView.setSelectionAfterHeaderView();
+            }
+
+
 
 
         } catch (Exception e) {
-            Log.d("JSON ERROR", e.getLocalizedMessage());
 
-            //e.printStackTrace();
+
+            e.printStackTrace();
         }
 
 
@@ -286,63 +377,31 @@ public class SearchActivity extends ActionBarActivity {
             JSONArray items = json.getJSONArray("items");
             String duration = "";
             String views = "";
+            int offset = results.size() - 24;
+
+            int endInt = results.size();
             for (int i = 0; i < items.length(); i++) {
                 JSONObject details = items.getJSONObject(i).getJSONObject("contentDetails");
                 JSONObject statistics = items.getJSONObject(i).getJSONObject("statistics");
 
                 duration = details.getString("duration");
                 views = statistics.getString("viewCount");
-                results.get(i).setViews(views);
-                results.get(i).setDuration(duration);
+                results.get(i + offset).setViews(views);
+                results.get(i + offset).setDuration(duration);
+
+
 
 
             }
-            populateSearchResults(results);
+
+
+            //Notify changes to listview
+            progressBar.setVisibility(View.GONE);
+            searchResultAdapter.notifyDataSetChanged();
 
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-
-    }
-
-    public void populateSearchResults(final ArrayList<searchResult> results) {
-        progressBar.setVisibility(View.GONE);
-
-
-        ListView resultsView = (ListView) findViewById(R.id.searchResultsView);
-        resultsView.setVisibility(View.VISIBLE);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-
-        String[] titles = new String[results.size()];
-
-        for (int i = 0; i < results.size(); i++) {
-            titles[i] = results.get(i).getTitle();
-
-        }
-        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                R.layout.search_row, R.id.title, titles);
-
-
-        final searchResultAdapter myAdapter = new searchResultAdapter(this, results);
-        resultsView.setAdapter(myAdapter);
-
-
-
-        resultsView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                addVideo(position);
-                return true;
-            }
-        });
-
-        resultsView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(getBaseContext(),"Click and hold to add videos",Toast.LENGTH_SHORT).show();
-            }
-        });
 
 
     }
@@ -358,8 +417,11 @@ public class SearchActivity extends ActionBarActivity {
 
     private void addVideo(int index) {
 
-        Toast.makeText(this, results.get(index).getTitle() + " was added", Toast.LENGTH_SHORT).show();
-        String php = "/php/change.php?";
+        Toast t = Toast.makeText(getBaseContext(),results.get(index).getTitle() + " was added",Toast.LENGTH_SHORT);
+        View v = t.getView();
+        v.setBackgroundResource(R.drawable.toast_background);
+        t.show();
+
 
         String titlePrefix = "&n=";
         String passPrefix = "&pass=";
@@ -395,10 +457,19 @@ public class SearchActivity extends ActionBarActivity {
         }
 
     }
+
     private String longSongs(){
         if (!LONG_SONGS){
             //filters out songs over 20min
             return  "&videoDuration=short";
+        } else {
+            return "";
+        }
+    }
+
+    private String nextPage(){
+        if (!NEXT_PAGE_TOKEN.equals("")){
+            return "&pageToken="+NEXT_PAGE_TOKEN;
         } else {
             return "";
         }
@@ -437,8 +508,9 @@ public class SearchActivity extends ActionBarActivity {
                     result = "Did not work!";
 
             } catch (Exception e) {
+                //TODO handle error better
 
-                throw new IllegalStateException();
+
             }
 
             return sb.toString();
@@ -448,12 +520,15 @@ public class SearchActivity extends ActionBarActivity {
         protected void onPostExecute(String result) {
             switch (type) {
                 case YOUTUBE_SEARCH:
-                    handleYTdata(result);
+                    handleYTdata(result,false);
                     break;
                 case YOUTUBE_DETAILS:
                     handleYTVideoDetails(result);
                     break;
                 case ZOFF_ADD:
+                    break;
+                case APPEND_VIDEOS:
+                    handleYTdata(result,true);
                     break;
             }
 
@@ -462,6 +537,5 @@ public class SearchActivity extends ActionBarActivity {
 
 
     }
-
 
 }

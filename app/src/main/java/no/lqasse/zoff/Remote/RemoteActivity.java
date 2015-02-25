@@ -1,13 +1,12 @@
-package no.lqasse.zoff;
+package no.lqasse.zoff.Remote;
 
-import android.app.Notification;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -24,16 +23,22 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Comparator;
 
+
+import no.lqasse.zoff.Datatypes.TOAST_TYPES;
 import no.lqasse.zoff.Datatypes.Zoff;
+import no.lqasse.zoff.Datatypes.ZoffListner;
+import no.lqasse.zoff.NotificationService;
+import no.lqasse.zoff.R;
+import no.lqasse.zoff.Search.SearchActivity;
+import no.lqasse.zoff.SettingsActivity;
 
 /**
  * Created by lassedrevland on 21.01.15.
@@ -49,6 +54,10 @@ public class RemoteActivity extends ActionBarActivity {
     private ListView videoList;
     private remoteListAdapter adapter;
     private SharedPreferences sharedPreferences;
+
+    private Handler h = new Handler();
+    private Runnable r;
+
 
 
     @Override
@@ -67,18 +76,22 @@ public class RemoteActivity extends ActionBarActivity {
             ROOM_NAME = b.getString("ROOM_NAME");
         }
 
+
+
+
         ROOM_PASS = getPASS();
 
 
         zoff = new Zoff(ROOM_NAME, this);
         zoff.setROOM_PASS(getPASS());
-
         setContentView(R.layout.activity_remote);
         getSupportActionBar().setIcon(R.drawable.logo);
         getSupportActionBar().setDisplayShowTitleEnabled(true);
-        getSupportActionBar().setTitle(ROOM_NAME);
+        getSupportActionBar().setTitle(zoff.getROOM_NAME());
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
+
+        //Handle everything listview related
         adapter = new remoteListAdapter(this, zoff.getVideos(),zoff);
         videoList = (ListView) findViewById(R.id.videoList);
         videoList.setAdapter(adapter);
@@ -86,7 +99,8 @@ public class RemoteActivity extends ActionBarActivity {
         videoList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                zoff.voteVideo(position);
+                    zoff.vote(position);
+
                 return true;
             }
         });
@@ -94,17 +108,44 @@ public class RemoteActivity extends ActionBarActivity {
         videoList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(getBaseContext(),"Click and hold to vote",Toast.LENGTH_SHORT).show();
+                if (position != 0){ //Currently playing video cant be voted on
+                    zoff.showToast(TOAST_TYPES.HOLD_TO_VOTE);
+                }
+
+
+
             }
         });
 
+        r = new Runnable() {
+            @Override
+            public void run() {
+             Intent i = new Intent(getBaseContext(),NotificationService.class);
+
+            }
+        };
+
+
+
     }
 
+    @Override
+    protected void onResume() {
+        zoff.resumeRefresh();
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        zoff.pauseRefresh();
+
+        super.onPause();
+    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        zoff.cancelRefresh();
+        zoff.pauseRefresh();
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancelAll();
 
@@ -132,7 +173,7 @@ public class RemoteActivity extends ActionBarActivity {
             case (R.id.action_settings):
                 break;
             case (R.id.action_next):
-                zoff.videoPlayed(zoff.getNowPlayingID());
+                zoff.voteSkip();
                 //player.loadVideo(zoff.getNextId());
                 zoff.refreshData();
 
@@ -144,21 +185,22 @@ public class RemoteActivity extends ActionBarActivity {
                     Intent i = new Intent(this, SearchActivity.class);
                     i.putExtra("ROOM_NAME", ROOM_NAME);
                     i.putExtra("ROOM_PASS", ROOM_PASS);
-                    i.putExtra("ALL_VIDEOS", zoff.ALL_VIDEOS());
+                    i.putExtra("ALL_VIDEOS_ALLOWED", zoff.ALL_VIDEOS_ALLOWED());
                     i.putExtra("LONG_SONGS",zoff.LONG_SONGS());
                     startActivity(i);
                 }else if (!zoff.ANYONE_CAN_ADD() && zoff.hasROOM_PASS()){
                     Intent i = new Intent(this, SearchActivity.class);
                     i.putExtra("ROOM_NAME", ROOM_NAME);
                     i.putExtra("ROOM_PASS", ROOM_PASS);
-                    i.putExtra("ALL_VIDEOS", zoff.ALL_VIDEOS());
+                    i.putExtra("ALL_VIDEOS_ALLOWED", zoff.ALL_VIDEOS_ALLOWED());
                     i.putExtra("LONG_SONGS",zoff.LONG_SONGS());
 
                     startActivity(i);
                 } else {
 
-                    Toast.makeText(this, "This room is password protected, set a password to vote", Toast.LENGTH_LONG).show();
 
+
+                    zoff.showToast(TOAST_TYPES.NEEDS_PASS_VOTE);
                 }
 
 
@@ -175,10 +217,11 @@ public class RemoteActivity extends ActionBarActivity {
                 break;
             case (R.id.action_shuffle):
                 if (zoff.hasROOM_PASS()){
-                    Toast.makeText(this, "Shuffled!",Toast.LENGTH_SHORT).show();
+                    zoff.showToast(TOAST_TYPES.SHUFFLED);
                     zoff.shuffle();
                 } else {
-                    Toast.makeText(this, "This room is password protected, set a password to shuffle",Toast.LENGTH_SHORT).show();
+
+                    zoff.showToast(TOAST_TYPES.NEEDS_PASS_SHUFFLE);
                 }
                 break;
 
@@ -193,35 +236,27 @@ public class RemoteActivity extends ActionBarActivity {
 
     @Override
     protected void onStop() {
+
+        /* TODO Fix ongoing Notification
+        Intent service = new Intent(this,NotificationService.class);
+        service.putExtra("ROOM_NAME",ROOM_NAME);
+        startService(service);
+        */
         paused = true;
-        showNotification();
+        //showNotification();
 
         super.onStop();
     }
 
     @Override
-    protected void onResume() {
-        paused = false;
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancelAll();
-        super.onResume();
+    protected void onStart() {
+        stopService(new Intent(NotificationService.class.getName()));
+
+        super.onStart();
     }
 
-
-
-    public void zoffRefreshed() {
-
-        //adapter.clear();
-       // adapter.addAll(zoff.getVideos());
-        adapter.notifyDataSetChanged();
-
-
-
-        if (paused) {
-            showNotification();
-        }
-
-
+    public void zoffRefreshed(boolean hasInetAccess) {
+          adapter.notifyDataSetChanged();
     }
 
     private String getPASS(){
@@ -233,29 +268,7 @@ public class RemoteActivity extends ActionBarActivity {
 
     }
 
-    private void showNotification() {
 
-        Intent intent = new Intent(this, RemoteActivity.class);
-        Bundle b = new Bundle();
-        b.putString("ROOM_NAME", zoff.getROOM_NAME());
-        intent.putExtras(b);
-        intent.setAction(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_LAUNCHER);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent,PendingIntent.FLAG_ONE_SHOT);
-        Notification.Builder builder = new Notification.Builder(getApplicationContext())
-                .setContentTitle(zoff.getROOM_NAME())
-                .setContentText(zoff.getNowPlayingTitle())
-                .setOngoing(true)
-                .setSmallIcon(R.drawable.logo)
-                .setContentIntent(pendingIntent);
-
-
-        Notification notification = builder.build();
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(1, notification);
-
-
-    }
 
     public Zoff getZoff(){
         return this.zoff;
@@ -337,8 +350,10 @@ public class RemoteActivity extends ActionBarActivity {
             }
 
 
-            TextView title = (TextView) rowView.findViewById(R.id.title);
+            TextView title = (TextView) rowView.findViewById(R.id.titleView);
             TextView votes = (TextView) rowView.findViewById(R.id.votesView);
+            TextView views = (TextView) rowView.findViewById(R.id.viewsLabel);
+            TextView playtime = (TextView) rowView.findViewById(R.id.playtimeLabel);
 
 
 
@@ -351,11 +366,13 @@ public class RemoteActivity extends ActionBarActivity {
 
                 votes.setText(results.get(position).getVotes());
 
+            } else {
+                views.setText(zoff.getVIEWERS_STRING());
+                playtime.setText(""); //Implement later?
+
             }
 
-            //textView.setText(values[position]);
-            // change the icon for Windows and iPhone
-            //String s = values[position];
+
 
 
             return rowView;
@@ -417,6 +434,20 @@ public class RemoteActivity extends ActionBarActivity {
         }
 
     }
+
+
+    public void setBlurBg(Bitmap blurBg){
+
+
+        LinearLayout l = (LinearLayout) findViewById(R.id.layout);
+        l.setBackground(new BitmapDrawable(getBaseContext().getResources(),blurBg));
+    }
+
+
+
+
+
+
 
 
 

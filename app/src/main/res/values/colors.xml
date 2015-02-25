@@ -7,4 +7,12 @@
     <color name="zoff_black_transparent">#99000000</color>
 
 
+    <color name="zoff_bg_general">#ffbdbdbd</color>
+    <color name="zoff_white_text">#FFF</color>
+    <color name="zoff_black_text">#000</color>
+
+    <color name="toast_background_color">#BB000000</color>
+
+
+
 </resources>

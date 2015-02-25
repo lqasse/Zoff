@@ -5,17 +5,12 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.Switch;
 import android.widget.Toast;
 
 import org.apache.http.HttpEntity;
@@ -36,12 +31,11 @@ import java.util.List;
  * Created by lassedrevland on 21.01.15.
  */
 public class SettingsActivity extends ActionBarActivity {
-    private HashMap<String,Boolean> settings = new HashMap<>();
+    private final String PREFS_FILE = "no.lqasse.zoff.prefs";
+    private HashMap<String, Boolean> settings = new HashMap<>();
     private String PASS;
     private String ROOM_NAME;
     private String PHP_URL;
-    private final String PREFS_FILE = "no.lqasse.zoff.prefs";
-
     private SharedPreferences sharedPreferences;
 
 
@@ -73,7 +67,7 @@ public class SettingsActivity extends ActionBarActivity {
         settings.put("removeplay", b.getBoolean("removeplay"));
 
         ROOM_NAME = b.getString("ROOM_NAME");
-        PHP_URL = "http://zoff.no/"+ROOM_NAME+"/php/change.php";
+        PHP_URL = "http://zoff.no/" + ROOM_NAME + "/php/change.php";
         PASS = getPASS();
 
         voteCB = (CheckBox) findViewById(R.id.vote);
@@ -88,7 +82,6 @@ public class SettingsActivity extends ActionBarActivity {
         pwField = (EditText) findViewById(R.id.pwEditText);
 
 
-
 //Første er reversert pga lolzoff, husk å reversere når innstillinger settes
 
         voteCB.setChecked(!settings.get("vote")); //Reversed
@@ -98,18 +91,16 @@ public class SettingsActivity extends ActionBarActivity {
         allvideosCB.setChecked(settings.get("allvideos"));
         removeplayCB.setChecked(settings.get("removeplay"));
 
-        if (!PASS.equals("")){
+        if (!PASS.equals("")) {
             pwField.setText(PASS);
         }
-
-
 
 
         postSettingsBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 PASS = pwField.getText().toString();
-                String[] input =  {PHP_URL};
+                String[] input = {PHP_URL};
 
                 postSettings postSettings = new postSettings();
 
@@ -121,24 +112,37 @@ public class SettingsActivity extends ActionBarActivity {
         });
 
 
-
-
-
-
-
-
-
     }
 
     @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        Intent i = new Intent(this, RemoteActivity.class);
-        i.putExtra("ROOM_NAME",ROOM_NAME);
-        startActivity(i);
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
-    private class postSettings extends AsyncTask<String,Void,String>{
+    private String getPASS() {
+        String PASS;
+        sharedPreferences = getSharedPreferences(PREFS_FILE, 0);
+        PASS = sharedPreferences.getString(ROOM_NAME, "");
+
+        return PASS;
+
+    }
+
+    private void setPass(String PASS) {
+        sharedPreferences = getSharedPreferences(PREFS_FILE, 0);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(ROOM_NAME, PASS);
+        editor.commit();
+    }
+
+    private class postSettings extends AsyncTask<String, Void, String> {
 
         @Override
         protected void onPostExecute(String s) {
@@ -147,16 +151,15 @@ public class SettingsActivity extends ActionBarActivity {
             postSettingsBtn.setEnabled(true);
 
 
-            if (s.contains("correct")){
-                Toast.makeText(getBaseContext(),"Saved!",Toast.LENGTH_SHORT).show();
+            if (s.contains("correct")) {
+                Toast.makeText(getBaseContext(), "Saved!", Toast.LENGTH_SHORT).show();
                 setPass(PASS);
 
 
             } else {
-                Toast.makeText(getBaseContext(),"Wrong password, try again!",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getBaseContext(), "Wrong password, try again!", Toast.LENGTH_SHORT).show();
 
             }
-
 
 
         }
@@ -172,21 +175,19 @@ public class SettingsActivity extends ActionBarActivity {
             String removeplay = Boolean.toString(removeplayCB.isChecked());
 
 
-
             HttpClient httpClient = new DefaultHttpClient();
             HttpPost httppost = new HttpPost(params[0]);
 
             try {
                 List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(8);
-                nameValuePairs.add(new BasicNameValuePair("conf","start"));
-                nameValuePairs.add(new BasicNameValuePair("vote",vote));
-                nameValuePairs.add(new BasicNameValuePair("addsongs",addsongs));
-                nameValuePairs.add(new BasicNameValuePair("longsongs",longsongs));
-                nameValuePairs.add(new BasicNameValuePair("frontpage",frontpage));
-                nameValuePairs.add(new BasicNameValuePair("allvideos",allvideos));
-                nameValuePairs.add(new BasicNameValuePair("removeplay",removeplay));
-                nameValuePairs.add(new BasicNameValuePair("pass",pwField.getText().toString()));
-
+                nameValuePairs.add(new BasicNameValuePair("conf", "start"));
+                nameValuePairs.add(new BasicNameValuePair("vote", vote));
+                nameValuePairs.add(new BasicNameValuePair("addsongs", addsongs));
+                nameValuePairs.add(new BasicNameValuePair("longsongs", longsongs));
+                nameValuePairs.add(new BasicNameValuePair("frontpage", frontpage));
+                nameValuePairs.add(new BasicNameValuePair("allvideos", allvideos));
+                nameValuePairs.add(new BasicNameValuePair("removeplay", removeplay));
+                nameValuePairs.add(new BasicNameValuePair("pass", pwField.getText().toString()));
 
 
                 httppost.setEntity((new UrlEncodedFormEntity(nameValuePairs, "UTF-8")));
@@ -196,7 +197,7 @@ public class SettingsActivity extends ActionBarActivity {
                 //Execute!
                 HttpResponse response = httpClient.execute(httppost);
                 HttpEntity resEntity = response.getEntity();
-                if (resEntity!=null){
+                if (resEntity != null) {
                     return EntityUtils.toString(resEntity);
 
 
@@ -204,42 +205,14 @@ public class SettingsActivity extends ActionBarActivity {
                 return "";
 
 
-
-            } catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
                 throw new IllegalStateException();
             }
 
 
-
-
-
-
-
         }
     }
-
-    private String getPASS(){
-        String PASS;
-        sharedPreferences = getSharedPreferences(PREFS_FILE,0);
-        PASS = sharedPreferences.getString(ROOM_NAME,"");
-
-        return PASS;
-
-    }
-
-    private void setPass(String PASS){
-        sharedPreferences = getSharedPreferences(PREFS_FILE,0);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(ROOM_NAME,PASS);
-        editor.commit();
-    }
-
-
-
-
-
-
 
 
 }

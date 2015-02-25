@@ -4,33 +4,68 @@
 
     android:orientation="vertical"
     android:focusableInTouchMode="true"
-    android:id="@+id/root"
+    android:id="@+id/layout"
     android:weightSum="1"
-    android:background="@drawable/bg">
+
+    android:paddingLeft="13dp"
+    android:paddingRight="13dp">
 
 
     <fragment
         android:name="com.google.android.youtube.player.YouTubePlayerFragment"
         android:id="@+id/youtube_player"
         android:layout_width="fill_parent"
-        android:layout_height="200dp"
-        android:background="#fff"
-        android:layout_gravity="left" />
-
-    <TextView
-        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:id="@+id/titleView"
-        android:textColor="@color/zoff_white"
+        android:background="#fff"
+        android:layout_gravity="left"
+        android:layout_marginTop="9dp" />
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:background="@drawable/gray_rectangle"
-        android:gravity="center"
-        android:textSize="13dp"
-        android:layout_marginTop="8dp"
-        android:paddingLeft="5dp"
-        android:paddingTop="5dp"
-        android:paddingRight="5dp"
-        android:paddingBottom="4dp" />
+        android:layout_marginTop="3dp"
+        android:layout_marginBottom="5dp">
+
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:id="@+id/titleView"
+            android:textColor="@color/zoff_white"
+            android:gravity="center"
+            android:textSize="13dp"
+      />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:id="@+id/video_current_time_view"
+            android:textColor="@color/zoff_white"
+
+
+            android:textSize="13dp"
+
+            android:layout_below="@id/titleView"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:id="@+id/video_length_view"
+            android:textColor="@color/zoff_white"
+
+
+            android:textSize="13dp"
+            android:layout_below="@+id/titleView"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" />
+
+
+    </RelativeLayout>
 
     <ListView
         android:layout_width="fill_parent"

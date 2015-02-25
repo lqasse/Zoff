@@ -1,7 +1,6 @@
-package no.lqasse.zoff.Datatypes;
+package no.lqasse.zoff.Search;
 
 import android.graphics.Bitmap;
-import android.util.Log;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -11,6 +10,7 @@ import java.util.regex.Pattern;
  */
 public class searchResult {
     private String title;
+    private String channelTitle;
     private String description;
     private String thumbSmall;
     private String thumbMed;
@@ -25,9 +25,11 @@ public class searchResult {
 
 
 
-    public searchResult(String title, String description, String videoID, String thumbSmall, String thumbMed, String thumbBig){
+    public searchResult(String title, String channelTitle,String description, String publishedAt, String videoID, String thumbSmall, String thumbMed, String thumbBig){
         this.title = title;
+        this.channelTitle = channelTitle;
         this.description = description;
+        this.publishedAt = publishedAt;
         this.videoID = videoID;
         this.thumbSmall = thumbSmall;
         this.thumbMed = thumbMed;
@@ -42,33 +44,37 @@ public class searchResult {
     public String getTitle(){
         return this.title;
     }
+
+    public String getChannelTitle() {
+        return channelTitle;
+    }
+
     public String getDescription(){
         return this.description;
     }
     public String getVideoID(){
         return this.videoID;
     }
+
+    public String getPublishedAt() {
+        return publishedAt;
+    }
+
     public String getThumbSmall(){
         return this.thumbSmall;
     }
-
     public String getThumbMed() {
         return thumbMed;
     }
     public String getThumbBig() {
         return thumbBig;
     }
-
     public void setImgSmall(Bitmap img){
         this.imgSmall = img;
     }
-
-
-
     public Bitmap getImgSmall(){
         return this.imgSmall;
     }
-
     public String getViews() {
         return views;
     }
@@ -89,7 +95,6 @@ public class searchResult {
         String H = "";
         String M = "";
         String S = "";
-
 
 
         Pattern pattern = Pattern.compile("\\d+\\w{1}");
