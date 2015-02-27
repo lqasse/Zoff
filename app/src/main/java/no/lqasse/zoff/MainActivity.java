@@ -153,7 +153,7 @@ public class MainActivity extends ActionBarActivity  {
 
         Intent i = new Intent(this, RemoteActivity.class);
         i.putExtra("ROOM_NAME", "lqasse");
-
+//kek
         startActivity(i);
 
 
