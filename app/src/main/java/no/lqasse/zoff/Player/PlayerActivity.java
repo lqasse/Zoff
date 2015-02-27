@@ -420,7 +420,7 @@ public class PlayerActivity extends ActionBarActivity {
             } else {
                 menuItem.setIcon(R.drawable.pause);
             }
-        }
+        }//
     }
 
     public void togglePlay() {
