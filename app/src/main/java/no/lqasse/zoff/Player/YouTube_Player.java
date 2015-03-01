@@ -34,7 +34,7 @@ public class YouTube_Player extends YouTubeBaseActivity implements YouTubePlayer
             }
         };
 
-        handler.post(updatePlaytime);
+        handler.post(updatePlaytime);//
 
 
 
