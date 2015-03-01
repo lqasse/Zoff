@@ -70,6 +70,8 @@
     <ListView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/videoList" />
+        android:id="@+id/videoList"
+        android:dividerHeight="5dp"
+        android:divider="#00000000"/>
 
 </LinearLayout>

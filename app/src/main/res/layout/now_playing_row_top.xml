@@ -4,7 +4,6 @@
 android:layout_width="fill_parent"
 android:layout_height="wrap_content"
 android:orientation="vertical"
-    android:paddingBottom="3dp"
     android:paddingTop="10dp">
 
 
@@ -20,7 +19,7 @@ android:orientation="vertical"
         android:layout_below="@id/imageView"
         android:background="@drawable/gray_rectangle"
         android:layout_marginTop="3dp"
-        android:layout_marginBottom="5dp">
+        >
 
 
         <TextView
