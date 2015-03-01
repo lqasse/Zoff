@@ -1,7 +1,6 @@
 package no.lqasse.zoff;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
@@ -64,7 +63,7 @@ public class MainActivity extends ActionBarActivity  {
                     acEditText.setEnabled(true);
                     acEditText.setText("");
                     h.removeCallbacks(this);
-                } else if(!hasInetAccess){
+                } else {
                     acEditText.setEnabled(false);
                     acEditText.setText("No Internet access");
                     h.removeCallbacks(this);
@@ -110,7 +109,7 @@ public class MainActivity extends ActionBarActivity  {
 
         acEditText.setOnEditorActionListener(new TextView.OnEditorActionListener(){
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                boolean handled = false;
+
                 if (actionId == EditorInfo.IME_ACTION_GO) {
 
                     if (isValidRoom()){
@@ -122,7 +121,7 @@ public class MainActivity extends ActionBarActivity  {
                     }
 
                 }
-                return handled;
+                return true;
             }
 
 
@@ -214,7 +213,7 @@ public class MainActivity extends ActionBarActivity  {
             StringBuilder sb = new StringBuilder();
 
             try {
-                InputStream inputStream = null;
+                InputStream inputStream;
                 BufferedReader r;
 
                 String url = params[0];
@@ -247,13 +246,13 @@ public class MainActivity extends ActionBarActivity  {
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
             ArrayAdapter<String> adapter;
-            String[] activeRooms = new String[0];
+            String[] activeRooms;
             try{
                 JSONArray array = new JSONArray(s);
                 activeRooms = new String[array.length()];
                 for (int i = 0;i<array.length();i++){
                     activeRooms[i] = array.get(i).toString();
-                    adapter = new ArrayAdapter<String>(getBaseContext(), android.R.layout.simple_list_item_1, activeRooms);
+                    adapter = new ArrayAdapter<>(getBaseContext(), android.R.layout.simple_list_item_1, activeRooms);
                     acEditText.setAdapter(adapter);
                 }
 
