@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -44,20 +45,25 @@ public class MainActivity extends ActionBarActivity  {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
+
         setContentView(R.layout.activity_main);
         acEditText = (AutoCompleteTextView) findViewById(R.id.acEditText);
+
         h = new Handler();
         checkInetAccess = new Runnable() {
             @Override
             public void run() {
 
                 Boolean hasInetAccess = isOnline();
-                if (hasInetAccess && !acEditText.isEnabled()){
+                if (hasInetAccess){
                     String[] input = {ZOFF_ACTIVECHANNELS_URL};
                     getSuggestions suggestions = new getSuggestions();
                     suggestions.execute(input);
                     acEditText.setEnabled(true);
                     acEditText.setText("");
+                    h.removeCallbacks(this);
                 } else if(!hasInetAccess){
                     acEditText.setEnabled(false);
                     acEditText.setText("No Internet access");
@@ -69,6 +75,33 @@ public class MainActivity extends ActionBarActivity  {
         };
 
         h.post(checkInetAccess);
+
+        //Handles link clicks
+        Intent i = getIntent();
+        if (i.getAction() == Intent.ACTION_VIEW){
+            String url = i.getData().toString();
+            url = url.replace("http://www.zoff.no/","");
+            url = url.replace("/","");
+
+            char urlChars[] = url.toCharArray();
+            Boolean containsIllegalChar = false;
+
+            for (char c: urlChars){
+                if (!Character.isLetterOrDigit(c)){
+                    containsIllegalChar = true;
+
+                }
+
+            }
+            if (!containsIllegalChar){
+
+                acEditText.setText(url);
+                initialize();
+            }
+
+
+
+        }
 
 
         final Toast t = Toast.makeText(this,"Name must be letters or digits ONLY", Toast.LENGTH_SHORT);
@@ -116,6 +149,8 @@ public class MainActivity extends ActionBarActivity  {
         super.onStop();
     }
 
+
+
     private void initialize(){
 
         CheckBox checkBox = (CheckBox) findViewById(R.id.checkBox);
@@ -143,18 +178,6 @@ public class MainActivity extends ActionBarActivity  {
 
 
 
-
-
-
-    }
-
-
-    private void initializeDebug(){
-
-        Intent i = new Intent(this, RemoteActivity.class);
-        i.putExtra("ROOM_NAME", "lqasse");
-//kek
-        startActivity(i);
 
 
 
