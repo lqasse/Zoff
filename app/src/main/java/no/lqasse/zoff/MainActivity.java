@@ -1,11 +1,11 @@
 package no.lqasse.zoff;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -44,21 +44,26 @@ public class MainActivity extends ActionBarActivity  {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
+
         setContentView(R.layout.activity_main);
         acEditText = (AutoCompleteTextView) findViewById(R.id.acEditText);
+
         h = new Handler();
         checkInetAccess = new Runnable() {
             @Override
             public void run() {
 
                 Boolean hasInetAccess = isOnline();
-                if (hasInetAccess && !acEditText.isEnabled()){
+                if (hasInetAccess){
                     String[] input = {ZOFF_ACTIVECHANNELS_URL};
                     getSuggestions suggestions = new getSuggestions();
                     suggestions.execute(input);
                     acEditText.setEnabled(true);
                     acEditText.setText("");
-                } else if(!hasInetAccess){
+                    h.removeCallbacks(this);
+                } else {
                     acEditText.setEnabled(false);
                     acEditText.setText("No Internet access");
                     h.removeCallbacks(this);
@@ -70,6 +75,33 @@ public class MainActivity extends ActionBarActivity  {
 
         h.post(checkInetAccess);
 
+        //Handles link clicks
+        Intent i = getIntent();
+        if (i.getAction() == Intent.ACTION_VIEW){
+            String url = i.getData().toString();
+            url = url.replace("http://www.zoff.no/","");
+            url = url.replace("/","");
+
+            char urlChars[] = url.toCharArray();
+            Boolean containsIllegalChar = false;
+
+            for (char c: urlChars){
+                if (!Character.isLetterOrDigit(c)){
+                    containsIllegalChar = true;
+
+                }
+
+            }
+            if (!containsIllegalChar){
+
+                acEditText.setText(url);
+                initialize();
+            }
+
+
+
+        }
+
 
         final Toast t = Toast.makeText(this,"Name must be letters or digits ONLY", Toast.LENGTH_SHORT);
 
@@ -77,7 +109,7 @@ public class MainActivity extends ActionBarActivity  {
 
         acEditText.setOnEditorActionListener(new TextView.OnEditorActionListener(){
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                boolean handled = false;
+
                 if (actionId == EditorInfo.IME_ACTION_GO) {
 
                     if (isValidRoom()){
@@ -89,7 +121,7 @@ public class MainActivity extends ActionBarActivity  {
                     }
 
                 }
-                return handled;
+                return true;
             }
 
 
@@ -115,6 +147,8 @@ public class MainActivity extends ActionBarActivity  {
         h.removeCallbacks(checkInetAccess);
         super.onStop();
     }
+
+
 
     private void initialize(){
 
@@ -143,18 +177,6 @@ public class MainActivity extends ActionBarActivity  {
 
 
 
-
-
-
-    }
-
-
-    private void initializeDebug(){
-
-        Intent i = new Intent(this, RemoteActivity.class);
-        i.putExtra("ROOM_NAME", "lqasse");
-//kek
-        startActivity(i);
 
 
 
@@ -191,7 +213,7 @@ public class MainActivity extends ActionBarActivity  {
             StringBuilder sb = new StringBuilder();
 
             try {
-                InputStream inputStream = null;
+                InputStream inputStream;
                 BufferedReader r;
 
                 String url = params[0];
@@ -224,13 +246,13 @@ public class MainActivity extends ActionBarActivity  {
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
             ArrayAdapter<String> adapter;
-            String[] activeRooms = new String[0];
+            String[] activeRooms;
             try{
                 JSONArray array = new JSONArray(s);
                 activeRooms = new String[array.length()];
                 for (int i = 0;i<array.length();i++){
                     activeRooms[i] = array.get(i).toString();
-                    adapter = new ArrayAdapter<String>(getBaseContext(), android.R.layout.simple_list_item_1, activeRooms);
+                    adapter = new ArrayAdapter<>(getBaseContext(), android.R.layout.simple_list_item_1, activeRooms);
                     acEditText.setAdapter(adapter);
                 }
 

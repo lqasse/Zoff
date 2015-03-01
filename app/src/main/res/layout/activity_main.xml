@@ -55,6 +55,6 @@
         android:gravity="center"
         android:layout_marginTop="10dp"
 
-        android:enabled="false"
+        android:enabled="true"
         android:inputType="text|textNoSuggestions" />
 </RelativeLayout>

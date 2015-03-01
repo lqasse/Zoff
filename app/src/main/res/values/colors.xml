@@ -5,6 +5,8 @@
     <color name="zoff_white">#FFF</color>
     <color name="zoff_gray">#ffbdbdbd</color>
     <color name="zoff_black_transparent">#99000000</color>
+    <color name="zoff_black_transparent_list">#33000000</color>
+    <color name="zoff_white_transparent">#33FFFFFF</color>
 
 
     <color name="zoff_bg_general">#ffbdbdbd</color>
