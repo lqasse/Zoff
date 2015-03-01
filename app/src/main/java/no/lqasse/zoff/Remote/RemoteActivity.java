@@ -250,7 +250,7 @@ public class RemoteActivity extends ActionBarActivity {
 
     @Override
     protected void onStart() {
-        stopService(new Intent(NotificationService.class.getName()));
+        //stopService(new Intent(NotificationService.class.getName())); Casues crash on lollipop
 
         super.onStart();
     }
