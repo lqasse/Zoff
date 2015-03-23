@@ -35,13 +35,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 
 import no.lqasse.zoff.R;
-import no.lqasse.zoff.Search.searchResult;
-import no.lqasse.zoff.Search.searchResultAdapter;
+import no.lqasse.zoff.Models.Searchresult;
 
 
 /**
@@ -75,7 +71,7 @@ public class SearchActivity extends ActionBarActivity {
     private ProgressBar progressBar;
     private EditText queryView;
     private ListView resultsView;
-    private ArrayList<searchResult> results = new ArrayList<>();
+    private ArrayList<Searchresult> results = new ArrayList<>();
     private searchResultAdapter searchResultAdapter;
 
 
@@ -286,7 +282,7 @@ public class SearchActivity extends ActionBarActivity {
 
 
 
-        searchResult searchResult;
+        Searchresult Searchresult;
         try {
             if (json.has("nextPageToken")){
                 NEXT_PAGE_TOKEN = json.getString("nextPageToken");
@@ -336,8 +332,8 @@ public class SearchActivity extends ActionBarActivity {
                 thumbHigh = thumbHighObject.getString("url");
 
 
-                searchResult = new searchResult(title, channelTitle,description, publishedAt,videoID, thumbDefault, thumbMedium, thumbHigh);
-                results.add(searchResult);
+                Searchresult = new Searchresult(title, channelTitle,description, publishedAt,videoID, thumbDefault, thumbMedium, thumbHigh);
+                results.add(Searchresult);
             }
 
             String idQuery = "";

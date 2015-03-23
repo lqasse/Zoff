@@ -33,6 +33,7 @@ import java.util.ArrayList;
 
 import no.lqasse.zoff.Datatypes.TOAST_TYPES;
 import no.lqasse.zoff.Datatypes.Zoff;
+import no.lqasse.zoff.Models.ZoffVideo;
 import no.lqasse.zoff.R;
 import no.lqasse.zoff.Search.SearchActivity;
 import no.lqasse.zoff.SettingsActivity;
@@ -44,7 +45,7 @@ public class PlayerActivity extends ActionBarActivity {
     private YouTube_Player player;
     private Zoff zoff;
     private final Handler handler = new Handler();
-    private ArrayList<Zoff.Video> videoList = new ArrayList<>();
+    private ArrayList<ZoffVideo> zoffVideoList = new ArrayList<>();
     private playerListAdapter adapter;
 
     private Menu menu;
@@ -76,7 +77,7 @@ public class PlayerActivity extends ActionBarActivity {
         videoListView = (ListView) findViewById(R.id.videoList);
 
 
-        adapter = new playerListAdapter(this, videoList);
+        adapter = new playerListAdapter(this, zoffVideoList);
         videoListView.setAdapter(adapter);
 
         videoListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
@@ -185,19 +186,15 @@ public class PlayerActivity extends ActionBarActivity {
     public void zoffRefreshed() {
 
 
-        videoList.clear();
-        videoList.addAll(zoff.getNextVideos());
+        zoffVideoList.clear();
+        zoffVideoList.addAll(zoff.getNextVideos());
 
         adapter.notifyDataSetChanged();
         titleLabel.setText(zoff.getNowPlayingTitle());
         currentTimeLabel.setText(zoff.getVIEWERS_STRING());
 
 
-        if (zoff.getNowPlayingVideo().getImgBig() == null) {
-            downloadBG downloadBG = new downloadBG();
-            downloadBG.execute();
 
-        }
 
 
         //play next video if current playing != zoff-currentplaying
@@ -268,11 +265,11 @@ public class PlayerActivity extends ActionBarActivity {
     }
 
 
-    public static class playerListAdapter extends ArrayAdapter<Zoff.Video> {
+    public static class playerListAdapter extends ArrayAdapter<ZoffVideo> {
         private final Context context;
-        private final ArrayList<Zoff.Video> results;
+        private final ArrayList<ZoffVideo> results;
 
-        public playerListAdapter(Context context, ArrayList<Zoff.Video> results) {
+        public playerListAdapter(Context context, ArrayList<ZoffVideo> results) {
             super(context, R.layout.now_playing_row, results);
             this.context = context;
             this.results = results;
@@ -311,12 +308,7 @@ public class PlayerActivity extends ActionBarActivity {
             viewHolder.progressBar = progressBar;
 
 
-            if (results.get(position).getImg() == null) {
-                new downloadImage().execute(viewHolder);
-            } else {
-                imageView.setImageBitmap(results.get(position).getImg());
-                progressBar.setVisibility(View.GONE);
-            }
+
 
 
             TextView title = (TextView) rowView.findViewById(R.id.titleView);
@@ -367,7 +359,7 @@ public class PlayerActivity extends ActionBarActivity {
                     result.imageView.setAnimation(a);
                     result.imageView.startAnimation(a);
 
-                    results.get(result.position).setImg(result.bitmap);
+
 
 
                 }
@@ -384,7 +376,7 @@ public class PlayerActivity extends ActionBarActivity {
 
             Bitmap b;
             try {
-                URL imageURL = new URL(zoff.getNowPlayingVideo().getThumbBig());
+                URL imageURL = new URL(zoff.getNowPlayingVideo().getImageBig());
                 b = BitmapFactory.decodeStream(imageURL.openStream());
             } catch (Exception e) {
                 Log.d("ERROR", e.getLocalizedMessage());
@@ -397,7 +389,7 @@ public class PlayerActivity extends ActionBarActivity {
         @Override
         protected void onPostExecute(Bitmap bitmap) {
 
-            zoff.getNowPlayingVideo().setImgBig(bitmap);
+
 
             super.onPostExecute(bitmap);
 

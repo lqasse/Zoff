@@ -34,6 +34,9 @@ import java.util.ArrayList;
 
 import no.lqasse.zoff.Datatypes.TOAST_TYPES;
 import no.lqasse.zoff.Datatypes.Zoff;
+import no.lqasse.zoff.Helpers.ImageBlur;
+import no.lqasse.zoff.Helpers.ImageCache;
+import no.lqasse.zoff.Models.ZoffVideo;
 import no.lqasse.zoff.NotificationService;
 import no.lqasse.zoff.R;
 import no.lqasse.zoff.Search.SearchActivity;
@@ -46,13 +49,13 @@ public class RemoteActivity extends ActionBarActivity {
     private final String PREFS_FILE = "no.lqasse.zoff.prefs";
     private String ROOM_NAME;
     private String ROOM_PASS;
-    //kek
+
 
     private Zoff zoff;
     private Menu menu;
     private Boolean paused = false;
     private ListView videoList;
-    private remoteListAdapter adapter;
+    private RemoteListAdapter adapter;
     private SharedPreferences sharedPreferences;
 
     private Handler h = new Handler();
@@ -77,8 +80,6 @@ public class RemoteActivity extends ActionBarActivity {
         }
 
 
-
-
         ROOM_PASS = getPASS();
 
 
@@ -92,7 +93,7 @@ public class RemoteActivity extends ActionBarActivity {
 
 
         //Handle everything listview related
-        adapter = new remoteListAdapter(this, zoff.getVideos(),zoff);
+        adapter = new RemoteListAdapter(this, zoff.getVideos(),zoff);
         videoList = (ListView) findViewById(R.id.videoList);
         videoList.setAdapter(adapter);
 
@@ -248,15 +249,15 @@ public class RemoteActivity extends ActionBarActivity {
         super.onStop();
     }
 
-    @Override
-    protected void onStart() {
-        //stopService(new Intent(NotificationService.class.getName())); Casues crash on lollipop
-
-        super.onStart();
-    }
 
     public void zoffRefreshed(boolean hasInetAccess) {
           adapter.notifyDataSetChanged();
+
+        if (!ImageCache.has(zoff.getNowPlayingID()+"_blur") && ImageCache.has(zoff.getNowPlayingID())){
+
+            ImageBlur.createAndSetBlurBG(ImageCache.get(zoff.getNowPlayingID()),this);
+
+        }
     }
 
     private String getPASS(){
@@ -275,169 +276,9 @@ public class RemoteActivity extends ActionBarActivity {
     }
 
 
-    /**
-     * Created by lassedrevland on 12.12.14.
-     */
-    public static class remoteListAdapter extends ArrayAdapter<Zoff.Video> {
-        private final Context context;
-        //private final String[] values;
-        private final ArrayList<Zoff.Video> results;
-        private Zoff zoff;
 
 
-
-        public remoteListAdapter(Context context, ArrayList<Zoff.Video> results, Zoff zoff) {
-            super(context, R.layout.now_playing_row, results);
-            this.context = context;
-            this.results = results;
-            this.zoff = zoff;
-
-
-        }
-
-
-
-        private static
-        class ViewHolder{
-            ImageView imageView;
-            String imageURL;
-            Bitmap bitmap;
-            int position;
-            ProgressBar progressBar;
-            Boolean hqImage = false;
-        }
-
-
-        @Override
-        public View getView(final int position, View convertView, ViewGroup parent) {
-            ViewHolder viewHolder;
-            viewHolder = new ViewHolder();
-
-            View rowView;
-            LayoutInflater inflater = (LayoutInflater) context
-                    .getSystemService(LAYOUT_INFLATER_SERVICE);
-            if (position == 0){ //Top of list, Now playing!
-                rowView = inflater.inflate(R.layout.now_playing_row_top, parent, false);
-                viewHolder.imageURL = results.get(position).getThumbBig();
-
-
-
-
-            } else {
-                rowView = inflater.inflate(R.layout.now_playing_row, parent, false);
-                viewHolder.imageURL = results.get(position).getThumbMed();
-            }
-
-            ImageView imageView = (ImageView) rowView.findViewById(R.id.imageView);
-            ProgressBar progressBar = (ProgressBar) rowView.findViewById(R.id.progressBar);
-
-            viewHolder.imageView = imageView;
-            viewHolder.position = position;
-            viewHolder.progressBar = progressBar;
-
-
-            if (position == 0 && results.get(position).getImgBig() == null){ //TOp image is not in hq
-                viewHolder.hqImage = true;
-                new downloadImage().execute(viewHolder);
-            } else if (position == 0 && results.get(position).getImgBig() != null){ //TOp image is in hq
-                imageView.setImageBitmap(results.get(position).getImgBig());
-                progressBar.setVisibility(View.GONE);
-            } else if (results.get(position).getImg() == null){ //Not top, not downloaded
-                new downloadImage().execute(viewHolder);
-            } else {
-                imageView.setImageBitmap(results.get(position).getImg());//Not top,  downloaded
-                progressBar.setVisibility(View.GONE);
-            }
-
-
-            TextView title = (TextView) rowView.findViewById(R.id.titleView);
-            TextView votes = (TextView) rowView.findViewById(R.id.votesView);
-            TextView views = (TextView) rowView.findViewById(R.id.viewsLabel);
-            TextView playtime = (TextView) rowView.findViewById(R.id.playtimeLabel);
-
-
-
-
-
-
-            title.setText(results.get(position).getTitle());
-
-            if (votes != null){
-
-                votes.setText(results.get(position).getVotes());
-
-            } else {
-                views.setText(zoff.getVIEWERS_STRING());
-                playtime.setText(""); //Implement later?
-
-            }
-
-
-
-
-            return rowView;
-        }
-
-
-
-        private class downloadImage extends AsyncTask<ViewHolder, Void, ViewHolder> {
-
-
-
-
-
-            @Override
-            protected ViewHolder doInBackground(ViewHolder... params){
-                ViewHolder viewHolder = params[0];
-
-                try {
-                    URL imageURL = new URL(viewHolder.imageURL);
-                    viewHolder.bitmap = BitmapFactory.decodeStream(imageURL.openStream());
-                } catch (Exception e){
-                    Log.d("ERROR", e.getLocalizedMessage());
-                    e.printStackTrace();
-                    viewHolder.bitmap = null;
-                }
-                return viewHolder;
-            }
-
-            @Override
-            protected void onPostExecute(ViewHolder result){
-                if (result.bitmap == null){
-                    Log.d("FAIL", "NO IMAGE");
-                } else {
-                    result.progressBar.setVisibility(View.GONE);
-
-                    //Animate fade in <3
-                    Animation a = new AlphaAnimation(0.00f,1.00f);
-                    a.setInterpolator(new DecelerateInterpolator());
-                    a.setDuration(700);
-                    result.imageView.setImageBitmap(result.bitmap);
-                    result.imageView.setAnimation(a);
-                    result.imageView.startAnimation(a);
-
-                    result.imageView.setImageBitmap(result.bitmap);
-                    if (result.hqImage){
-                        results.get(result.position).setImgBig(result.bitmap);
-                    } else {
-                        results.get(result.position).setImg(result.bitmap);
-                    }
-
-
-
-
-                }
-            }
-
-
-
-        }
-
-    }
-
-
-    public void setBlurBg(Bitmap blurBg){
-
+    public void setBackgroundImage(Bitmap blurBg){
 
         LinearLayout l = (LinearLayout) findViewById(R.id.layout);
         l.setBackground(new BitmapDrawable(getBaseContext().getResources(),blurBg));
