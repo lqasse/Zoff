@@ -36,8 +36,9 @@ import java.io.InputStreamReader;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 
+import no.lqasse.zoff.Helpers.ToastMaster;
 import no.lqasse.zoff.R;
-import no.lqasse.zoff.Models.Searchresult;
+import no.lqasse.zoff.Models.SearchResult;
 import no.lqasse.zoff.Server;
 
 
@@ -72,7 +73,7 @@ public class SearchActivity extends ActionBarActivity {
     private ProgressBar progressBar;
     private EditText queryView;
     private ListView resultsView;
-    private ArrayList<Searchresult> results = new ArrayList<>();
+    private ArrayList<SearchResult> results = new ArrayList<>();
     private SearchResultListAdapter SearchResultListAdapter;
 
 
@@ -108,7 +109,9 @@ public class SearchActivity extends ActionBarActivity {
 
 
         queryView = (EditText) findViewById(R.id.searchQueryView);
-        doYoutubeSearch(true,false);
+        YouTubeServer.search(this,"",ALL_VIDEOS,LONG_SONGS);
+
+        //doYoutubeSearch(true,false);
 
 
         queryView.addTextChangedListener(new TextWatcher() {
@@ -181,10 +184,7 @@ public class SearchActivity extends ActionBarActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                    Toast t = Toast.makeText(getBaseContext(), "Click and hold to add videos", Toast.LENGTH_SHORT);
-                    View v = t.getView();
-                    v.setBackgroundResource(R.drawable.toast_background);
-                    t.show();
+                    ToastMaster.showToast(getBaseContext(), ToastMaster.TYPE.HOLD_TO_ADD);
 
 
             }
@@ -283,7 +283,7 @@ public class SearchActivity extends ActionBarActivity {
 
 
 
-        Searchresult Searchresult;
+        SearchResult searchResult;
         try {
             if (json.has("nextPageToken")){
                 NEXT_PAGE_TOKEN = json.getString("nextPageToken");
@@ -333,8 +333,8 @@ public class SearchActivity extends ActionBarActivity {
                 thumbHigh = thumbHighObject.getString("url");
 
 
-                Searchresult = new Searchresult(title, channelTitle,description, publishedAt,videoID, thumbDefault, thumbMedium, thumbHigh);
-                results.add(Searchresult);
+                searchResult = new SearchResult(title, channelTitle,description, publishedAt,videoID, thumbDefault, thumbMedium, thumbHigh);
+                results.add(searchResult);
             }
 
             String idQuery = "";
@@ -386,8 +386,6 @@ public class SearchActivity extends ActionBarActivity {
                 results.get(i + offset).setDuration(duration);
 
 
-
-
             }
 
 
@@ -399,6 +397,18 @@ public class SearchActivity extends ActionBarActivity {
             e.printStackTrace();
         }
 
+
+    }
+
+    public void intitalResultsReceived(String response){
+
+    }
+
+    public void resultDetailsReceived(String response){
+
+    }
+
+    public void nextPageReceived(String response){
 
     }
 

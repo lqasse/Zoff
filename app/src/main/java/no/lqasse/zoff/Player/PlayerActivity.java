@@ -31,14 +31,15 @@ import com.google.android.youtube.player.YouTubePlayer;
 import java.net.URL;
 import java.util.ArrayList;
 
-import no.lqasse.zoff.Datatypes.TOAST_TYPES;
 import no.lqasse.zoff.Datatypes.Zoff;
+import no.lqasse.zoff.Datatypes.Zoff_Listener;
+import no.lqasse.zoff.Helpers.ToastMaster;
 import no.lqasse.zoff.Models.ZoffVideo;
 import no.lqasse.zoff.R;
 import no.lqasse.zoff.Search.SearchActivity;
 import no.lqasse.zoff.SettingsActivity;
 
-public class PlayerActivity extends ActionBarActivity {
+public class PlayerActivity extends ActionBarActivity implements Zoff_Listener{
     private String ROOM_NAME;
     private String NOW_PLAYING_ID = "";
 
@@ -84,7 +85,8 @@ public class PlayerActivity extends ActionBarActivity {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 
-                zoff.vote(position + 1);
+                ZoffVideo selectedVideo = adapter.getItem(position);
+                zoff.vote(selectedVideo);
 
 
                 return true;
@@ -95,7 +97,7 @@ public class PlayerActivity extends ActionBarActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                zoff.showToast(TOAST_TYPES.HOLD_TO_VOTE);
+                ToastMaster.showToast(getBaseContext(), ToastMaster.TYPE.HOLD_TO_VOTE);
 
 
             }
@@ -183,7 +185,7 @@ public class PlayerActivity extends ActionBarActivity {
     }
 
 
-    public void zoffRefreshed() {
+    public void zoffRefreshed(Boolean hasInetAccess) {
 
 
         zoffVideoList.clear();
@@ -237,7 +239,7 @@ public class PlayerActivity extends ActionBarActivity {
     public void videoEnded() {
 
         zoff.voteSkip();
-        zoff.forceRefresh();
+        zoff.refreshData();
 
 
     }
@@ -247,7 +249,7 @@ public class PlayerActivity extends ActionBarActivity {
             case NOT_PLAYABLE:
 
                 videoEnded();
-                zoff.showToast(TOAST_TYPES.EMBEDDING_DISABLED, zoff.getNowPlayingTitle());
+                ToastMaster.showToast(getBaseContext(), ToastMaster.TYPE.EMBEDDING_DISABLED,zoff.getNowPlayingTitle());
 
                 break;
         }

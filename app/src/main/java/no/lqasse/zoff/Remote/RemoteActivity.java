@@ -5,37 +5,23 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-
-import java.net.URL;
-import java.util.ArrayList;
 
 
-import no.lqasse.zoff.Datatypes.TOAST_TYPES;
 import no.lqasse.zoff.Datatypes.Zoff;
+import no.lqasse.zoff.Datatypes.Zoff_Listener;
 import no.lqasse.zoff.Helpers.ImageBlur;
 import no.lqasse.zoff.Helpers.ImageCache;
+import no.lqasse.zoff.Helpers.ToastMaster;
 import no.lqasse.zoff.Models.ZoffVideo;
 import no.lqasse.zoff.NotificationService;
 import no.lqasse.zoff.R;
@@ -45,11 +31,10 @@ import no.lqasse.zoff.SettingsActivity;
 /**
  * Created by lassedrevland on 21.01.15.
  */
-public class RemoteActivity extends ActionBarActivity {
+public class RemoteActivity extends ActionBarActivity implements Zoff_Listener{
     private final String PREFS_FILE = "no.lqasse.zoff.prefs";
     private String ROOM_NAME;
     private String ROOM_PASS;
-
 
     private Zoff zoff;
     private Menu menu;
@@ -61,13 +46,6 @@ public class RemoteActivity extends ActionBarActivity {
     private Handler h = new Handler();
     private Runnable r;
 
-
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,7 +78,13 @@ public class RemoteActivity extends ActionBarActivity {
         videoList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                    zoff.vote(position);
+
+
+                if (position != 0){ //Cant vote for current video duh
+                    ZoffVideo selectedVideo =  adapter.getItem(position);
+                    zoff.vote(selectedVideo);
+                }
+
 
                 return true;
             }
@@ -110,7 +94,7 @@ public class RemoteActivity extends ActionBarActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (position != 0){ //Currently playing video cant be voted on
-                    zoff.showToast(TOAST_TYPES.HOLD_TO_VOTE);
+                    ToastMaster.showToast(getBaseContext(), ToastMaster.TYPE.HOLD_TO_VOTE);
                 }
 
 
@@ -139,7 +123,6 @@ public class RemoteActivity extends ActionBarActivity {
     @Override
     protected void onPause() {
         zoff.pauseRefresh();
-
         super.onPause();
     }
 
@@ -147,8 +130,6 @@ public class RemoteActivity extends ActionBarActivity {
     protected void onDestroy() {
         super.onDestroy();
         zoff.pauseRefresh();
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancelAll();
 
     }
 
@@ -175,7 +156,6 @@ public class RemoteActivity extends ActionBarActivity {
                 break;
             case (R.id.action_next):
                 zoff.voteSkip();
-                //player.loadVideo(zoff.getNextId());
                 zoff.refreshData();
 
                 break;
@@ -199,9 +179,7 @@ public class RemoteActivity extends ActionBarActivity {
                     startActivity(i);
                 } else {
 
-
-
-                    zoff.showToast(TOAST_TYPES.NEEDS_PASS_VOTE);
+                    ToastMaster.showToast(getBaseContext(), ToastMaster.TYPE.NEEDS_PASS_VOTE);
                 }
 
 
@@ -218,11 +196,10 @@ public class RemoteActivity extends ActionBarActivity {
                 break;
             case (R.id.action_shuffle):
                 if (zoff.hasROOM_PASS()){
-                    zoff.showToast(TOAST_TYPES.SHUFFLED);
+                    ToastMaster.showToast(getBaseContext(), ToastMaster.TYPE.SHUFFLED);
                     zoff.shuffle();
                 } else {
-
-                    zoff.showToast(TOAST_TYPES.NEEDS_PASS_SHUFFLE);
+                    ToastMaster.showToast(getBaseContext(), ToastMaster.TYPE.NEEDS_PASS_SHUFFLE);
                 }
                 break;
 
@@ -238,20 +215,15 @@ public class RemoteActivity extends ActionBarActivity {
     @Override
     protected void onStop() {
 
-        /* TODO Fix ongoing Notification
-        Intent service = new Intent(this,NotificationService.class);
-        service.putExtra("ROOM_NAME",ROOM_NAME);
-        startService(service);
-        */
+
         paused = true;
-        //showNotification();
 
         super.onStop();
     }
 
-
-    public void zoffRefreshed(boolean hasInetAccess) {
-          adapter.notifyDataSetChanged();
+    @Override
+    public void zoffRefreshed(Boolean hasInetAccess) {
+        adapter.notifyDataSetChanged();
 
         if (!ImageCache.has(zoff.getNowPlayingID()+"_blur") && ImageCache.has(zoff.getNowPlayingID())){
 
@@ -264,7 +236,6 @@ public class RemoteActivity extends ActionBarActivity {
         String PASS;
         sharedPreferences = getSharedPreferences(PREFS_FILE,0);
         PASS = sharedPreferences.getString(ROOM_NAME,null);
-
         return PASS;
 
     }

@@ -31,6 +31,7 @@ public class Server {
 
 
     private enum GET_TYPE{SKIP,VOTE, REFRESH,SHUFFLE,ADD}
+
     private enum POST_TYPE{SETTINGS}
 
     private static class getHolder{
@@ -140,8 +141,6 @@ public class Server {
 
 
     }
-
-
 
     private static class Get extends AsyncTask<getHolder, Void, getHolder> {
         JSONObject json;

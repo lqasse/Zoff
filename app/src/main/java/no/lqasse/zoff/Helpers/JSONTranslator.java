@@ -25,15 +25,12 @@ public  class JSONTranslator {
         JSONObject videoObject;
         JSONObject songs;
         JSONArray songsArray;
-        JSONObject conf;
 
         ArrayList<ZoffVideo> videos = new ArrayList<>();
 
 
         try {
             json = new JSONObject(JSONString);
-
-
             songs = json.getJSONObject("songs");
             songsArray = songs.names();
             for (int i = 0;i<songsArray.length();i++){

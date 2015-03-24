@@ -1,5 +1,7 @@
 package no.lqasse.zoff.Datatypes;
 
+import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -13,11 +15,13 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import no.lqasse.zoff.Helpers.JSONTranslator;
+import no.lqasse.zoff.Helpers.ToastMaster;
 import no.lqasse.zoff.Models.ZoffVideo;
 import no.lqasse.zoff.NotificationService;
 import no.lqasse.zoff.Player.PlayerActivity;
 import no.lqasse.zoff.R;
 import no.lqasse.zoff.Remote.RemoteActivity;
+import no.lqasse.zoff.Search.SearchActivity;
 import no.lqasse.zoff.Server;
 
 /**
@@ -41,10 +45,10 @@ public class Zoff {
     private static String NOWPLAYING_URL;
 
 
-    private ArrayList<ZoffVideo> VIDEOLIST = new ArrayList<>();
-    private PlayerActivity player;
-    private RemoteActivity remote;
-    private NotificationService service;
+
+
+    private ArrayList<ZoffVideo> videoList = new ArrayList<>();
+    private Context context;
     private Runnable Refresher;
 
 
@@ -52,23 +56,12 @@ public class Zoff {
 
 
 
-    public Zoff(String ROOM_NAME, RemoteActivity remote) {
+    public Zoff(String ROOM_NAME, Context context) {
         init(ROOM_NAME);
-        this.remote = remote;
-
-
+        this.context = context;
     }
 
-    public Zoff(String ROOM_NAME, PlayerActivity player) {
-        init(ROOM_NAME);
-        this.player = player;
 
-    }
-
-    public Zoff(String ROOM_NAME, NotificationService service) {
-        init(ROOM_NAME);
-        this.service = service;
-    }
 
     private void init(String ROOM_NAME){
 
@@ -91,18 +84,8 @@ public class Zoff {
 
     public void refreshData() {
         Server.refresh(this);
-        /*
-        String[] input = {NOWPLAYING_URL};
-        doGetRequest task = new doGetRequest();
-        task.execute(input);
-        Log.d("REFRESH", "Refreshing");
-        */
     }
 
-    public void forceRefresh() {
-        refreshData();
-
-    }
 
     public void pauseRefresh() {
         handler.removeCallbacks(Refresher);
@@ -116,22 +99,20 @@ public class Zoff {
     }
     public void refreshed(Boolean hasInetAccess,String data) {
 
+        videoList.clear();
+        videoList.addAll(JSONTranslator.toZoffVideos(data));
 
-        VIDEOLIST.clear();
-        VIDEOLIST.addAll(JSONTranslator.toZoffVideos(data));
         settings.clear();
         settings.putAll(JSONTranslator.toSettingsMap(data));
+
         VIEWERS_COUNT = JSONTranslator.toViews(data);
         IS_PASS_PROTECTED = JSONTranslator.hasAdminPass(data);
 
 
-        if (player != null) {
-            player.zoffRefreshed();
-        } else if (remote != null) {
-            remote.zoffRefreshed(hasInetAccess);
-        } else if (service != null){
-            service.zoffRefreshed();
-        }
+
+        ((Zoff_Listener) context).zoffRefreshed(true);
+
+
 
     }
 
@@ -147,25 +128,27 @@ public class Zoff {
         this.ROOM_NAME = new String(nameArray);
     }
 
-    public void vote(int i) {
+    public void vote(ZoffVideo selectedVideo) {
 
-        String videoID = VIDEOLIST.get(i).getId();
-        String title = VIDEOLIST.get(i).getTitle();
-        if (i == 0){
-            //Do nothing, this is the currently playing video
+        String videoID = selectedVideo.getId();
+        String title = selectedVideo.getTitle();
 
-        }else if (this.ANYONE_CAN_VOTE())
+        if (this.ANYONE_CAN_VOTE())
         {
-            showToast(TOAST_TYPES.VIDEO_VOTED, title);
+            ToastMaster.showToast(context, ToastMaster.TYPE.VIDEO_VOTED,title);
+
             Server.vote(videoID);
         }
         else if (IS_PASS_PROTECTED && this.hasROOM_PASS())
         {
-            showToast(TOAST_TYPES.VIDEO_VOTED, title);
+
+            ToastMaster.showToast(context, ToastMaster.TYPE.VIDEO_VOTED,title);
             Server.vote(videoID);
         }
         else {
-            showToast(TOAST_TYPES.NEEDS_PASS_VOTE, title);
+
+            ToastMaster.showToast(context, ToastMaster.TYPE.NEEDS_PASS_VOTE);
+
         }
 
     }
@@ -229,7 +212,7 @@ public class Zoff {
     }
 
     public boolean hasVideos() {
-        return !VIDEOLIST.isEmpty();
+        return !videoList.isEmpty();
     }
 
     public Bundle getSettingsBundle(){
@@ -267,14 +250,14 @@ public class Zoff {
     }
 
     public String getNextId() {
-        ZoffVideo v = VIDEOLIST.get(1);
+        ZoffVideo v = videoList.get(1);
 
         return v.getId();
     }
 
     public List<String> getVideoIDs() {
         ArrayList<String> ids = new ArrayList<>();
-        for (ZoffVideo v : VIDEOLIST) {
+        for (ZoffVideo v : videoList) {
             ids.add(v.getId());
         }
 
@@ -289,29 +272,27 @@ public class Zoff {
 
     public String getNowPlayingTitle() {
         if (hasVideos())
-            return VIDEOLIST.get(0).getTitle();
+            return videoList.get(0).getTitle();
         return "No videos";
 
     }
 
     public ZoffVideo getNowPlayingVideo() {
-        return VIDEOLIST.get(0);
+        return videoList.get(0);
     }
 
     public ArrayList<ZoffVideo> getVideos() {
-        return VIDEOLIST;
+        return videoList;
     }
 
     public ArrayList<ZoffVideo> getNextVideos() {
 
         ArrayList<ZoffVideo> nextZoffVideos = new ArrayList<>();
-        nextZoffVideos.addAll(VIDEOLIST);
+        nextZoffVideos.addAll(videoList);
 
-        if (VIDEOLIST.size()!= 0){
+        if (videoList.size()!= 0){
             nextZoffVideos.remove(0);
         }
-
-
 
 
         return nextZoffVideos;
@@ -328,7 +309,7 @@ public class Zoff {
     }
 
     public String getNowPlayingID() {
-        return VIDEOLIST.get(0).getId();
+        return videoList.get(0).getId();
     }
 
     public static String getUrl(){
@@ -343,62 +324,19 @@ public class Zoff {
     }
 
 
-    public void showToast(TOAST_TYPES TYPE){
-        showToast(TYPE,"");
-
-    }
-
-    public void showToast(TOAST_TYPES TYPE, String CONTEXTUAL_STRING){
-
-        Toast t;
-        String toastText = "Toast error";
-
-        switch (TYPE){
-            case NEEDS_PASS_VOTE:
-                toastText = "This room is password protected, set a password to vote";
-                break;
-            case NEEDS_PASS_ADD:
-                toastText = "This room is password protected, set a password to add videos";
-                break;
-            case VIDEO_ADDED:
-                toastText = CONTEXTUAL_STRING + " was added";
-                break;
-            case VIDEO_VOTED:
-                toastText = "+1 to " + CONTEXTUAL_STRING;
-                break;
-            case HOLD_TO_VOTE:
-                toastText = "Click and hold to vote";
-                break;
-            case SHUFFLED:
-                toastText = "Shuffled!";
-                break;
-            case NEEDS_PASS_SHUFFLE:
-                toastText = "This room is password protected, set a password to shuffle";
-                break;
-            case EMBEDDING_DISABLED:
-                toastText = CONTEXTUAL_STRING + " could not be played, embedded playback disabled.";
-
-
-        }
-
-        if (remote!=null){
-            t = Toast.makeText(remote, toastText, Toast.LENGTH_SHORT);
-        } else {
-            t = Toast.makeText(player, toastText, Toast.LENGTH_SHORT);
-        }
-
-        View v = t.getView();
-        v.setBackgroundResource(R.drawable.toast_background);
-        t.show();
 
 
 
-    }
+
+
 
     @Override
     public String toString() {
-        return getROOM_NAME() + ": " + VIDEOLIST.size();
+        return getROOM_NAME() + ": " + videoList.size();
     }
+
+
+
 
 
 

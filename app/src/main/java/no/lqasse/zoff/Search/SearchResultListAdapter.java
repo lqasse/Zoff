@@ -20,21 +20,21 @@ import android.widget.TextView;
 import java.net.URL;
 import java.util.ArrayList;
 
-import no.lqasse.zoff.Models.Searchresult;
+import no.lqasse.zoff.Models.SearchResult;
 import no.lqasse.zoff.R;
 
 /**
  * Created by lassedrevland on 09.12.14.
  */
-public class SearchResultListAdapter extends ArrayAdapter<Searchresult> {
+public class SearchResultListAdapter extends ArrayAdapter<SearchResult> {
     private final Context context;
     //private final String[] values;
-    private final ArrayList<Searchresult> Searchresults;
+    private final ArrayList<SearchResult> searchResults;
 
-    public SearchResultListAdapter(Context context, ArrayList<Searchresult> Searchresults) {
-        super(context, R.layout.search_row, Searchresults);
+    public SearchResultListAdapter(Context context, ArrayList<SearchResult> searchResults) {
+        super(context, R.layout.search_row, searchResults);
         this.context = context;
-        this.Searchresults = Searchresults;
+        this.searchResults = searchResults;
     }
 
     private static
@@ -63,14 +63,14 @@ public class SearchResultListAdapter extends ArrayAdapter<Searchresult> {
 
         viewHolder = new ViewHolder();
         viewHolder.imageView = imageView;
-        viewHolder.imageURL = Searchresults.get(position).getThumbSmall();
+        viewHolder.imageURL = searchResults.get(position).getThumbSmall();
         viewHolder.position = position;
         viewHolder.progressBar = progressBar;
 
-        if (Searchresults.get(position).getImgSmall() == null){
+        if (searchResults.get(position).getImgSmall() == null){
             new downloadImage().execute(viewHolder);
         } else {
-            imageView.setImageBitmap(Searchresults.get(position).getImgSmall());
+            imageView.setImageBitmap(searchResults.get(position).getImgSmall());
             progressBar.setVisibility(View.GONE);
         }
 
@@ -84,10 +84,10 @@ public class SearchResultListAdapter extends ArrayAdapter<Searchresult> {
 
 
 
-        title.setText(Searchresults.get(position).getTitle());
-        channelTitle.setText(Searchresults.get(position).getChannelTitle());
-        String views = Searchresults.get(position).getViewCountLocalized();
-        duration.setText(Searchresults.get(position).getDuration());
+        title.setText(searchResults.get(position).getTitle());
+        channelTitle.setText(searchResults.get(position).getChannelTitle());
+        String views = searchResults.get(position).getViewCountLocalized();
+        duration.setText(searchResults.get(position).getDuration());
         viewCount.setText(views);
         //textView.setText(values[position]);
         // change the icon for Windows and iPhone
@@ -132,7 +132,7 @@ public class SearchResultListAdapter extends ArrayAdapter<Searchresult> {
                 result.imageView.setImageBitmap(result.bitmap);
                 result.imageView.setAnimation(a);
                 result.imageView.startAnimation(a);
-               Searchresults.get(result.position).setImgSmall(result.bitmap);
+               searchResults.get(result.position).setImgSmall(result.bitmap);
             }
         }
 
