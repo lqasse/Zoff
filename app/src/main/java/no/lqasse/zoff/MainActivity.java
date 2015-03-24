@@ -1,14 +1,10 @@
 package no.lqasse.zoff;
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
@@ -18,62 +14,41 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.JSONArray;
+import java.util.ArrayList;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-
+import no.lqasse.zoff.Models.SearchResult;
 import no.lqasse.zoff.Player.PlayerActivity;
 import no.lqasse.zoff.Remote.RemoteActivity;
+import no.lqasse.zoff.Server.JSONTranslator;
+import no.lqasse.zoff.Server.Server;
 
 
 public class MainActivity extends ActionBarActivity  {
 
-
-    private String ZOFF_ACTIVECHANNELS_URL = "http://zoff.no/Proggis/php/activechannels.php";
     private AutoCompleteTextView acEditText;
-    private Runnable checkInetAccess;
+    private Runnable retryConnect;
     private Handler h;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
+        Server.getChanSuggestions(this);
 
         setContentView(R.layout.activity_main);
         acEditText = (AutoCompleteTextView) findViewById(R.id.acEditText);
 
         h = new Handler();
-        checkInetAccess = new Runnable() {
+        retryConnect = new Runnable() {
             @Override
             public void run() {
 
-                Boolean hasInetAccess = isOnline();
-                if (hasInetAccess){
-                    String[] input = {ZOFF_ACTIVECHANNELS_URL};
-                    getSuggestions suggestions = new getSuggestions();
-                    suggestions.execute(input);
-                    acEditText.setEnabled(true);
-                    acEditText.setText("");
-                    h.removeCallbacks(this);
-                } else {
-                    acEditText.setEnabled(false);
-                    acEditText.setText("No Internet access");
-                    h.removeCallbacks(this);
-                    h.postDelayed(checkInetAccess, 1000);
-                }
+                Server.getChanSuggestions(MainActivity.this);
 
             }
         };
 
-        h.post(checkInetAccess);
+
 
         //Handles link clicks
         Intent i = getIntent();
@@ -144,7 +119,7 @@ public class MainActivity extends ActionBarActivity  {
 
     @Override
     protected void onStop() {
-        h.removeCallbacks(checkInetAccess);
+        h.removeCallbacks(retryConnect);
         super.onStop();
     }
 
@@ -167,13 +142,9 @@ public class MainActivity extends ActionBarActivity  {
 
         i.putExtra("ROOM_NAME", acEditText.getText().toString());
 
-        if (isOnline()){
-            startActivity(i);
-            h.removeCallbacks(checkInetAccess);
-        } else {
-            h.post(checkInetAccess);
+        startActivity(i);
+        h.removeCallbacks(retryConnect);
 
-        }
 
 
 
@@ -185,7 +156,6 @@ public class MainActivity extends ActionBarActivity  {
 
 
     private boolean isValidRoom(){
-
 
         String room = acEditText.getText().toString();
         String r = room.replace(" ","");
@@ -207,77 +177,27 @@ public class MainActivity extends ActionBarActivity  {
 
 
 
-    private class getSuggestions extends AsyncTask<String,Void,String>{
-        @Override
-        protected String doInBackground(String... params) {
-            StringBuilder sb = new StringBuilder();
-
-            try {
-                InputStream inputStream;
-                BufferedReader r;
-
-                String url = params[0];
-                HttpClient httpClient = new DefaultHttpClient();
-                HttpResponse httpResponse = httpClient.execute(new HttpGet(url));
-                inputStream = httpResponse.getEntity().getContent();
-                if(inputStream != null){
-                    r = new BufferedReader(new InputStreamReader(inputStream));
-                    sb = new StringBuilder();
-                    String line;
-                    while((line = r.readLine()) !=null){
-                        sb.append(line);
-
-                    }
+    public void receivedChanSuggestions(String data){
 
 
+        if (data.equals("404")){
+            //There was an error connecting
+            acEditText.setEnabled(false);
+            acEditText.setText("Error connecting to server...");
+            h.postDelayed(retryConnect,1000);
+        } else {
+            acEditText.setEnabled(true);
+            acEditText.setText("");
 
-                }
-            } catch (Exception e){
-                throw new IllegalStateException();
-
-            }
-
-
-
-            return sb.toString();
+            ArrayList<String> activeRooms = new ArrayList<>();
+            activeRooms.addAll(JSONTranslator.toRoomSuggestions(data));
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(getBaseContext(), android.R.layout.simple_list_item_1, activeRooms);
+            acEditText.setAdapter(adapter);
         }
 
-        @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-            ArrayAdapter<String> adapter;
-            String[] activeRooms;
-            try{
-                JSONArray array = new JSONArray(s);
-                activeRooms = new String[array.length()];
-                for (int i = 0;i<array.length();i++){
-                    activeRooms[i] = array.get(i).toString();
-                    adapter = new ArrayAdapter<>(getBaseContext(), android.R.layout.simple_list_item_1, activeRooms);
-                    acEditText.setAdapter(adapter);
-                }
 
 
-            } catch (Exception e){
-                e.printStackTrace();
-            }
 
-
-        }
-    }
-
-    public boolean isOnline() {
-
-        Runtime runtime = Runtime.getRuntime();
-        try {
-
-            Process ipProcess = runtime.exec("/system/bin/ping -c 1 8.8.8.8");
-            int     exitValue = ipProcess.waitFor();
-            return (exitValue == 0);
-
-        } catch (IOException e)          { e.printStackTrace(); }
-        catch (InterruptedException e) { e.printStackTrace(); }
-
-        return false;
     }
 
 

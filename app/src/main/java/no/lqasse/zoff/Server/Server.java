@@ -1,8 +1,8 @@
-package no.lqasse.zoff;
+package no.lqasse.zoff.Server;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -17,12 +17,15 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import no.lqasse.zoff.Datatypes.Zoff;
+import no.lqasse.zoff.MainActivity;
+import no.lqasse.zoff.SettingsActivity;
+import no.lqasse.zoff.Zoff;
 
 /**
  * Created by lassedrevland on 23.03.15.
@@ -30,7 +33,7 @@ import no.lqasse.zoff.Datatypes.Zoff;
 public class Server {
 
 
-    private enum GET_TYPE{SKIP,VOTE, REFRESH,SHUFFLE,ADD}
+    private enum GET_TYPE{SKIP,VOTE, REFRESH,SHUFFLE,ADD,SUGGESTIONS}
 
     private enum POST_TYPE{SETTINGS}
 
@@ -39,6 +42,7 @@ public class Server {
         String response;
         String url;
         Zoff zoff;
+        Context context;
 
     }
 
@@ -108,6 +112,20 @@ public class Server {
 
         Get get = new Get();
         get.execute(holder);
+    }
+
+    public static void getChanSuggestions(Context context){
+
+        getHolder holder = new getHolder();
+        holder.url = "http://zoff.no/Proggis/php/activechannels.php";
+        holder.type = GET_TYPE.SUGGESTIONS;
+        holder.context = context;
+
+
+        Get get = new Get();
+        get.execute(holder);
+
+
     }
 
     public static void postSettings(Activity activity, String password, Boolean... settings){
@@ -183,8 +201,10 @@ public class Server {
 
                 }
 
-            } catch (Exception e) {
+            } catch (IOException e) {
                 e.printStackTrace();
+                holder.response = "404";
+                return holder;
             }
 
             return null;
@@ -205,6 +225,9 @@ public class Server {
                 case SHUFFLE:
                     break;
                 case SKIP:
+                    break;
+                case SUGGESTIONS:
+                    ((MainActivity)holder.context).receivedChanSuggestions(holder.response);
                     break;
 
             }

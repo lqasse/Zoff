@@ -1,17 +1,19 @@
 package no.lqasse.zoff.Search;
 
-import android.content.Context;
 import android.os.AsyncTask;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+
+import no.lqasse.zoff.Models.SearchResult;
 
 /**
  * Created by lassedrevland on 24.03.15.
@@ -31,6 +33,7 @@ public class YouTubeServer {
         String url;
         TYPE type;
         String response;
+        String nextPageToken;
         SearchActivity searchActivity;
 
     }
@@ -48,27 +51,79 @@ public class YouTubeServer {
         if (!longSongs)
            lenghtLimit =  "&videoDuration=short";
 
+        String encodedQuery ="";
+        try {
+            encodedQuery = URLEncoder.encode(query,"UTF-8");
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
 
         getHolder holder = new getHolder();
         holder.type = TYPE.INITIAL_QUERY;
-        holder.url = URL_YOUTUBE_QUERY_PT1 + query + URL_YOUTUBE_QUERY_PT2 + categoryLimit + lenghtLimit;
+        holder.url = URL_YOUTUBE_QUERY_PT1 + encodedQuery + URL_YOUTUBE_QUERY_PT2 + categoryLimit + lenghtLimit;
+        holder.searchActivity = searchActivity;
+
+        Get get = new Get();
+        get.execute(holder);
+
+
+
+    }
+
+    private static void getDetails(SearchActivity searchActivity, ArrayList<SearchResult> results){
+        String idList ="";
+        for (SearchResult r: results){
+            idList += r.getVideoID()+",";
+        }
+        getHolder holder = new getHolder();
+        holder.type =TYPE.DETAILS_QUERY;
+        holder.url = URL_YOUTUBE_DETAILS_PT1 + idList + URL_YOUTUBE_DETAILS_PT2;
         holder.searchActivity = searchActivity;
 
 
+        Get get = new Get();
+        get.execute(holder);
+
+
+
 
     }
 
-    public static void getDetails(){
+    public static void getNextPage(SearchActivity searchActivity, String query, Boolean allVideos, Boolean longSongs, String nextPageToken){
+        String categoryLimit = "";
+        String lenghtLimit = "";
+
+        //LIMIT search to only music videos
+        if (!allVideos){
+            categoryLimit = "&videoCategoryId=10";
+        }
+
+        //filters out songs over 20min
+        if (!longSongs)
+            lenghtLimit =  "&videoDuration=short";
+
+        String encodedQuery ="";
+        try {
+            encodedQuery = URLEncoder.encode(query,"UTF-8");
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+
+        getHolder holder = new getHolder();
+        holder.type = TYPE.APPENDING_QUERY;
+        holder.url = URL_YOUTUBE_QUERY_PT1 + encodedQuery + URL_YOUTUBE_QUERY_PT2 + categoryLimit + lenghtLimit + "&pageToken="+nextPageToken;
+        holder.searchActivity = searchActivity;
+
+        Get get = new Get();
+        get.execute(holder);
 
     }
 
-    public static void getNextPage(){
-
-    }
 
 
-
-    private class Get extends AsyncTask<getHolder, Void, getHolder> {
+    private static class Get extends AsyncTask<getHolder, Void, getHolder> {
         StringBuilder sb;
 
 
@@ -109,15 +164,34 @@ public class YouTubeServer {
 
         @Override
         protected void onPostExecute(getHolder holder) {
-
+            ArrayList<SearchResult> results = results = new ArrayList<>();
+            String nextPageToken;
             switch (holder.type){
                 case INITIAL_QUERY:
+
+                    results.addAll(YouTubeJSONTranslator.toSearchResults(holder.response));
+                    getDetails(holder.searchActivity,results);
+
+                    nextPageToken = YouTubeJSONTranslator.toNextPageToken(holder.response);
+
+                    holder.searchActivity.firstPageReceived(results, nextPageToken);
 
 
                     break;
                 case DETAILS_QUERY:
+                    holder.searchActivity.detailsReceived(
+                            YouTubeJSONTranslator.toDetails(holder.response));
+
                     break;
                 case APPENDING_QUERY:
+
+                    results.addAll(YouTubeJSONTranslator.toSearchResults(holder.response));
+                    nextPageToken = YouTubeJSONTranslator.toNextPageToken(holder.response);
+
+                    getDetails(holder.searchActivity,results);
+
+
+                    holder.searchActivity.pageReceived(results, nextPageToken);
                     break;
             }
 

@@ -1,6 +1,7 @@
 package no.lqasse.zoff.Search;
 
 import android.text.Html;
+import android.view.View;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -14,6 +15,24 @@ import no.lqasse.zoff.Models.SearchResult;
  * Created by lassedrevland on 24.03.15.
  */
 public class YouTubeJSONTranslator {
+
+    public static String toNextPageToken(String JSONString){
+        JSONObject json;
+        String nextPageToken ="";
+        try {
+            json = new JSONObject(JSONString);
+
+
+            if (json.has("nextPageToken")) {
+                nextPageToken = json.getString("nextPageToken");
+
+            }
+        }catch (JSONException e){
+            e.printStackTrace();
+        }
+
+        return nextPageToken;
+    }
 
     public static ArrayList<SearchResult> toSearchResults(String JSONString){
         JSONObject json;
@@ -84,5 +103,37 @@ public class YouTubeJSONTranslator {
 
         return searchResults;
 
+    }
+
+    public static ArrayList<String[]> toDetails(String JSONString){
+        ArrayList<String[]> detailsArray = new ArrayList<>();
+        try {
+            JSONObject json = new JSONObject(JSONString);
+            JSONArray items = json.getJSONArray("items");
+            String duration = "";
+            String views = "";
+            String id = "";
+
+            for (int i = 0; i < items.length(); i++) {
+                JSONObject details = items.getJSONObject(i).getJSONObject("contentDetails");
+                JSONObject statistics = items.getJSONObject(i).getJSONObject("statistics");
+
+                id = items.getJSONObject(i).getString("id");
+                duration = details.getString("duration");
+                views = statistics.getString("viewCount");
+
+                String[] entry = {id,duration,views};
+                detailsArray.add(entry);
+
+
+            }
+
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return detailsArray;
     }
 }

@@ -1,6 +1,5 @@
 package no.lqasse.zoff.Player;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -10,20 +9,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.android.youtube.player.YouTubePlayer;
@@ -31,10 +22,12 @@ import com.google.android.youtube.player.YouTubePlayer;
 import java.net.URL;
 import java.util.ArrayList;
 
-import no.lqasse.zoff.Datatypes.Zoff;
-import no.lqasse.zoff.Datatypes.Zoff_Listener;
+import no.lqasse.zoff.Helpers.ImageBlur;
+import no.lqasse.zoff.Helpers.ImageCache;
+import no.lqasse.zoff.Models.Video;
+import no.lqasse.zoff.Zoff;
+import no.lqasse.zoff.Zoff_Listener;
 import no.lqasse.zoff.Helpers.ToastMaster;
-import no.lqasse.zoff.Models.ZoffVideo;
 import no.lqasse.zoff.R;
 import no.lqasse.zoff.Search.SearchActivity;
 import no.lqasse.zoff.SettingsActivity;
@@ -46,8 +39,9 @@ public class PlayerActivity extends ActionBarActivity implements Zoff_Listener{
     private YouTube_Player player;
     private Zoff zoff;
     private final Handler handler = new Handler();
-    private ArrayList<ZoffVideo> zoffVideoList = new ArrayList<>();
-    private playerListAdapter adapter;
+    private ArrayList<Video> videoList = new ArrayList<>();
+    private PlayerListAdapter adapter;
+    private PlayerActivity playerActivity = this;
 
     private Menu menu;
     private ListView videoListView;
@@ -78,14 +72,14 @@ public class PlayerActivity extends ActionBarActivity implements Zoff_Listener{
         videoListView = (ListView) findViewById(R.id.videoList);
 
 
-        adapter = new playerListAdapter(this, zoffVideoList);
+        adapter = new PlayerListAdapter(this, videoList);
         videoListView.setAdapter(adapter);
 
         videoListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 
-                ZoffVideo selectedVideo = adapter.getItem(position);
+                Video selectedVideo = adapter.getItem(position);
                 zoff.vote(selectedVideo);
 
 
@@ -188,12 +182,19 @@ public class PlayerActivity extends ActionBarActivity implements Zoff_Listener{
     public void zoffRefreshed(Boolean hasInetAccess) {
 
 
-        zoffVideoList.clear();
-        zoffVideoList.addAll(zoff.getNextVideos());
+        videoList.clear();
+        videoList.addAll(zoff.getNextVideos());
 
         adapter.notifyDataSetChanged();
+
         titleLabel.setText(zoff.getNowPlayingTitle());
         currentTimeLabel.setText(zoff.getVIEWERS_STRING());
+
+        if (!ImageCache.has(zoff.getNowPlayingID() + "_blur") && ImageCache.has(zoff.getNowPlayingID())){
+            downloadBG downloadBG = new downloadBG();
+            downloadBG.execute("");
+
+        }
 
 
 
@@ -261,115 +262,14 @@ public class PlayerActivity extends ActionBarActivity implements Zoff_Listener{
 
     }
 
-    public void setBlurBg(Bitmap blurBg) {
+    public void setBackgroundImage(Bitmap blurBg) {
         LinearLayout l = (LinearLayout) findViewById(R.id.layout);
         l.setBackground(new BitmapDrawable(getBaseContext().getResources(), blurBg));
     }
 
 
-    public static class playerListAdapter extends ArrayAdapter<ZoffVideo> {
-        private final Context context;
-        private final ArrayList<ZoffVideo> results;
-
-        public playerListAdapter(Context context, ArrayList<ZoffVideo> results) {
-            super(context, R.layout.now_playing_row, results);
-            this.context = context;
-            this.results = results;
 
 
-        }
-
-
-        private static class ViewHolder {
-            ImageView imageView;
-            String imageURL;
-            Bitmap bitmap;
-            int position;
-            ProgressBar progressBar;
-        }
-
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            ViewHolder viewHolder;
-            viewHolder = new ViewHolder();
-
-            View rowView;
-            LayoutInflater inflater = (LayoutInflater) context
-                    .getSystemService(LAYOUT_INFLATER_SERVICE);
-
-            rowView = inflater.inflate(R.layout.now_playing_row, parent, false);
-            viewHolder.imageURL = results.get(position).getThumbMed();
-
-
-            ImageView imageView = (ImageView) rowView.findViewById(R.id.imageView);
-            ProgressBar progressBar = (ProgressBar) rowView.findViewById(R.id.progressBar);
-
-            viewHolder.imageView = imageView;
-            viewHolder.position = position;
-            viewHolder.progressBar = progressBar;
-
-
-
-
-
-            TextView title = (TextView) rowView.findViewById(R.id.titleView);
-            TextView votes = (TextView) rowView.findViewById(R.id.votesView);
-
-
-            title.setText(results.get(position).getTitle());
-            if (votes != null) {
-                votes.setText(results.get(position).getVotes());
-            }
-
-
-            return rowView;
-        }
-
-        private class downloadImage extends AsyncTask<ViewHolder, Void, ViewHolder> {
-
-
-            @Override
-            protected ViewHolder doInBackground(ViewHolder... params) {
-                ViewHolder viewHolder = params[0];
-
-                try {
-                    URL imageURL = new URL(viewHolder.imageURL);
-                    viewHolder.bitmap = BitmapFactory.decodeStream(imageURL.openStream());
-                } catch (Exception e) {
-                    Log.d("ERROR", e.getLocalizedMessage());
-                    e.printStackTrace();
-                    viewHolder.bitmap = null;
-                }
-                return viewHolder;
-            }
-
-            @Override
-            protected void onPostExecute(ViewHolder result) {
-                if (result.bitmap == null) {
-                    Log.d("FAIL", "NO IMAGE");
-                } else {
-
-
-                    result.progressBar.setVisibility(View.GONE);
-
-                    //Animate fade in <3
-                    Animation a = new AlphaAnimation(0.00f, 1.00f);
-                    a.setInterpolator(new DecelerateInterpolator());
-                    a.setDuration(700);
-                    result.imageView.setImageBitmap(result.bitmap);
-                    result.imageView.setAnimation(a);
-                    result.imageView.startAnimation(a);
-
-
-
-
-                }
-            }
-
-        }
-
-    }
 
 
     private class downloadBG extends AsyncTask<String, Void, Bitmap> {
@@ -378,7 +278,7 @@ public class PlayerActivity extends ActionBarActivity implements Zoff_Listener{
 
             Bitmap b;
             try {
-                URL imageURL = new URL(zoff.getNowPlayingVideo().getImageBig());
+                URL imageURL = new URL(zoff.getNowPlayingVideo().getThumbMed());
                 b = BitmapFactory.decodeStream(imageURL.openStream());
             } catch (Exception e) {
                 Log.d("ERROR", e.getLocalizedMessage());
@@ -391,7 +291,7 @@ public class PlayerActivity extends ActionBarActivity implements Zoff_Listener{
         @Override
         protected void onPostExecute(Bitmap bitmap) {
 
-
+            ImageBlur.createAndSetBlurBG(bitmap,playerActivity,zoff.getNowPlayingID());
 
             super.onPostExecute(bitmap);
 

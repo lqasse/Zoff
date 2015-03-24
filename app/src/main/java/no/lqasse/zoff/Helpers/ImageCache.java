@@ -4,6 +4,8 @@ import android.graphics.Bitmap;
 
 import java.util.HashMap;
 
+import no.lqasse.zoff.Zoff;
+
 /**
  * Created by lassedrevland on 23.03.15.
  */
@@ -20,6 +22,8 @@ public class ImageCache {
     public static Bitmap get(String id){
         return ImageMap.get(id);
     }
+
+
 
 
 

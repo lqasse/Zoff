@@ -19,178 +19,145 @@ import android.widget.TextView;
 import java.net.URL;
 import java.util.ArrayList;
 
-
-import no.lqasse.zoff.Datatypes.Zoff;
+import no.lqasse.zoff.Helpers.ImageBlur;
 import no.lqasse.zoff.Helpers.ImageCache;
-import no.lqasse.zoff.Models.ZoffVideo;
+import no.lqasse.zoff.Models.Video;
 import no.lqasse.zoff.R;
+import no.lqasse.zoff.Zoff;
 
-public class RemoteListAdapter extends ArrayAdapter<ZoffVideo> {
-        private Context context;
-        //private final String[] values;
-        private final ArrayList<ZoffVideo> videoList;
-        private Zoff zoff;
+public class RemoteListAdapter extends ArrayAdapter<Video> {
+    //private final String[] values;
+    private final ArrayList<Video> videoList;
+    private Context context;
+    private Zoff zoff;
+
+
+    public RemoteListAdapter(Context context, ArrayList<Video> videoList, Zoff zoff) {
+        super(context, R.layout.now_playing_row, videoList);
+        this.context = context;
+        this.videoList = videoList;
+        this.zoff = zoff;
+
+
+    }
+
+    @Override
+    public View getView(final int position, View convertView, ViewGroup parent) {
+        ViewHolder viewHolder;
+        viewHolder = new ViewHolder();
+
+        Video currentVideo = videoList.get(position);
+
+        View rowView;
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(context.LAYOUT_INFLATER_SERVICE);
+        if (position == 0) { //Top of list, Now playing!
+            rowView = inflater.inflate(R.layout.now_playing_row_top, parent, false);
+            viewHolder.imageURL = videoList.get(position).getImageBig();
 
 
 
-        public RemoteListAdapter(Context context, ArrayList<ZoffVideo> videoList, Zoff zoff) {
-            super(context, R.layout.now_playing_row, videoList);
-            this.context = context;
-            this.videoList = videoList;
-            this.zoff = zoff;
+        } else {
+            rowView = inflater.inflate(R.layout.now_playing_row, parent, false);
+            viewHolder.imageURL = videoList.get(position).getThumbMed();
+        }
+
+        ImageView imageView = (ImageView) rowView.findViewById(R.id.imageView);
+        ProgressBar progressBar = (ProgressBar) rowView.findViewById(R.id.progressBar);
+
+        viewHolder.imageView = imageView;
+        viewHolder.position = position;
+        viewHolder.progressBar = progressBar;
+        viewHolder.video = currentVideo;
+
+
+        if (ImageCache.has(currentVideo.getId())) {
+            imageView.setImageBitmap(ImageCache.get(currentVideo.getId()));
+            progressBar.setVisibility(View.GONE);
+        } else {
+            new downloadImage().execute(viewHolder);
+        }
+
+        if (ImageCache.has(currentVideo.getId()) && position == 0 && !ImageCache.has(currentVideo.getId()+"_blur")){
+            ImageBlur.createAndSetBlurBG(ImageCache.get(currentVideo.getId()),(RemoteActivity)context,currentVideo.getId());
 
 
         }
 
 
+        TextView title = (TextView) rowView.findViewById(R.id.titleView);
+        TextView votes = (TextView) rowView.findViewById(R.id.votesView);
+        TextView views = (TextView) rowView.findViewById(R.id.viewsLabel);
+        TextView playtime = (TextView) rowView.findViewById(R.id.playtimeLabel);
 
-        private static
-        class ViewHolder{
-            ImageView imageView;
-            String imageURL;
-            Bitmap bitmap;
-            int position;
-            ProgressBar progressBar;
-            ZoffVideo video;
-            Boolean hqImage = false;
+
+        title.setText(videoList.get(position).getTitle());
+
+        if (votes != null) {
+
+            votes.setText(videoList.get(position).getVotes());
+
+        } else {
+            views.setText(zoff.getVIEWERS_STRING());
+            playtime.setText(""); //Implement later?
+
         }
+
+
+        return rowView;
+    }
+
+    private static class ViewHolder {
+        ImageView imageView;
+        String imageURL;
+        Bitmap bitmap;
+        int position;
+        ProgressBar progressBar;
+        Video video;
+
+    }
+
+    private class downloadImage extends AsyncTask<ViewHolder, Void, ViewHolder> {
 
 
         @Override
-        public View getView(final int position, View convertView, ViewGroup parent) {
-            ViewHolder viewHolder;
-            viewHolder = new ViewHolder();
+        protected ViewHolder doInBackground(ViewHolder... params) {
+            ViewHolder viewHolder = params[0];
 
-            ZoffVideo currentVideo = videoList.get(position);
+            try {
+                URL imageURL = new URL(viewHolder.imageURL);
+                viewHolder.bitmap = BitmapFactory.decodeStream(imageURL.openStream());
+            } catch (Exception e) {
+                Log.d("IMG", "Failed");
 
-            View rowView;
-            LayoutInflater inflater = (LayoutInflater) context.getSystemService(context.LAYOUT_INFLATER_SERVICE);
-            if (position == 0){ //Top of list, Now playing!
-                rowView = inflater.inflate(R.layout.now_playing_row_top, parent, false);
-                viewHolder.imageURL = videoList.get(position).getImageBig();
-
-            } else {
-                rowView = inflater.inflate(R.layout.now_playing_row, parent, false);
-                viewHolder.imageURL = videoList.get(position).getThumbMed();
+                viewHolder.bitmap = null;
             }
-
-            ImageView imageView = (ImageView) rowView.findViewById(R.id.imageView);
-            ProgressBar progressBar = (ProgressBar) rowView.findViewById(R.id.progressBar);
-
-            viewHolder.imageView = imageView;
-            viewHolder.position = position;
-            viewHolder.progressBar = progressBar;
-            viewHolder.video = currentVideo;
-
-
-            /*
-            if (position == 0 && videoList.get(position).getImgBig() == null){ //TOp image is not in hq
-                viewHolder.hqImage = true;
-                new downloadImage().execute(viewHolder);
-            } else if (position == 0 && videoList.get(position).getImgBig() != null){ //TOp image is in hq
-                imageView.setImageBitmap(videoList.get(position).getImgBig());
-                progressBar.setVisibility(View.GONE);
-            } else if (videoList.get(position).getImg() == null){ //Not top, not downloaded
-                new downloadImage().execute(viewHolder);
-            } else {
-                imageView.setImageBitmap(videoList.get(position).getImg());//Not top,  downloaded
-                progressBar.setVisibility(View.GONE);
-            }
-
-            */
-
-
-                if (ImageCache.has(currentVideo.getId())){
-                    imageView.setImageBitmap(ImageCache.get(currentVideo.getId()));
-                    progressBar.setVisibility(View.GONE);
-                } else {
-                    new downloadImage().execute(viewHolder);
-                }
-
-
-
-            TextView title = (TextView) rowView.findViewById(R.id.titleView);
-            TextView votes = (TextView) rowView.findViewById(R.id.votesView);
-            TextView views = (TextView) rowView.findViewById(R.id.viewsLabel);
-            TextView playtime = (TextView) rowView.findViewById(R.id.playtimeLabel);
-
-
-
-
-
-
-            title.setText(videoList.get(position).getTitle());
-
-            if (votes != null){
-
-                votes.setText(videoList.get(position).getVotes());
-
-            } else {
-                views.setText(zoff.getVIEWERS_STRING());
-                playtime.setText(""); //Implement later?
-
-            }
-
-
-
-
-            return rowView;
+            return viewHolder;
         }
 
+        @Override
+        protected void onPostExecute(ViewHolder viewHolder) {
+            if (viewHolder.bitmap == null) {
 
+            } else {
+                viewHolder.progressBar.setVisibility(View.GONE);
+                //Animate fade in <3
+                Animation a = new AlphaAnimation(0.00f, 1.00f);
+                a.setInterpolator(new DecelerateInterpolator());
+                a.setDuration(700);
+                viewHolder.imageView.setImageBitmap(viewHolder.bitmap);
+                viewHolder.imageView.setAnimation(a);
+                viewHolder.imageView.startAnimation(a);
 
-        private  class downloadImage extends AsyncTask<ViewHolder, Void, ViewHolder> {
+                viewHolder.imageView.setImageBitmap(viewHolder.bitmap);
+                ImageCache.put(viewHolder.video.getId(), viewHolder.bitmap);
 
-
-
-
-
-            @Override
-            protected ViewHolder doInBackground(ViewHolder... params){
-                ViewHolder viewHolder = params[0];
-
-                try {
-                    URL imageURL = new URL(viewHolder.imageURL);
-                    viewHolder.bitmap = BitmapFactory.decodeStream(imageURL.openStream());
-                } catch (Exception e){
-                    Log.d("ERROR", e.getLocalizedMessage());
-                    e.printStackTrace();
-                    viewHolder.bitmap = null;
-                }
-                return viewHolder;
-            }
-
-            @Override
-            protected void onPostExecute(ViewHolder viewHolder){
-                if (viewHolder.bitmap == null){
-                    Log.d("FAIL", "NO IMAGE");
-                } else {
-                    viewHolder.progressBar.setVisibility(View.GONE);
-
-                    //Animate fade in <3
-                    Animation a = new AlphaAnimation(0.00f,1.00f);
-                    a.setInterpolator(new DecelerateInterpolator());
-                    a.setDuration(700);
-                    viewHolder.imageView.setImageBitmap(viewHolder.bitmap);
-                    viewHolder.imageView.setAnimation(a);
-                    viewHolder.imageView.startAnimation(a);
-
-                    viewHolder.imageView.setImageBitmap(viewHolder.bitmap);
-
-                    ImageCache.put(viewHolder.video.getId(),viewHolder.bitmap);
-
-
-
-
-
-
-
-
+                if (!ImageCache.has(viewHolder.video.getId()+"_blur") && (viewHolder.position == 0)){
+                    ImageBlur.createAndSetBlurBG(viewHolder.bitmap,(RemoteActivity) context,viewHolder.video.getId());
                 }
             }
-
-
-
         }
+
 
     }
+
+}

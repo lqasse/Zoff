@@ -1,4 +1,4 @@
-package no.lqasse.zoff.Datatypes;
+package no.lqasse.zoff;
 
 /**
  * Created by lassedrevland on 24.03.15.

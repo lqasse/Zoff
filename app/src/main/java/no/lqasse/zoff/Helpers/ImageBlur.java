@@ -12,12 +12,12 @@ import no.lqasse.zoff.Remote.RemoteActivity;
  * Created by lassedrevland on 23.03.15.
  */
 public class ImageBlur {
-    public static void createAndSetBlurBG(Bitmap bitmap, Activity activity){
-
+    public static void createAndSetBlurBG(Bitmap bitmap, Activity activity,String id){
 
         ViewHolder viewHolder = new ViewHolder();
         viewHolder.bitmap = bitmap;
         viewHolder.activity = activity;
+        viewHolder.videoID = id;
         create create = new create();
         create.execute(viewHolder);
 
@@ -26,6 +26,7 @@ public class ImageBlur {
     private static class ViewHolder{
         Bitmap bitmap;
         Activity activity;
+        String videoID;
 
         public Bitmap getBitmap() {
             return bitmap;
@@ -263,14 +264,18 @@ public class ImageBlur {
         @Override
         protected void onPostExecute(ViewHolder viewHolder) {
 
+
+            ImageCache.put(viewHolder.videoID+"_blur", viewHolder.bitmap);
             if (viewHolder.activity instanceof RemoteActivity){
                 ((RemoteActivity) viewHolder.activity).setBackgroundImage(viewHolder.bitmap);
             } else if (viewHolder.activity instanceof PlayerActivity){
-                ((PlayerActivity)viewHolder.activity).setBlurBg(viewHolder.bitmap);
+                ((PlayerActivity)viewHolder.activity).setBackgroundImage(viewHolder.bitmap);
             }
             super.onPostExecute(viewHolder);
         }
     }
+
+
 
 
 }

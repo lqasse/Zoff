@@ -1,12 +1,9 @@
-package no.lqasse.zoff.Datatypes;
+package no.lqasse.zoff;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-import android.view.View;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,15 +11,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import no.lqasse.zoff.Helpers.JSONTranslator;
+import no.lqasse.zoff.Models.Video;
+import no.lqasse.zoff.Server.JSONTranslator;
 import no.lqasse.zoff.Helpers.ToastMaster;
-import no.lqasse.zoff.Models.ZoffVideo;
-import no.lqasse.zoff.NotificationService;
-import no.lqasse.zoff.Player.PlayerActivity;
-import no.lqasse.zoff.R;
-import no.lqasse.zoff.Remote.RemoteActivity;
-import no.lqasse.zoff.Search.SearchActivity;
-import no.lqasse.zoff.Server;
+import no.lqasse.zoff.Server.Server;
 
 /**
  * Created by lassedrevland on 11.01.15.
@@ -47,7 +39,7 @@ public class Zoff {
 
 
 
-    private ArrayList<ZoffVideo> videoList = new ArrayList<>();
+    private ArrayList<Video> videoList = new ArrayList<>();
     private Context context;
     private Runnable Refresher;
 
@@ -128,7 +120,7 @@ public class Zoff {
         this.ROOM_NAME = new String(nameArray);
     }
 
-    public void vote(ZoffVideo selectedVideo) {
+    public void vote(Video selectedVideo) {
 
         String videoID = selectedVideo.getId();
         String title = selectedVideo.getTitle();
@@ -147,7 +139,7 @@ public class Zoff {
         }
         else {
 
-            ToastMaster.showToast(context, ToastMaster.TYPE.NEEDS_PASS_VOTE);
+            ToastMaster.showToast(context, ToastMaster.TYPE.NEEDS_PASS_TO_VOTE);
 
         }
 
@@ -250,14 +242,14 @@ public class Zoff {
     }
 
     public String getNextId() {
-        ZoffVideo v = videoList.get(1);
+        Video v = videoList.get(1);
 
         return v.getId();
     }
 
     public List<String> getVideoIDs() {
         ArrayList<String> ids = new ArrayList<>();
-        for (ZoffVideo v : videoList) {
+        for (Video v : videoList) {
             ids.add(v.getId());
         }
 
@@ -277,25 +269,25 @@ public class Zoff {
 
     }
 
-    public ZoffVideo getNowPlayingVideo() {
+    public Video getNowPlayingVideo() {
         return videoList.get(0);
     }
 
-    public ArrayList<ZoffVideo> getVideos() {
+    public ArrayList<Video> getVideos() {
         return videoList;
     }
 
-    public ArrayList<ZoffVideo> getNextVideos() {
+    public ArrayList<Video> getNextVideos() {
 
-        ArrayList<ZoffVideo> nextZoffVideos = new ArrayList<>();
-        nextZoffVideos.addAll(videoList);
+        ArrayList<Video> nextVideos = new ArrayList<>();
+        nextVideos.addAll(videoList);
 
         if (videoList.size()!= 0){
-            nextZoffVideos.remove(0);
+            nextVideos.remove(0);
         }
 
 
-        return nextZoffVideos;
+        return nextVideos;
     }
 
 

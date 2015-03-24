@@ -1,20 +1,18 @@
 package no.lqasse.zoff.Models;
 
-import android.graphics.Bitmap;
-
-import no.lqasse.zoff.Datatypes.Zoff;
+import no.lqasse.zoff.Zoff;
 
 /**
  * Created by lassedrevland on 23.03.15.
  */
-public class ZoffVideo implements Comparable<ZoffVideo>{
+public class Video implements Comparable<Video>{
         private String title;
         private String id;
         private String votes;
         private String added;
 
 
-        public ZoffVideo(String title, String id, String votes, String added){
+        public Video(String title, String id, String votes, String added){
             this.title = title;
             this.id = id;
             this.votes = votes;
@@ -23,7 +21,7 @@ public class ZoffVideo implements Comparable<ZoffVideo>{
 
         }
 
-        public ZoffVideo(String title, String id, String votes, String added, Zoff zoff){
+        public Video(String title, String id, String votes, String added, Zoff zoff){
         //TODO REMOVE
         this.title = title;
         this.id = id;
@@ -34,7 +32,7 @@ public class ZoffVideo implements Comparable<ZoffVideo>{
     }
 
         @Override
-        public int compareTo(ZoffVideo another) {
+        public int compareTo(Video another) {
 
             if (this.getVotesInt() != another.getVotesInt()){
                 return another.getVotesInt() - this.getVotesInt(); //Descending on votes 1, 2 ,3 etc

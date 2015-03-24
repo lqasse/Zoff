@@ -15,6 +15,8 @@ import android.widget.Toast;
 
 import java.util.HashMap;
 
+import no.lqasse.zoff.Server.Server;
+
 /**
  * Created by lassedrevland on 21.01.15.
  */
@@ -99,7 +101,7 @@ public class SettingsActivity extends ActionBarActivity {
                 Boolean allvideos =  (allvideosCB.isChecked());
                 Boolean removeplay = (removeplayCB.isChecked());
 
-                Server.postSettings(settingsActivity,password, vote, addsongs, longsongs, frontpage, allvideos, removeplay);
+                Server.postSettings(settingsActivity, password, vote, addsongs, longsongs, frontpage, allvideos, removeplay);
 
                 progressBar.setVisibility(View.VISIBLE);
                 postSettingsBtn.setEnabled(false);

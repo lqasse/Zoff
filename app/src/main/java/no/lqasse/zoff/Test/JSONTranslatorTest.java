@@ -5,8 +5,8 @@ import android.test.InstrumentationTestCase;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import no.lqasse.zoff.Helpers.JSONTranslator;
-import no.lqasse.zoff.Models.ZoffVideo;
+import no.lqasse.zoff.Models.Video;
+import no.lqasse.zoff.Server.JSONTranslator;
 
 /**
  * Created by lassedrevland on 23.03.15.
@@ -16,7 +16,7 @@ public class JSONTranslatorTest extends InstrumentationTestCase{
 
     public void test() throws Exception {
 
-        ArrayList<ZoffVideo> videos = JSONTranslator.toZoffVideos(testData);
+        ArrayList<Video> videos = JSONTranslator.toZoffVideos(testData);
 
 
         testConf();

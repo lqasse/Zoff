@@ -1,10 +1,9 @@
 package no.lqasse.zoff.Remote;
 
-import android.app.NotificationManager;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,12 +16,12 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 
 
-import no.lqasse.zoff.Datatypes.Zoff;
-import no.lqasse.zoff.Datatypes.Zoff_Listener;
+import no.lqasse.zoff.Models.Video;
+import no.lqasse.zoff.Zoff;
+import no.lqasse.zoff.Zoff_Listener;
 import no.lqasse.zoff.Helpers.ImageBlur;
 import no.lqasse.zoff.Helpers.ImageCache;
 import no.lqasse.zoff.Helpers.ToastMaster;
-import no.lqasse.zoff.Models.ZoffVideo;
 import no.lqasse.zoff.NotificationService;
 import no.lqasse.zoff.R;
 import no.lqasse.zoff.Search.SearchActivity;
@@ -31,7 +30,7 @@ import no.lqasse.zoff.SettingsActivity;
 /**
  * Created by lassedrevland on 21.01.15.
  */
-public class RemoteActivity extends ActionBarActivity implements Zoff_Listener{
+public class RemoteActivity extends ActionBarActivity implements Zoff_Listener {
     private final String PREFS_FILE = "no.lqasse.zoff.prefs";
     private String ROOM_NAME;
     private String ROOM_PASS;
@@ -61,6 +60,7 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener{
         ROOM_PASS = getPASS();
 
 
+
         zoff = new Zoff(ROOM_NAME, this);
         zoff.setROOM_PASS(getPASS());
         setContentView(R.layout.activity_remote);
@@ -70,8 +70,9 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener{
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
 
+
         //Handle everything listview related
-        adapter = new RemoteListAdapter(this, zoff.getVideos(),zoff);
+        adapter = new RemoteListAdapter(this, zoff.getVideos(), zoff);
         videoList = (ListView) findViewById(R.id.videoList);
         videoList.setAdapter(adapter);
 
@@ -80,8 +81,8 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener{
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 
 
-                if (position != 0){ //Cant vote for current video duh
-                    ZoffVideo selectedVideo =  adapter.getItem(position);
+                if (position != 0) { //Cant vote for current video duh
+                    Video selectedVideo = adapter.getItem(position);
                     zoff.vote(selectedVideo);
                 }
 
@@ -93,10 +94,9 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener{
         videoList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (position != 0){ //Currently playing video cant be voted on
+                if (position != 0) { //Currently playing video cant be voted on
                     ToastMaster.showToast(getBaseContext(), ToastMaster.TYPE.HOLD_TO_VOTE);
                 }
-
 
 
             }
@@ -105,10 +105,12 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener{
         r = new Runnable() {
             @Override
             public void run() {
-             Intent i = new Intent(getBaseContext(),NotificationService.class);
+                Intent i = new Intent(getBaseContext(), NotificationService.class);
 
             }
         };
+
+
 
 
 
@@ -167,19 +169,19 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener{
                     i.putExtra("ROOM_NAME", ROOM_NAME);
                     i.putExtra("ROOM_PASS", ROOM_PASS);
                     i.putExtra("ALL_VIDEOS_ALLOWED", zoff.ALL_VIDEOS_ALLOWED());
-                    i.putExtra("LONG_SONGS",zoff.LONG_SONGS());
+                    i.putExtra("LONG_SONGS", zoff.LONG_SONGS());
                     startActivity(i);
-                }else if (!zoff.ANYONE_CAN_ADD() && zoff.hasROOM_PASS()){
+                } else if (!zoff.ANYONE_CAN_ADD() && zoff.hasROOM_PASS()) {
                     Intent i = new Intent(this, SearchActivity.class);
                     i.putExtra("ROOM_NAME", ROOM_NAME);
                     i.putExtra("ROOM_PASS", ROOM_PASS);
                     i.putExtra("ALL_VIDEOS_ALLOWED", zoff.ALL_VIDEOS_ALLOWED());
-                    i.putExtra("LONG_SONGS",zoff.LONG_SONGS());
+                    i.putExtra("LONG_SONGS", zoff.LONG_SONGS());
 
                     startActivity(i);
                 } else {
 
-                    ToastMaster.showToast(getBaseContext(), ToastMaster.TYPE.NEEDS_PASS_VOTE);
+                    ToastMaster.showToast(getBaseContext(), ToastMaster.TYPE.NEEDS_PASS_TO_VOTE);
                 }
 
 
@@ -195,11 +197,11 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener{
                 startActivity(i);
                 break;
             case (R.id.action_shuffle):
-                if (zoff.hasROOM_PASS()){
+                if (zoff.hasROOM_PASS()) {
                     ToastMaster.showToast(getBaseContext(), ToastMaster.TYPE.SHUFFLED);
                     zoff.shuffle();
                 } else {
-                    ToastMaster.showToast(getBaseContext(), ToastMaster.TYPE.NEEDS_PASS_SHUFFLE);
+                    ToastMaster.showToast(getBaseContext(), ToastMaster.TYPE.NEEDS_PASS_TO_SHUFFLE);
                 }
                 break;
 
@@ -209,7 +211,6 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener{
 
         return super.onOptionsItemSelected(item);
     }
-
 
 
     @Override
@@ -225,44 +226,29 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener{
     public void zoffRefreshed(Boolean hasInetAccess) {
         adapter.notifyDataSetChanged();
 
-        if (!ImageCache.has(zoff.getNowPlayingID()+"_blur") && ImageCache.has(zoff.getNowPlayingID())){
 
-            ImageBlur.createAndSetBlurBG(ImageCache.get(zoff.getNowPlayingID()),this);
-
-        }
     }
 
-    private String getPASS(){
+    private String getPASS() {
         String PASS;
-        sharedPreferences = getSharedPreferences(PREFS_FILE,0);
-        PASS = sharedPreferences.getString(ROOM_NAME,null);
+        sharedPreferences = getSharedPreferences(PREFS_FILE, 0);
+        PASS = sharedPreferences.getString(ROOM_NAME, null);
         return PASS;
 
     }
 
 
-
-    public Zoff getZoff(){
+    public Zoff getZoff() {
         return this.zoff;
     }
 
 
+    public void setBackgroundImage(Bitmap bitmap) {
 
-
-    public void setBackgroundImage(Bitmap blurBg){
 
         LinearLayout l = (LinearLayout) findViewById(R.id.layout);
-        l.setBackground(new BitmapDrawable(getBaseContext().getResources(),blurBg));
+        l.setBackground(new BitmapDrawable(getBaseContext().getResources(), bitmap));
     }
-
-
-
-
-
-
-
-
-
 
 
 }

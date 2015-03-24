@@ -1,7 +1,5 @@
-package no.lqasse.zoff.Helpers;
+package no.lqasse.zoff.Server;
 
-import android.app.Activity;
-import android.graphics.Bitmap;
 import android.text.Html;
 
 import org.json.JSONArray;
@@ -12,21 +10,20 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
-import no.lqasse.zoff.Datatypes.Zoff;
-import no.lqasse.zoff.Models.ZoffVideo;
+import no.lqasse.zoff.Models.Video;
 
 /**
  * Created by lassedrevland on 19.03.15.
  */
 public  class JSONTranslator {
 
-    public static ArrayList<ZoffVideo> toZoffVideos(String JSONString){
+    public static ArrayList<Video> toZoffVideos(String JSONString){
         JSONObject json;
         JSONObject videoObject;
         JSONObject songs;
         JSONArray songsArray;
 
-        ArrayList<ZoffVideo> videos = new ArrayList<>();
+        ArrayList<Video> videos = new ArrayList<>();
 
 
         try {
@@ -57,7 +54,7 @@ public  class JSONTranslator {
         return videos;
     };
 
-    private static ZoffVideo toZoffVideo(JSONObject videoObject) throws JSONException{
+    private static Video toZoffVideo(JSONObject videoObject) throws JSONException{
         String title;
         String id;
         String added = "0";
@@ -73,7 +70,7 @@ public  class JSONTranslator {
         //Decode string from html #magic
         title = Html.fromHtml(title).toString();
 
-        return new ZoffVideo(title,id,votes,added);
+        return new Video(title,id,votes,added);
 
     };
 
@@ -129,6 +126,23 @@ public  class JSONTranslator {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public static ArrayList<String> toRoomSuggestions(String JSONString){
+        JSONArray json;
+        ArrayList<String> activeRooms = new ArrayList<>();
+        try {
+            json =new JSONArray(JSONString);
+            for (int i = 0;i<json.length();i++){
+                activeRooms.add(json.get(i).toString());
+            }
+
+
+        }catch (JSONException e){
+            e.printStackTrace();
+        }
+
+        return activeRooms;
     }
 
 }

@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
-import no.lqasse.zoff.Datatypes.Zoff;
 import no.lqasse.zoff.Remote.RemoteActivity;
 
 /**

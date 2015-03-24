@@ -12,9 +12,9 @@ import no.lqasse.zoff.R;
 public class ToastMaster {
 
     public enum TYPE{
-        NEEDS_PASS_VOTE,
-        NEEDS_PASS_ADD,
-        NEEDS_PASS_SHUFFLE,
+        NEEDS_PASS_TO_VOTE,
+        NEEDS_PASS_TO_ADD,
+        NEEDS_PASS_TO_SHUFFLE,
         VIDEO_ADDED,
         HOLD_TO_VOTE,
         SHUFFLED,
@@ -36,10 +36,10 @@ public class ToastMaster {
         String toastText = "Toast error";
 
         switch (type){
-            case NEEDS_PASS_VOTE:
+            case NEEDS_PASS_TO_VOTE:
                 toastText = "This room is password protected, set a password to vote";
                 break;
-            case NEEDS_PASS_ADD:
+            case NEEDS_PASS_TO_ADD:
                 toastText = "This room is password protected, set a password to add videos";
                 break;
             case VIDEO_ADDED:
@@ -54,7 +54,7 @@ public class ToastMaster {
             case SHUFFLED:
                 toastText = "Shuffled!";
                 break;
-            case NEEDS_PASS_SHUFFLE:
+            case NEEDS_PASS_TO_SHUFFLE:
                 toastText = "This room is password protected, set a password to shuffle";
                 break;
             case EMBEDDING_DISABLED:
