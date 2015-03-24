@@ -26,12 +26,12 @@ import no.lqasse.zoff.R;
 /**
  * Created by lassedrevland on 09.12.14.
  */
-public class searchResultAdapter extends ArrayAdapter<Searchresult> {
+public class SearchResultListAdapter extends ArrayAdapter<Searchresult> {
     private final Context context;
     //private final String[] values;
     private final ArrayList<Searchresult> Searchresults;
 
-    public searchResultAdapter(Context context, ArrayList<Searchresult> Searchresults) {
+    public SearchResultListAdapter(Context context, ArrayList<Searchresult> Searchresults) {
         super(context, R.layout.search_row, Searchresults);
         this.context = context;
         this.Searchresults = Searchresults;

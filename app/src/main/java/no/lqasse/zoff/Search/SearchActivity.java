@@ -38,6 +38,7 @@ import java.util.ArrayList;
 
 import no.lqasse.zoff.R;
 import no.lqasse.zoff.Models.Searchresult;
+import no.lqasse.zoff.Server;
 
 
 /**
@@ -72,7 +73,7 @@ public class SearchActivity extends ActionBarActivity {
     private EditText queryView;
     private ListView resultsView;
     private ArrayList<Searchresult> results = new ArrayList<>();
-    private searchResultAdapter searchResultAdapter;
+    private SearchResultListAdapter SearchResultListAdapter;
 
 
     private Handler handler = new Handler();
@@ -161,9 +162,9 @@ public class SearchActivity extends ActionBarActivity {
 
 
 
-        searchResultAdapter = new searchResultAdapter(this, results);
+        SearchResultListAdapter = new SearchResultListAdapter(this, results);
         resultsView = (ListView) findViewById(R.id.searchResultsView);
-        resultsView.setAdapter(searchResultAdapter);
+        resultsView.setAdapter(SearchResultListAdapter);
 
 
 
@@ -349,7 +350,7 @@ public class SearchActivity extends ActionBarActivity {
 
             //Notify changes to listview
             progressBar.setVisibility(View.GONE);
-            searchResultAdapter.notifyDataSetChanged();
+            SearchResultListAdapter.notifyDataSetChanged();
 
             if (!appendResults){
                 resultsView.setSelectionAfterHeaderView();
@@ -359,7 +360,6 @@ public class SearchActivity extends ActionBarActivity {
 
 
         } catch (Exception e) {
-
 
             e.printStackTrace();
         }
@@ -393,7 +393,7 @@ public class SearchActivity extends ActionBarActivity {
 
             //Notify changes to listview
             progressBar.setVisibility(View.GONE);
-            searchResultAdapter.notifyDataSetChanged();
+            SearchResultListAdapter.notifyDataSetChanged();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -418,27 +418,18 @@ public class SearchActivity extends ActionBarActivity {
         v.setBackgroundResource(R.drawable.toast_background);
         t.show();
 
-
-        String titlePrefix = "&n=";
-        String passPrefix = "&pass=";
-        String vidIdPrefix = "v=";
         String videoID = results.get(index).getVideoID();
         String videoTitle = results.get(index).getTitle();
         try {
             videoTitle = URLEncoder.encode(videoTitle,"UTF-8");
-        } catch (Exception e){
-
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
 
 
-        doGetRequest task = new doGetRequest();
-        String URL = ZOFF_URL + vidIdPrefix + videoID + titlePrefix + videoTitle + passPrefix + ROOM_PASS;
-        Log.d("URl", URL);
-        String[] input = new String[3];
-        input[0] = URL;
-        input[1] = Integer.toString(ZOFF_ADD);
-        task.execute(input);
+            Server.add(videoID,videoTitle);
+
 
 
     }
@@ -504,8 +495,7 @@ public class SearchActivity extends ActionBarActivity {
                     result = "Did not work!";
 
             } catch (Exception e) {
-                //TODO handle error better
-
+                e.printStackTrace();
 
             }
 

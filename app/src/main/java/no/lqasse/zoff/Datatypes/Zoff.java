@@ -18,7 +18,7 @@ import no.lqasse.zoff.NotificationService;
 import no.lqasse.zoff.Player.PlayerActivity;
 import no.lqasse.zoff.R;
 import no.lqasse.zoff.Remote.RemoteActivity;
-import no.lqasse.zoff.ZoffClient;
+import no.lqasse.zoff.Server;
 
 /**
  * Created by lassedrevland on 11.01.15.
@@ -35,6 +35,7 @@ public class Zoff {
     private final Handler handler = new Handler();
     private static String ROOM_NAME;
     private static String ROOM_PASS;
+    private static String POST_URL;
     private int VIEWERS_COUNT = 0;
     private Boolean IS_PASS_PROTECTED = false;
     private static String NOWPLAYING_URL;
@@ -73,6 +74,7 @@ public class Zoff {
 
         setROOM_NAME(ROOM_NAME);
         this.NOWPLAYING_URL = "http://www.zoff.no/" + ROOM_NAME + "/php/change.php?";
+        this.POST_URL =  "http://zoff.no/" + ROOM_NAME + "/php/change.php";
         refreshData();
 
         //Schedules refreshes
@@ -88,7 +90,7 @@ public class Zoff {
     }
 
     public void refreshData() {
-        ZoffClient.refresh(this);
+        Server.refresh(this);
         /*
         String[] input = {NOWPLAYING_URL};
         doGetRequest task = new doGetRequest();
@@ -149,57 +151,35 @@ public class Zoff {
 
         String videoID = VIDEOLIST.get(i).getId();
         String title = VIDEOLIST.get(i).getTitle();
-        String[] voteUrl = {NOWPLAYING_URL + "vote=pos&id=" + videoID + "&pass="+ROOM_PASS};
         if (i == 0){
             //Do nothing, this is the currently playing video
 
         }else if (this.ANYONE_CAN_VOTE())
         {
             showToast(TOAST_TYPES.VIDEO_VOTED, title);
-            /*
-            sendGet task = new sendGet();
-            task.execute(voteUrl);
-            */
-            ZoffClient.vote(videoID);
+            Server.vote(videoID);
         }
         else if (IS_PASS_PROTECTED && this.hasROOM_PASS())
         {
-
             showToast(TOAST_TYPES.VIDEO_VOTED, title);
-            /*
-            sendGet task = new sendGet();
-
-            task.execute(voteUrl);
-            */
-            ZoffClient.vote(videoID);
+            Server.vote(videoID);
         }
         else {
             showToast(TOAST_TYPES.NEEDS_PASS_VOTE, title);
         }
 
-
-
     }
 
     public void shuffle(){
-        ZoffClient.shuffle();
-        /*
-        sendGet get = new sendGet();
-        String[] input = {NOWPLAYING_URL + "shuffle=true&pass=" + ROOM_PASS};
-        get.execute(input);
-        */
+        Server.shuffle();
+
     }
 
     public void voteSkip() {
 
         if (hasVideos()){
-            ZoffClient.skip(getNowPlayingID());
+            Server.skip(getNowPlayingID());
 
-            /*
-            String[] input = {NOWPLAYING_URL + "thisUrl=" + getNowPlayingID() + "&act=save"};
-            sendGet get = new sendGet();
-            get.execute(input);
-            */
         }
 
 
@@ -353,6 +333,9 @@ public class Zoff {
 
     public static String getUrl(){
         return "http://www.zoff.no/" + ROOM_NAME + "/php/change.php?";
+    }
+    public static String getPOST_URL(){
+        return POST_URL;
     }
 
     public static String getRoomPass(){
