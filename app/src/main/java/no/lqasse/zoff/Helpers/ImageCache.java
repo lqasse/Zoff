@@ -15,6 +15,7 @@ public class ImageCache {
     public static boolean has(String id){
         return ImageMap.containsKey(id);
     }
+
     public static void put(String id,Bitmap image){
         ImageMap.put(id,image);
     }

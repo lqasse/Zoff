@@ -87,7 +87,7 @@ public class SearchActivity extends ActionBarActivity {
 
 
         queryView = (EditText) findViewById(R.id.searchQueryView);
-        YouTubeServer.search(this,"",ALL_VIDEOS,LONG_SONGS);
+        //YouTubeServer.search(this,"",ALL_VIDEOS,LONG_SONGS);
 
 
         queryView.addTextChangedListener(new TextWatcher() {
@@ -124,6 +124,7 @@ public class SearchActivity extends ActionBarActivity {
                     InputMethodManager imm = (InputMethodManager) getSystemService(
                             Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(queryView.getWindowToken(), 0);
+
                     doYoutubeSearch(false,false);
                     handled = true;
                 }
@@ -193,7 +194,7 @@ public class SearchActivity extends ActionBarActivity {
         query = URLEncoder.encode(query);
 
 
-        YouTubeServer.search(this,query,ALL_VIDEOS,LONG_SONGS);
+        //YouTubeServer.search(this,query,ALL_VIDEOS,LONG_SONGS);
 
 
 

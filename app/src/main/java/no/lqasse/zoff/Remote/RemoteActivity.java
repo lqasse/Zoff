@@ -1,22 +1,34 @@
 package no.lqasse.zoff.Remote;
 
+import android.app.ActionBar;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 
 
 import no.lqasse.zoff.Models.Video;
+import no.lqasse.zoff.Search.SearchResultListAdapter;
+import no.lqasse.zoff.Search.YouTube;
+import no.lqasse.zoff.Server.Server;
 import no.lqasse.zoff.Zoff;
 import no.lqasse.zoff.Zoff_Listener;
 import no.lqasse.zoff.Helpers.ImageBlur;
@@ -38,16 +50,30 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener {
     private Zoff zoff;
     private Menu menu;
     private Boolean paused = false;
+    private Boolean keyboardVisible = false;
     private ListView videoList;
     private RemoteListAdapter adapter;
+    private SearchResultListAdapter searchAdapter;
     private SharedPreferences sharedPreferences;
+    private TextView searchText;
+    private ImageView removeQueryButton;
 
     private Handler h = new Handler();
     private Runnable r;
+    private Handler handler = new Handler();
+    private Runnable delaySearch = new Runnable() {
+        @Override
+        public void run() {
+            YouTube.search(RemoteActivity.this, searchText.getText().toString(), zoff.ALL_VIDEOS_ALLOWED(), zoff.LONG_SONGS());
+        }
+    };
+    private boolean searchViewOpen = false;
+    private final int AUTOSEARCH_DELAY_MILLIS = 600;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
 
         Intent i = getIntent();
@@ -60,7 +86,6 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener {
         ROOM_PASS = getPASS();
 
 
-
         zoff = new Zoff(ROOM_NAME, this);
         zoff.setROOM_PASS(getPASS());
         setContentView(R.layout.activity_remote);
@@ -70,21 +95,35 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener {
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
 
-
         //Handle everything listview related
         adapter = new RemoteListAdapter(this, zoff.getVideos(), zoff);
+        searchAdapter = new SearchResultListAdapter(this, YouTube.getSearchResults());
         videoList = (ListView) findViewById(R.id.videoList);
         videoList.setAdapter(adapter);
+
+
+        Intent notificationIntent = new Intent(this, NotificationService.class);
+        notificationIntent.putExtra("ROOM_NAME", ROOM_NAME);
+
+        startService(notificationIntent);
+
 
         videoList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 
 
-                if (position != 0) { //Cant vote for current video duh
+                if (searchViewOpen) {
+                    String videoTitle = YouTube.getSearchResults().get(position).getTitle();
+                    String videoID = YouTube.getSearchResults().get(position).getVideoID();
+                    Server.add(videoID, videoTitle);
+                    ToastMaster.showToast(RemoteActivity.this, ToastMaster.TYPE.VIDEO_ADDED, videoTitle);
+
+                } else if ((position != 0) && (!searchViewOpen)) { //Cant vote for current video duh
                     Video selectedVideo = adapter.getItem(position);
                     zoff.vote(selectedVideo);
                 }
+                ;
 
 
                 return true;
@@ -94,8 +133,12 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener {
         videoList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (position != 0) { //Currently playing video cant be voted on
-                    ToastMaster.showToast(getBaseContext(), ToastMaster.TYPE.HOLD_TO_VOTE);
+
+                if (searchViewOpen) {
+                    ToastMaster.showToast(RemoteActivity.this, ToastMaster.TYPE.HOLD_TO_ADD);
+
+                } else if ((position != 0) && (!searchViewOpen)) { //Currently playing video cant be voted on
+                    ToastMaster.showToast(RemoteActivity.this, ToastMaster.TYPE.HOLD_TO_VOTE);
                 }
 
 
@@ -111,27 +154,46 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener {
         };
 
 
-
-
-
     }
 
     @Override
     protected void onResume() {
+
+
+        startNotificationService();
         zoff.resumeRefresh();
+        NotificationService.setInBackground(false);
         super.onResume();
     }
 
     @Override
     protected void onPause() {
         zoff.pauseRefresh();
+        NotificationService.setInBackground(true);
+
         super.onPause();
+
+
     }
+
+    @Override
+    protected void onStop() {
+
+
+        paused = true;
+
+
+        super.onStop();
+    }
+
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         zoff.pauseRefresh();
+        Intent intent = new Intent(this, NotificationService.class);
+        stopService(intent);
+        NotificationService.setInBackground(true);
 
     }
 
@@ -162,27 +224,7 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener {
 
                 break;
             case (R.id.action_search):
-                //Display youtub
-
-                if (zoff.ANYONE_CAN_ADD()) {
-                    Intent i = new Intent(this, SearchActivity.class);
-                    i.putExtra("ROOM_NAME", ROOM_NAME);
-                    i.putExtra("ROOM_PASS", ROOM_PASS);
-                    i.putExtra("ALL_VIDEOS_ALLOWED", zoff.ALL_VIDEOS_ALLOWED());
-                    i.putExtra("LONG_SONGS", zoff.LONG_SONGS());
-                    startActivity(i);
-                } else if (!zoff.ANYONE_CAN_ADD() && zoff.hasROOM_PASS()) {
-                    Intent i = new Intent(this, SearchActivity.class);
-                    i.putExtra("ROOM_NAME", ROOM_NAME);
-                    i.putExtra("ROOM_PASS", ROOM_PASS);
-                    i.putExtra("ALL_VIDEOS_ALLOWED", zoff.ALL_VIDEOS_ALLOWED());
-                    i.putExtra("LONG_SONGS", zoff.LONG_SONGS());
-
-                    startActivity(i);
-                } else {
-
-                    ToastMaster.showToast(getBaseContext(), ToastMaster.TYPE.NEEDS_PASS_TO_VOTE);
-                }
+                toggleSearchLayout();
 
 
                 break;
@@ -212,15 +254,14 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener {
         return super.onOptionsItemSelected(item);
     }
 
-
-    @Override
-    protected void onStop() {
-
-
-        paused = true;
-
-        super.onStop();
+    public void notifyDatasetChanged() {
+        searchAdapter.notifyDataSetChanged();
     }
+
+    public void invalidateViews() {
+        videoList.invalidateViews();
+    }
+
 
     @Override
     public void zoffRefreshed(Boolean hasInetAccess) {
@@ -250,7 +291,119 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener {
         l.setBackground(new BitmapDrawable(getBaseContext().getResources(), bitmap));
     }
 
+    public void startNotificationService() {
+        Intent notificationIntent = new Intent(this, NotificationService.class);
+        notificationIntent.putExtra("ROOM_NAME", ROOM_NAME);
+        startService(notificationIntent);
+    }
 
+    private void toggleSearchLayout() {
+
+        menu.findItem(R.id.action_next).setVisible(searchViewOpen);
+        menu.findItem(R.id.action_zoff_settings).setVisible(searchViewOpen);
+        menu.findItem(R.id.action_search).setVisible(searchViewOpen);
+
+
+        if (searchViewOpen) {
+            getSupportActionBar().setDisplayShowCustomEnabled(false);
+
+        } else {
+
+            getSupportActionBar().setDisplayShowCustomEnabled(true);
+            getSupportActionBar().setCustomView(R.layout.actionbar_search_layout);
+            searchText = (EditText) getSupportActionBar().getCustomView().findViewById(R.id.etSearch);
+            removeQueryButton = (ImageView) getSupportActionBar().getCustomView().findViewById(R.id.removeTextButton);
+
+            searchText.requestFocus();
+            InputMethodManager imm = (InputMethodManager) getSystemService(RemoteActivity.this.INPUT_METHOD_SERVICE);
+            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+
+
+            removeQueryButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    if (searchText.getText().toString().equals("")) {
+                        toggleSearchLayout();
+
+
+                        InputMethodManager imm = (InputMethodManager) getSystemService(RemoteActivity.this.INPUT_METHOD_SERVICE);
+                        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+
+
+                    } else {
+                        searchText.setText("");
+                    }
+
+                }
+            });
+
+
+            searchText.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+
+
+                    Boolean textFieldEmpty = s.toString().equals("");
+                    if (!textFieldEmpty) {
+                        handler.removeCallbacks(delaySearch);
+                        handler.postDelayed(delaySearch, AUTOSEARCH_DELAY_MILLIS);
+
+                    }
+
+                    toggleListAdapter(textFieldEmpty);
+
+                }
+            });
+
+
+        }
+
+
+        searchViewOpen = !searchViewOpen;
+    }
+
+    public void toggleListAdapter(Boolean searchLayout) {
+
+        if (searchLayout) {
+            videoList.setAdapter(adapter);
+            videoList.invalidateViews();
+            adapter.notifyDataSetChanged();
+        } else {
+
+            videoList.setAdapter(searchAdapter);
+
+            videoList.invalidateViews();
+            searchAdapter.notifyDataSetChanged();
+        }
+
+
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        if (searchViewOpen) {
+            toggleSearchLayout();
+            toggleListAdapter(true);
+        } else {
+            super.onBackPressed();
+        }
+
+
+    }
 }
+
+
 
 

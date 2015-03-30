@@ -63,6 +63,10 @@ public class Video implements Comparable<Video>{
             return votes;
         }
 
+        public static String getThumbMed(String id){
+            return "https://i.ytimg.com/vi/" + id +"/mqdefault.jpg";
+        }
+
         public String getThumbMed() {
 
             return "https://i.ytimg.com/vi/" + id +"/mqdefault.jpg";
@@ -87,6 +91,8 @@ public class Video implements Comparable<Video>{
         public long getAddedLong(){
             return Long.valueOf(added);
         }
+
+
 
 
 

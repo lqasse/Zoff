@@ -1,10 +1,10 @@
 package no.lqasse.zoff;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import no.lqasse.zoff.Models.Video;
+import no.lqasse.zoff.Player.PlayerActivity;
+import no.lqasse.zoff.Remote.RemoteActivity;
 import no.lqasse.zoff.Server.JSONTranslator;
 import no.lqasse.zoff.Helpers.ToastMaster;
 import no.lqasse.zoff.Server.Server;
@@ -40,7 +42,7 @@ public class Zoff {
 
 
     private ArrayList<Video> videoList = new ArrayList<>();
-    private Context context;
+    private Object listener;
     private Runnable Refresher;
 
 
@@ -48,9 +50,12 @@ public class Zoff {
 
 
 
-    public Zoff(String ROOM_NAME, Context context) {
+    public Zoff(String ROOM_NAME, Object listener) {
         init(ROOM_NAME);
-        this.context = context;
+
+
+        //((Zoff_Listener) listener).zoffRefreshed(true);
+        this.listener = listener;
     }
 
 
@@ -102,7 +107,8 @@ public class Zoff {
 
 
 
-        ((Zoff_Listener) context).zoffRefreshed(true);
+
+        ((Zoff_Listener) listener).zoffRefreshed(true);
 
 
 
@@ -125,23 +131,27 @@ public class Zoff {
         String videoID = selectedVideo.getId();
         String title = selectedVideo.getTitle();
 
+
         if (this.ANYONE_CAN_VOTE())
         {
-            ToastMaster.showToast(context, ToastMaster.TYPE.VIDEO_VOTED,title);
+
+            ToastMaster.showToast(listener, ToastMaster.TYPE.VIDEO_VOTED,title);
 
             Server.vote(videoID);
         }
         else if (IS_PASS_PROTECTED && this.hasROOM_PASS())
         {
 
-            ToastMaster.showToast(context, ToastMaster.TYPE.VIDEO_VOTED,title);
+            ToastMaster.showToast(listener, ToastMaster.TYPE.VIDEO_VOTED,title);
             Server.vote(videoID);
         }
         else {
 
-            ToastMaster.showToast(context, ToastMaster.TYPE.NEEDS_PASS_TO_VOTE);
+            ToastMaster.showToast(listener, ToastMaster.TYPE.NEEDS_PASS_TO_VOTE);
 
         }
+
+
 
     }
 
@@ -171,7 +181,6 @@ public class Zoff {
         }
 
         return this.ROOM_PASS != null;
-
 
 
 
@@ -299,6 +308,7 @@ public class Zoff {
 
         return nextVideos;
     }
+
 
     public String getNowPlayingID() {
         return videoList.get(0).getId();

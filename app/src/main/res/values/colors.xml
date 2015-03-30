@@ -7,6 +7,7 @@
     <color name="zoff_black_transparent">#99000000</color>
     <color name="zoff_black_transparent_list">#33000000</color>
     <color name="zoff_white_transparent">#33FFFFFF</color>
+    <color name="zoff_transparent">#00000000</color>
 
 
     <color name="zoff_bg_general">#ffbdbdbd</color>
@@ -14,6 +15,7 @@
     <color name="zoff_black_text">#000</color>
 
     <color name="toast_background_color">#BB000000</color>
+    <color name="notification_background">#EE000000</color>
 
 
 

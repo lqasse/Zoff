@@ -16,7 +16,6 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
-import no.lqasse.zoff.Models.SearchResult;
 import no.lqasse.zoff.Player.PlayerActivity;
 import no.lqasse.zoff.Remote.RemoteActivity;
 import no.lqasse.zoff.Server.JSONTranslator;
@@ -25,9 +24,9 @@ import no.lqasse.zoff.Server.Server;
 
 public class MainActivity extends ActionBarActivity  {
 
-    private AutoCompleteTextView acEditText;
-    private Runnable retryConnect;
-    private Handler h;
+    private AutoCompleteTextView chanTextView;
+    private Runnable retryConnectRunnable;
+    private Handler handler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,10 +35,10 @@ public class MainActivity extends ActionBarActivity  {
         Server.getChanSuggestions(this);
 
         setContentView(R.layout.activity_main);
-        acEditText = (AutoCompleteTextView) findViewById(R.id.acEditText);
+        chanTextView = (AutoCompleteTextView) findViewById(R.id.acEditText);
 
-        h = new Handler();
-        retryConnect = new Runnable() {
+        handler = new Handler();
+        retryConnectRunnable = new Runnable() {
             @Override
             public void run() {
 
@@ -69,7 +68,7 @@ public class MainActivity extends ActionBarActivity  {
             }
             if (!containsIllegalChar){
 
-                acEditText.setText(url);
+                chanTextView.setText(url);
                 initialize();
             }
 
@@ -82,12 +81,12 @@ public class MainActivity extends ActionBarActivity  {
 
 
 
-        acEditText.setOnEditorActionListener(new TextView.OnEditorActionListener(){
+        chanTextView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 
                 if (actionId == EditorInfo.IME_ACTION_GO) {
 
-                    if (isValidRoom()){
+                    if (isValidRoom()) {
 
                         initialize();
                     } else {
@@ -102,7 +101,7 @@ public class MainActivity extends ActionBarActivity  {
 
         });
 
-        acEditText.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        chanTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 initialize();
@@ -119,7 +118,7 @@ public class MainActivity extends ActionBarActivity  {
 
     @Override
     protected void onStop() {
-        h.removeCallbacks(retryConnect);
+        handler.removeCallbacks(retryConnectRunnable);
         super.onStop();
     }
 
@@ -140,10 +139,10 @@ public class MainActivity extends ActionBarActivity  {
 
 
 
-        i.putExtra("ROOM_NAME", acEditText.getText().toString());
+        i.putExtra("ROOM_NAME", chanTextView.getText().toString());
 
         startActivity(i);
-        h.removeCallbacks(retryConnect);
+        handler.removeCallbacks(retryConnectRunnable);
 
 
 
@@ -157,10 +156,10 @@ public class MainActivity extends ActionBarActivity  {
 
     private boolean isValidRoom(){
 
-        String room = acEditText.getText().toString();
+        String room = chanTextView.getText().toString();
         String r = room.replace(" ","");
 
-        acEditText.setText(r);
+        chanTextView.setText(r);
         if (r.equals("")) {
             Toast.makeText(this,"Enter name",Toast.LENGTH_SHORT).show();
             return false;
@@ -182,17 +181,17 @@ public class MainActivity extends ActionBarActivity  {
 
         if (data.equals("404")){
             //There was an error connecting
-            acEditText.setEnabled(false);
-            acEditText.setText("Error connecting to server...");
-            h.postDelayed(retryConnect,1000);
+            chanTextView.setEnabled(false);
+            chanTextView.setText("Error connecting to server...");
+            handler.postDelayed(retryConnectRunnable, 1000);
         } else {
-            acEditText.setEnabled(true);
-            acEditText.setText("");
+            chanTextView.setEnabled(true);
+            chanTextView.setText("");
 
             ArrayList<String> activeRooms = new ArrayList<>();
             activeRooms.addAll(JSONTranslator.toRoomSuggestions(data));
             ArrayAdapter<String> adapter = new ArrayAdapter<>(getBaseContext(), android.R.layout.simple_list_item_1, activeRooms);
-            acEditText.setAdapter(adapter);
+            chanTextView.setAdapter(adapter);
         }
 
 

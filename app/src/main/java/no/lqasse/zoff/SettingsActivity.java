@@ -48,6 +48,7 @@ public class SettingsActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
+
         Intent i = getIntent();
         Bundle b = i.getExtras();
 
@@ -85,6 +86,8 @@ public class SettingsActivity extends ActionBarActivity {
         if (!password.equals("")) {
             pwField.setText(password);
         }
+
+        NotificationService.setInBackground(false);
 
 
 
@@ -155,7 +158,15 @@ public class SettingsActivity extends ActionBarActivity {
         editor.commit();
     }
 
+    @Override
+    protected void onPause() {
+        NotificationService.setInBackground(true);
 
+        super.onPause();
+    }
 
-
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
 }

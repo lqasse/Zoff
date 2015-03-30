@@ -80,7 +80,8 @@ public class RemoteListAdapter extends ArrayAdapter<Video> {
         if (ImageCache.has(currentVideo.getId()) && position == 0 && !ImageCache.has(currentVideo.getId()+"_blur")){
             ImageBlur.createAndSetBlurBG(ImageCache.get(currentVideo.getId()),(RemoteActivity)context,currentVideo.getId());
 
-
+        }else if (ImageCache.has(viewHolder.video.getId()+"_blur")){
+            ((RemoteActivity)context).setBackgroundImage(ImageCache.get(viewHolder.video.getId()+"_blur"));
         }
 
 
@@ -153,6 +154,8 @@ public class RemoteListAdapter extends ArrayAdapter<Video> {
 
                 if (!ImageCache.has(viewHolder.video.getId()+"_blur") && (viewHolder.position == 0)){
                     ImageBlur.createAndSetBlurBG(viewHolder.bitmap,(RemoteActivity) context,viewHolder.video.getId());
+                } else if (ImageCache.has(viewHolder.video.getId()+"_blur")){
+                    ((RemoteActivity)context).setBackgroundImage(ImageCache.get(viewHolder.video.getId()+"_blur"));
                 }
             }
         }

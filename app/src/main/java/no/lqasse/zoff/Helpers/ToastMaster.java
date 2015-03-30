@@ -1,10 +1,13 @@
 package no.lqasse.zoff.Helpers;
 
+import android.app.Activity;
 import android.content.Context;
 import android.view.View;
 import android.widget.Toast;
 
+import no.lqasse.zoff.Player.PlayerActivity;
 import no.lqasse.zoff.R;
+import no.lqasse.zoff.Remote.RemoteActivity;
 
 /**
  * Created by lassedrevland on 24.03.15.
@@ -20,17 +23,23 @@ public class ToastMaster {
         SHUFFLED,
         EMBEDDING_DISABLED,
         VIDEO_VOTED,
-        HOLD_TO_ADD
+        HOLD_TO_ADD,
+        BACKGROUND,
+        FOREGROUND,
+        PAUSE,
+        STOP
     }
 
 
 
-    public static void showToast(Context context,TYPE type){
+    public static void showToast(Object context,TYPE type){
         showToast(context,type,"");
 
     }
 
-    public static void showToast(Context context, TYPE type, String CONTEXTUAL_STRING){
+    public static void showToast(Object context, TYPE type, String CONTEXTUAL_STRING){
+
+
 
         Toast t;
         String toastText = "Toast error";
@@ -63,21 +72,29 @@ public class ToastMaster {
             case HOLD_TO_ADD:
                 toastText = "Click and hold to add videos";
                 break;
+            case BACKGROUND:
+                toastText ="WENT TO BACKGROUND";
+                break;
+            case FOREGROUND:
+                toastText = "Came to foreground";
+                break;
+            case STOP:
+                toastText = "STOPPed";
+                break;
+            case PAUSE:
+                toastText = "Paused";
+
 
 
         }
 
+        if (context instanceof Activity) {
 
-
-            t = Toast.makeText(context, toastText, Toast.LENGTH_SHORT);
+            t = Toast.makeText((Activity) context, toastText, Toast.LENGTH_SHORT);
             View v = t.getView();
             v.setBackgroundResource(R.drawable.toast_background);
             t.show();
-
-
-
-
-
+        }
 
 
     }

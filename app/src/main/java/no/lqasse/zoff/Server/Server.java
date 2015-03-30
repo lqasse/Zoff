@@ -20,6 +20,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,10 +58,15 @@ public class Server {
     }
 
     public static void add(String videoID,String title){
-
-
+        String encodedTitle = "";
         getHolder holder = new getHolder();
-        holder.url = Zoff.getUrl() + "v=" + videoID + "&n=" + title + "&pass=" + Zoff.getRoomPass();
+        try {
+            encodedTitle = URLEncoder.encode(title, "UTF-8");
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        holder.url = Zoff.getUrl() + "v=" + videoID + "&n=" + encodedTitle + "&pass=" + Zoff.getRoomPass();
         holder.type = GET_TYPE.ADD;
 
         Get get = new Get();

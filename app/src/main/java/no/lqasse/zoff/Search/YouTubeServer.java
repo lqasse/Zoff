@@ -1,6 +1,9 @@
 package no.lqasse.zoff.Search;
 
+import android.content.Context;
 import android.os.AsyncTask;
+
+import com.google.android.youtube.player.YouTubePlayer;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -14,6 +17,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 
 import no.lqasse.zoff.Models.SearchResult;
+import no.lqasse.zoff.Remote.RemoteActivity;
 
 /**
  * Created by lassedrevland on 24.03.15.
@@ -35,10 +39,11 @@ public class YouTubeServer {
         String response;
         String nextPageToken;
         SearchActivity searchActivity;
+        Context context;
 
     }
 
-    public static void search(SearchActivity searchActivity, String query, Boolean allVideos, Boolean longSongs){
+    public static void search(Context context, String query, Boolean allVideos, Boolean longSongs){
         String categoryLimit = "";
         String lenghtLimit = "";
 
@@ -62,7 +67,7 @@ public class YouTubeServer {
         getHolder holder = new getHolder();
         holder.type = TYPE.INITIAL_QUERY;
         holder.url = URL_YOUTUBE_QUERY_PT1 + encodedQuery + URL_YOUTUBE_QUERY_PT2 + categoryLimit + lenghtLimit;
-        holder.searchActivity = searchActivity;
+        holder.context = context;
 
         Get get = new Get();
         get.execute(holder);
@@ -71,7 +76,7 @@ public class YouTubeServer {
 
     }
 
-    private static void getDetails(SearchActivity searchActivity, ArrayList<SearchResult> results){
+    public static void getDetails(Context context,  ArrayList<SearchResult> results){
         String idList ="";
         for (SearchResult r: results){
             idList += r.getVideoID()+",";
@@ -79,7 +84,8 @@ public class YouTubeServer {
         getHolder holder = new getHolder();
         holder.type =TYPE.DETAILS_QUERY;
         holder.url = URL_YOUTUBE_DETAILS_PT1 + idList + URL_YOUTUBE_DETAILS_PT2;
-        holder.searchActivity = searchActivity;
+
+        holder.context = context;
 
 
         Get get = new Get();
@@ -170,17 +176,16 @@ public class YouTubeServer {
                 case INITIAL_QUERY:
 
                     results.addAll(YouTubeJSONTranslator.toSearchResults(holder.response));
-                    getDetails(holder.searchActivity,results);
-
                     nextPageToken = YouTubeJSONTranslator.toNextPageToken(holder.response);
 
-                    holder.searchActivity.firstPageReceived(results, nextPageToken);
+                    YouTube.firstPageReceived(holder.context,results, nextPageToken);
+
 
 
                     break;
                 case DETAILS_QUERY:
-                    holder.searchActivity.detailsReceived(
-                            YouTubeJSONTranslator.toDetails(holder.response));
+                    YouTube.detailsReceived(holder.context,
+                    YouTubeJSONTranslator.toDetails(holder.response));
 
                     break;
                 case APPENDING_QUERY:
