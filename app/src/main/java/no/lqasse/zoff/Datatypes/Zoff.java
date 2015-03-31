@@ -294,7 +294,7 @@ public class Zoff  {
 
         if (hasVideos()){
             imageMap.remove(getNowPlayingID()); //Clears low quality image from cache
-            String[] input = {NOWPLAYING_URL + "thisUrl=" + getNowPlayingID() + "&act=save"};
+            String[] input = {NOWPLAYING_URL + "skip"};
 
             sendGet get = new sendGet();
             get.execute(input);
