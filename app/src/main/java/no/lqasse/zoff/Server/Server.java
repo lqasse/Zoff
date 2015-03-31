@@ -114,7 +114,7 @@ public class Server {
     public static void skip(String videoID){
         getHolder holder = new getHolder();
         holder.type = GET_TYPE.SKIP;
-        holder.url = Zoff.getUrl() + "thisUrl=" + videoID + "&act=save";
+        holder.url = Zoff.getUrl() + "skip";
 
         Get get = new Get();
         get.execute(holder);
