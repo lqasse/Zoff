@@ -28,6 +28,7 @@ public class MainActivity extends ActionBarActivity  {
     private Runnable retryConnectRunnable;
     private Handler handler;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -126,6 +127,7 @@ public class MainActivity extends ActionBarActivity  {
 
     private void initialize(){
 
+        /*
         CheckBox checkBox = (CheckBox) findViewById(R.id.checkBox);
         Intent i;
         if (checkBox.isChecked()){
@@ -136,6 +138,8 @@ public class MainActivity extends ActionBarActivity  {
 
             i = new Intent(this, RemoteActivity.class);
         }
+        */
+        Intent i = new Intent(this, RemoteActivity.class);
 
 
 

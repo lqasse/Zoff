@@ -26,6 +26,7 @@ import android.widget.TextView;
 
 
 import no.lqasse.zoff.Models.Video;
+import no.lqasse.zoff.Player.PlayerActivity;
 import no.lqasse.zoff.Search.SearchResultListAdapter;
 import no.lqasse.zoff.Search.YouTube;
 import no.lqasse.zoff.Server.Server;
@@ -102,10 +103,7 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener {
         videoList.setAdapter(adapter);
 
 
-        Intent notificationIntent = new Intent(this, NotificationService.class);
-        notificationIntent.putExtra("ROOM_NAME", ROOM_NAME);
 
-        startService(notificationIntent);
 
 
         videoList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
@@ -160,16 +158,15 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener {
     protected void onResume() {
 
 
-        startNotificationService();
+        stopNotificationService();
         zoff.resumeRefresh();
-        NotificationService.setInBackground(false);
         super.onResume();
     }
 
     @Override
     protected void onPause() {
         zoff.pauseRefresh();
-        NotificationService.setInBackground(true);
+        startNotificationService();
 
         super.onPause();
 
@@ -189,11 +186,11 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener {
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         zoff.pauseRefresh();
-        Intent intent = new Intent(this, NotificationService.class);
-        stopService(intent);
-        NotificationService.setInBackground(true);
+        stopNotificationService();
+
+        super.onDestroy();
+
 
     }
 
@@ -246,6 +243,13 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener {
                     ToastMaster.showToast(getBaseContext(), ToastMaster.TYPE.NEEDS_PASS_TO_SHUFFLE);
                 }
                 break;
+            case (R.id.action_play):
+                Intent playerIntent = new Intent(this, PlayerActivity.class);
+                playerIntent.putExtra("ROOM_NAME", Zoff.getROOM_NAME());
+                startActivity(playerIntent);
+                break;
+
+
 
 
         }
@@ -296,6 +300,12 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener {
         notificationIntent.putExtra("ROOM_NAME", ROOM_NAME);
         startService(notificationIntent);
     }
+
+    private void stopNotificationService(){
+        Intent notificationIntent = new Intent(this, NotificationService.class);
+        stopService(notificationIntent);
+    }
+
 
     private void toggleSearchLayout() {
 
@@ -397,7 +407,9 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener {
             toggleSearchLayout();
             toggleListAdapter(true);
         } else {
+            stopNotificationService();
             super.onBackPressed();
+
         }
 
 

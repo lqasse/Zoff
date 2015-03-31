@@ -311,7 +311,12 @@ public class Zoff {
 
 
     public String getNowPlayingID() {
-        return videoList.get(0).getId();
+        if (videoList.isEmpty()){
+            return null;
+        } else {
+            return videoList.get(0).getId();
+        }
+
     }
 
     public static String getUrl(){

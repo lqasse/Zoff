@@ -14,6 +14,7 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 
@@ -58,6 +59,13 @@ public class SearchResultListAdapter extends ArrayAdapter<SearchResult> {
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View rowView = inflater.inflate(R.layout.search_row, parent, false);
+
+
+       if (position == 0){
+           RelativeLayout layout = (RelativeLayout) rowView.findViewById(R.id.search_row_layout);
+           layout.setPadding(0,10,0,0);
+
+       }
         ImageView imageView = (ImageView) rowView.findViewById(R.id.imageView);
         ProgressBar progressBar = (ProgressBar) rowView.findViewById(R.id.progressBar);
 

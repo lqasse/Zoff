@@ -25,7 +25,6 @@ import no.lqasse.zoff.Remote.RemoteActivity;
 public class NotificationService extends Service implements Zoff_Listener {
     private String ROOM_NAME = "";
     private Zoff zoff;
-    public static Boolean inBackground = false;
     Handler h = new Handler();
 
 
@@ -34,36 +33,13 @@ public class NotificationService extends Service implements Zoff_Listener {
         public void run() {
             Log.d("Service", "Background check...");
 
-
-            if (inBackground){
-                showNotification();
-
-            } else {
-                NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                notificationManager.cancelAll();
-
-
-            }
-
+            showNotification();
             h.postDelayed(this, 5000);
         }
     };
 
 
-    public static Boolean getInBackground() {
-        return inBackground;
-    }
 
-    public static void setInBackground(Boolean inBackground) {
-        NotificationService.inBackground = inBackground;
-        Log.d("Service","inBackground: " + Boolean.toString(inBackground));
-    }
-
-    @Override
-    public void onCreate() {
-       Log.d("Service","Started");
-        super.onCreate();
-    }
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -171,6 +147,7 @@ public class NotificationService extends Service implements Zoff_Listener {
 
 
         clearNotification();
+        h.removeCallbacksAndMessages(null);
 
         super.onDestroy();
     }

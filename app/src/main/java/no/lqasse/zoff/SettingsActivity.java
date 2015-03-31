@@ -87,7 +87,6 @@ public class SettingsActivity extends ActionBarActivity {
             pwField.setText(password);
         }
 
-        NotificationService.setInBackground(false);
 
 
 
@@ -159,14 +158,34 @@ public class SettingsActivity extends ActionBarActivity {
     }
 
     @Override
+    protected void onResume() {
+        stopNotificationService();
+        super.onResume();
+    }
+
+    @Override
     protected void onPause() {
-        NotificationService.setInBackground(true);
+        startNotificationService();
+
 
         super.onPause();
     }
 
+    public void startNotificationService() {
+        Intent notificationIntent = new Intent(this, NotificationService.class);
+        notificationIntent.putExtra("ROOM_NAME", ROOM_NAME);
+        startService(notificationIntent);
+    }
+
+    private void stopNotificationService(){
+        Intent notificationIntent = new Intent(this, NotificationService.class);
+        stopService(notificationIntent);
+    }
+
     @Override
     protected void onStop() {
+        startNotificationService();
         super.onStop();
     }
+
 }
