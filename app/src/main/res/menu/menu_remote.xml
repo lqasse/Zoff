@@ -13,7 +13,7 @@
 
 
 
-    <item android:id="@+id/action_next" android:title="Skip"
+    <item android:id="@+id/action_skip" android:title="Skip"
         android:icon="@drawable/skip"
         app:showAsAction="ifRoom" />
 

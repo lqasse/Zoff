@@ -74,7 +74,7 @@ public class SearchActivity extends ActionBarActivity {
         Bundle b = i.getExtras();
         ROOM_NAME = b.getString(ROOM_NAME);
         ROOM_PASS = b.getString(ROOM_PASS);
-        ALL_VIDEOS = b.getBoolean("ALL_VIDEOS_ALLOWED");
+        ALL_VIDEOS = b.getBoolean("allVideosAllowed");
         LONG_SONGS = b.getBoolean("LONG_SONGS");
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
 

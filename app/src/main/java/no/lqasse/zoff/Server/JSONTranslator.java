@@ -81,7 +81,7 @@ public  class JSONTranslator {
         try {
             json = new JSONObject(JSONString);
             conf = json.getJSONObject("conf");
-            String[] confLabels = {"vote","addsongs","longsongs","frontpage","allvideos","removeplay"};
+            String[] confLabels = {"vote","addsongs","longsongs","frontpage","allvideos","removeplay","skip","shuffle"};
 
             for (String label:confLabels){
                 settings.put(label,conf.getBoolean(label));
@@ -114,6 +114,27 @@ public  class JSONTranslator {
         }
      return -1;
     }
+
+    public static int toSkips(String JSONString){
+        try {
+            JSONObject json = new JSONObject(JSONString);
+            JSONObject conf = json.getJSONObject("conf");
+            JSONArray skips;
+
+            if (conf.has("skips")){
+                return conf.getJSONArray("skips").length();
+
+            }
+
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+
+
+
 
     public static Boolean hasAdminPass(String JSONString){
         try {

@@ -10,10 +10,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
-import android.widget.ImageView;
 import android.widget.RemoteViews;
-
-import java.util.concurrent.TimeUnit;
 
 import no.lqasse.zoff.Helpers.ImageCache;
 import no.lqasse.zoff.Helpers.ImageDownload;
@@ -25,18 +22,7 @@ import no.lqasse.zoff.Remote.RemoteActivity;
 public class NotificationService extends Service implements Zoff_Listener {
     private String ROOM_NAME = "";
     private Zoff zoff;
-    Handler h = new Handler();
 
-
-    Runnable inBackgroundChecker = new Runnable() {
-        @Override
-        public void run() {
-            Log.d("Service", "Background check...");
-
-            showNotification();
-            h.postDelayed(this, 5000);
-        }
-    };
 
 
 
@@ -57,18 +43,13 @@ public class NotificationService extends Service implements Zoff_Listener {
 
         if (b!=null){
             if (b.containsKey("CLOSE")){
-                NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                notificationManager.cancelAll();
-                h.removeCallbacksAndMessages(null);
+                Log.d("Service", "Closing");
+                clearNotification();
                 stopSelf();
             } else if (b.containsKey("ROOM_NAME")){
-                Log.d("Service","Has extras");
+                Log.d("Service","Starting");
                 ROOM_NAME = b.getString("ROOM_NAME");
                 zoff = new Zoff(ROOM_NAME,this);
-                h.removeCallbacksAndMessages(null);
-                h.post(inBackgroundChecker);
-            } else if (b.containsKey("RESTART")){
-                h.post(inBackgroundChecker);
             }
 
 
@@ -84,15 +65,13 @@ public class NotificationService extends Service implements Zoff_Listener {
     }
 
 
-    @Override
+
     public void zoffRefreshed(Boolean hasInetAccess) {
-
-    }
-
-    public void zoffRefreshed(){
         showNotification();
 
     }
+
+
 
     private void showNotification() {
 
@@ -105,7 +84,7 @@ public class NotificationService extends Service implements Zoff_Listener {
         }
 
         view.setTextViewText(R.id.titleTextView, zoff.getNowPlayingTitle());
-        view.setTextViewText(R.id.viewersTextView, zoff.getVIEWERS_STRING());
+        view.setTextViewText(R.id.viewersTextView, zoff.getViewers());
 
         Intent stopIntent = new Intent(this,NotificationService.class);
         stopIntent.putExtra("CLOSE",true);
@@ -145,16 +124,16 @@ public class NotificationService extends Service implements Zoff_Listener {
     @Override
     public void onDestroy() {
 
-
+        zoff.stopRefresh();
         clearNotification();
-        h.removeCallbacksAndMessages(null);
-
+        Log.d("Service", "Destroyed");
         super.onDestroy();
     }
 
     private void clearNotification(){
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancelAll();
+        Log.d("Service", "Notification cleared");
     }
 
 

@@ -1,12 +1,8 @@
 package no.lqasse.zoff.Remote;
 
-import android.app.ActionBar;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -32,12 +28,9 @@ import no.lqasse.zoff.Search.YouTube;
 import no.lqasse.zoff.Server.Server;
 import no.lqasse.zoff.Zoff;
 import no.lqasse.zoff.Zoff_Listener;
-import no.lqasse.zoff.Helpers.ImageBlur;
-import no.lqasse.zoff.Helpers.ImageCache;
 import no.lqasse.zoff.Helpers.ToastMaster;
 import no.lqasse.zoff.NotificationService;
 import no.lqasse.zoff.R;
-import no.lqasse.zoff.Search.SearchActivity;
 import no.lqasse.zoff.SettingsActivity;
 
 /**
@@ -65,7 +58,7 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener {
     private Runnable delaySearch = new Runnable() {
         @Override
         public void run() {
-            YouTube.search(RemoteActivity.this, searchText.getText().toString(), zoff.ALL_VIDEOS_ALLOWED(), zoff.LONG_SONGS());
+            YouTube.search(RemoteActivity.this, searchText.getText().toString(), zoff.allVideosAllowed(), zoff.LONG_SONGS());
         }
     };
     private boolean searchViewOpen = false;
@@ -165,7 +158,7 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener {
 
     @Override
     protected void onPause() {
-        zoff.pauseRefresh();
+        zoff.stopRefresh();
         startNotificationService();
 
         super.onPause();
@@ -186,7 +179,7 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener {
 
     @Override
     protected void onDestroy() {
-        zoff.pauseRefresh();
+        zoff.stopRefresh();
         stopNotificationService();
 
         super.onDestroy();
@@ -215,9 +208,14 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener {
 
             case (R.id.action_settings):
                 break;
-            case (R.id.action_next):
-                zoff.voteSkip();
-                zoff.refreshData();
+            case (R.id.action_skip):
+                if (zoff.allowSkip()){
+                    zoff.voteSkip();
+                    zoff.refreshData();
+                } else {
+                    ToastMaster.showToast(this, ToastMaster.TYPE.SKIP_DISABLED);
+                }
+
 
                 break;
             case (R.id.action_search):
@@ -236,12 +234,17 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener {
                 startActivity(i);
                 break;
             case (R.id.action_shuffle):
-                if (zoff.hasROOM_PASS()) {
-                    ToastMaster.showToast(getBaseContext(), ToastMaster.TYPE.SHUFFLED);
-                    zoff.shuffle();
+                if (zoff.allowShuffle()){
+                    if (zoff.hasROOM_PASS()) {
+                        ToastMaster.showToast(getBaseContext(), ToastMaster.TYPE.SHUFFLED);
+                        zoff.shuffle();
+                    } else {
+                        ToastMaster.showToast(getBaseContext(), ToastMaster.TYPE.NEEDS_PASS_TO_SHUFFLE);
+                    }
                 } else {
-                    ToastMaster.showToast(getBaseContext(), ToastMaster.TYPE.NEEDS_PASS_TO_SHUFFLE);
+                    ToastMaster.showToast(this, ToastMaster.TYPE.SHUFFLING_DISABLED);
                 }
+
                 break;
             case (R.id.action_play):
                 Intent playerIntent = new Intent(this, PlayerActivity.class);
@@ -309,7 +312,7 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener {
 
     private void toggleSearchLayout() {
 
-        menu.findItem(R.id.action_next).setVisible(searchViewOpen);
+        menu.findItem(R.id.action_skip).setVisible(searchViewOpen);
         menu.findItem(R.id.action_zoff_settings).setVisible(searchViewOpen);
         menu.findItem(R.id.action_search).setVisible(searchViewOpen);
 

@@ -90,6 +90,26 @@
 
             android:layout_marginBottom="3dp" />
 
+        <CheckBox
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Allow skipping"
+            android:id="@+id/skip"
+            android:textColor="@color/zoff_gray"
+            android:checked="false"
+
+            android:layout_marginBottom="3dp" />
+
+        <CheckBox
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Allow shuffling"
+            android:id="@+id/shuffle"
+            android:textColor="@color/zoff_gray"
+            android:checked="false"
+
+            android:layout_marginBottom="3dp" />
+
 
 
     </LinearLayout>

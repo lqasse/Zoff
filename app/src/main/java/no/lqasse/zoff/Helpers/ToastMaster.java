@@ -27,7 +27,11 @@ public class ToastMaster {
         BACKGROUND,
         FOREGROUND,
         PAUSE,
-        STOP
+        STOP,
+        SKIP_DISABLED,
+        SHUFFLING_DISABLED,
+        WRONG_PASSWORD_SETTINGS,
+        SAVED_SETTINGS
     }
 
 
@@ -83,6 +87,19 @@ public class ToastMaster {
                 break;
             case PAUSE:
                 toastText = "Paused";
+                break;
+            case SKIP_DISABLED:
+                toastText = "Skipping is disabled for this channel";
+                break;
+            case SHUFFLING_DISABLED:
+                toastText = "Shuffling is disabled for this channel";
+                break;
+            case SAVED_SETTINGS:
+                toastText = "Saved";
+                break;
+            case WRONG_PASSWORD_SETTINGS:
+                toastText = "Incorrect password";
+                break;
 
 
 

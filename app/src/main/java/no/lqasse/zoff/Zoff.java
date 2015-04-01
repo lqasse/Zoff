@@ -35,6 +35,7 @@ public class Zoff {
     private static String ROOM_PASS;
     private static String POST_URL;
     private int VIEWERS_COUNT = 0;
+    private int SKIPS_COUNT = 0;
     private Boolean IS_PASS_PROTECTED = false;
     private static String NOWPLAYING_URL;
 
@@ -84,15 +85,15 @@ public class Zoff {
     }
 
 
-    public void pauseRefresh() {
+    public void stopRefresh() {
         handler.removeCallbacks(Refresher);
-        Log.d("REFRESH", "Paused");
+        Log.d("Zoff REFRESH", "Stopped");
     }
 
     public void resumeRefresh(){
         handler.removeCallbacks(Refresher);
         handler.post(Refresher);
-        Log.d("REFRESH", "Restarted");
+        Log.d("Zoff REFRESH", "Restarted");
     }
     public void refreshed(Boolean hasInetAccess,String data) {
 
@@ -103,6 +104,7 @@ public class Zoff {
         settings.putAll(JSONTranslator.toSettingsMap(data));
 
         VIEWERS_COUNT = JSONTranslator.toViews(data);
+        SKIPS_COUNT = JSONTranslator.toSkips(data);
         IS_PASS_PROTECTED = JSONTranslator.hasAdminPass(data);
 
 
@@ -186,7 +188,7 @@ public class Zoff {
 
     }
 
-    public Boolean ALL_VIDEOS_ALLOWED(){
+    public Boolean allVideosAllowed(){
 
         return settings.get("allvideos");
     }
@@ -220,12 +222,11 @@ public class Zoff {
         Bundle b = new Bundle();
 
         try {
-            b.putBoolean("vote", settings.get("vote"));
-            b.putBoolean("addsongs", settings.get("addsongs"));
-            b.putBoolean("longsongs", settings.get("longsongs"));
-            b.putBoolean("frontpage", settings.get("frontpage"));
-            b.putBoolean("allvideos", settings.get("allvideos"));
-            b.putBoolean("removeplay", settings.get("removeplay"));
+
+            for (String key : settings.keySet()){
+                b.putBoolean(key, settings.get(key));
+            }
+
             b.putString("adminpass", ROOM_PASS);
             b.putString("ROOM_NAME", ROOM_NAME);
         } catch (Exception e){
@@ -239,7 +240,7 @@ public class Zoff {
 
 
 
-    public String getVIEWERS_STRING() {
+    public String getViewers(){
 
 
         if (VIEWERS_COUNT < 2){
@@ -248,6 +249,36 @@ public class Zoff {
             return VIEWERS_COUNT + " viewers";
         }
 
+    }
+
+    public String getSkips(){
+        if (SKIPS_COUNT > 0){
+            return SKIPS_COUNT+"/"+VIEWERS_COUNT + " skipped";
+        } else {
+            return "";
+        }
+
+    }
+
+    public boolean allowSkip(){
+
+        if (settings.containsKey("skip")){
+            return (settings.get("skip"));
+
+
+        }
+
+        return false;
+
+
+
+    }
+
+    public boolean allowShuffle(){
+        if (settings.containsKey("shuffle")){
+            return settings.get("shuffle");
+        }
+        return false;
     }
 
     public String getNextId() {

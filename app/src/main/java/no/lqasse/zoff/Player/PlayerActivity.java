@@ -125,7 +125,7 @@ public class PlayerActivity extends ActionBarActivity implements Zoff_Listener{
                 settingsIntent.putExtra("ROOM_NAME", ROOM_NAME);
                 startActivity(settingsIntent);
                 break;
-            case (R.id.action_next):
+            case (R.id.action_skip):
                 zoff.voteSkip();
                 zoff.refreshData();
                 break;
@@ -152,7 +152,7 @@ public class PlayerActivity extends ActionBarActivity implements Zoff_Listener{
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        zoff.pauseRefresh();
+        zoff.stopRefresh();
 
     }
 
@@ -188,7 +188,7 @@ public class PlayerActivity extends ActionBarActivity implements Zoff_Listener{
         adapter.notifyDataSetChanged();
 
         titleLabel.setText(zoff.getNowPlayingTitle());
-        currentTimeLabel.setText(zoff.getVIEWERS_STRING());
+        currentTimeLabel.setText(zoff.getViewers());
 
         if (!ImageCache.has(zoff.getNowPlayingID() + "_blur") && ImageCache.has(zoff.getNowPlayingID())){
             downloadBG downloadBG = new downloadBG();

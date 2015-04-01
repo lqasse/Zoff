@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import java.util.HashMap;
 
+import no.lqasse.zoff.Helpers.ToastMaster;
 import no.lqasse.zoff.Server.Server;
 
 /**
@@ -35,6 +36,9 @@ public class SettingsActivity extends ActionBarActivity {
     private CheckBox frontpageCB;
     private CheckBox allvideosCB;
     private CheckBox removeplayCB;
+    private CheckBox skipCB;
+    private CheckBox shuffleCB;
+
 
     private Button postSettingsBtn;
     private EditText pwField;
@@ -58,6 +62,8 @@ public class SettingsActivity extends ActionBarActivity {
         settings.put("frontpage", b.getBoolean("frontpage"));
         settings.put("allvideos", b.getBoolean("allvideos"));
         settings.put("removeplay", b.getBoolean("removeplay"));
+        settings.put("skip",b.getBoolean("skip"));
+        settings.put("shuffle",b.getBoolean("shuffle"));
 
         ROOM_NAME = b.getString("ROOM_NAME");
         password = getPassword();
@@ -68,6 +74,8 @@ public class SettingsActivity extends ActionBarActivity {
         frontpageCB = (CheckBox) findViewById(R.id.frontpage);
         allvideosCB = (CheckBox) findViewById(R.id.allvideos);
         removeplayCB = (CheckBox) findViewById(R.id.removeplay);
+        skipCB = (CheckBox) findViewById(R.id.skip);
+        shuffleCB  = (CheckBox) findViewById(R.id.shuffle);
 
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         postSettingsBtn = (Button) findViewById(R.id.postSettingsBtn);
@@ -82,6 +90,8 @@ public class SettingsActivity extends ActionBarActivity {
         frontpageCB.setChecked(settings.get("frontpage"));
         allvideosCB.setChecked(settings.get("allvideos"));
         removeplayCB.setChecked(settings.get("removeplay"));
+        skipCB.setChecked(settings.get("skip"));
+        shuffleCB.setChecked(settings.get("shuffle"));
 
         if (!password.equals("")) {
             pwField.setText(password);
@@ -102,8 +112,10 @@ public class SettingsActivity extends ActionBarActivity {
                 Boolean frontpage =  (frontpageCB.isChecked());
                 Boolean allvideos =  (allvideosCB.isChecked());
                 Boolean removeplay = (removeplayCB.isChecked());
+                Boolean skip = (skipCB.isChecked());
+                Boolean shuffle = (shuffleCB.isChecked());
 
-                Server.postSettings(settingsActivity, password, vote, addsongs, longsongs, frontpage, allvideos, removeplay);
+                Server.postSettings(settingsActivity, password, vote, addsongs, longsongs, frontpage, allvideos, removeplay, skip, shuffle);
 
                 progressBar.setVisibility(View.VISIBLE);
                 postSettingsBtn.setEnabled(false);
@@ -118,12 +130,13 @@ public class SettingsActivity extends ActionBarActivity {
         postSettingsBtn.setEnabled(true);
 
         if (response.contains("correct")) {
-            Toast.makeText(getBaseContext(), "Saved!", Toast.LENGTH_SHORT).show();
+            ToastMaster.showToast(this, ToastMaster.TYPE.SAVED_SETTINGS);
+            password = pwField.getText().toString();
             setPass(password);
 
 
         } else {
-            Toast.makeText(getBaseContext(), "Wrong password, try again!", Toast.LENGTH_SHORT).show();
+            ToastMaster.showToast(this, ToastMaster.TYPE.WRONG_PASSWORD_SETTINGS);
 
         }
 

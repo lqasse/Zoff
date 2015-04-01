@@ -3,6 +3,7 @@ package no.lqasse.zoff.Server;
 import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -143,6 +144,8 @@ public class Server {
         String frontpage = settings[3].toString();
         String allvideos = settings[4].toString();
         String removeplay = settings[5].toString();
+        String skip = settings[6].toString();
+        String shuffle = settings[7].toString();
 
         postHolder holder = new postHolder();
         holder.type = POST_TYPE.SETTINGS;
@@ -157,6 +160,8 @@ public class Server {
         holder.nameValuePairs.add(new BasicNameValuePair("frontpage", frontpage));
         holder.nameValuePairs.add(new BasicNameValuePair("allvideos", allvideos));
         holder.nameValuePairs.add(new BasicNameValuePair("removeplay", removeplay));
+        holder.nameValuePairs.add(new BasicNameValuePair("skip", skip));
+        holder.nameValuePairs.add(new BasicNameValuePair("shuffling", shuffle));
         holder.nameValuePairs.add(new BasicNameValuePair("pass", password));
 
         Post post = new Post();
@@ -282,7 +287,7 @@ public class Server {
 
             switch (holder.type){
                 case SETTINGS:
-                    //Log.d("Response", holder.response);
+                    Log.d("Response", holder.response);
 
                     ((SettingsActivity) holder.activity).settingsPostResponse(holder.response);
 

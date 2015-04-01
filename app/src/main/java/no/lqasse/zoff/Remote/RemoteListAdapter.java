@@ -88,7 +88,7 @@ public class RemoteListAdapter extends ArrayAdapter<Video> {
         TextView title = (TextView) rowView.findViewById(R.id.titleView);
         TextView votes = (TextView) rowView.findViewById(R.id.votesView);
         TextView views = (TextView) rowView.findViewById(R.id.viewsLabel);
-        TextView playtime = (TextView) rowView.findViewById(R.id.playtimeLabel);
+        TextView skips = (TextView) rowView.findViewById(R.id.skipsLabel);
 
 
         title.setText(videoList.get(position).getTitle());
@@ -98,9 +98,8 @@ public class RemoteListAdapter extends ArrayAdapter<Video> {
             votes.setText(videoList.get(position).getVotes());
 
         } else {
-            views.setText(zoff.getVIEWERS_STRING());
-            playtime.setText(""); //Implement later?
-
+            views.setText(zoff.getViewers());
+            skips.setText(zoff.getSkips()); //Implement later?
         }
 
 
