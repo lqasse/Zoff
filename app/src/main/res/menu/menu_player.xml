@@ -13,7 +13,7 @@
     <item android:id="@+id/action_togglePlay" android:title="@string/action_play"
         android:icon="@drawable/pause"
         app:showAsAction="always" android:visible="true"/>
-    <item android:id="@+id/action_next" android:title="@string/action_next"
+    <item android:id="@+id/action_skip" android:title="@string/action_next"
         android:icon="@android:drawable/ic_media_next"
         app:showAsAction="never" />
 

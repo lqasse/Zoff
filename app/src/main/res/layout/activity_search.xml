@@ -7,7 +7,7 @@
     android:orientation="vertical"
     android:weightSum="1"
     android:background="@color/zoff_gray"
-    android:id="@+id/linearLayout">
+    android:id="@+id/settingsLayout">
 
 
     <EditText

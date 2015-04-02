@@ -14,23 +14,25 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 
 import java.net.URL;
 import java.util.ArrayList;
 
+import no.lqasse.zoff.Models.SearchResult;
 import no.lqasse.zoff.R;
 
 /**
  * Created by lassedrevland on 09.12.14.
  */
-public class searchResultAdapter extends ArrayAdapter<searchResult> {
+public class SearchResultListAdapter extends ArrayAdapter<SearchResult> {
     private final Context context;
     //private final String[] values;
-    private final ArrayList<searchResult> searchResults;
+    private final ArrayList<SearchResult> searchResults;
 
-    public searchResultAdapter(Context context, ArrayList<searchResult> searchResults) {
+    public SearchResultListAdapter(Context context, ArrayList<SearchResult> searchResults) {
         super(context, R.layout.search_row, searchResults);
         this.context = context;
         this.searchResults = searchResults;
@@ -57,6 +59,13 @@ public class searchResultAdapter extends ArrayAdapter<searchResult> {
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View rowView = inflater.inflate(R.layout.search_row, parent, false);
+
+
+       if (position == 0){
+           RelativeLayout layout = (RelativeLayout) rowView.findViewById(R.id.search_row_layout);
+           layout.setPadding(0,10,0,0);
+
+       }
         ImageView imageView = (ImageView) rowView.findViewById(R.id.imageView);
         ProgressBar progressBar = (ProgressBar) rowView.findViewById(R.id.progressBar);
 

@@ -1,12 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<EditText xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:inputType="text"
-    android:layout_weight="1"
-    android:id="@+id/searchInput"
-    />
+    android:layout_gravity="fill_horizontal|fill_vertical"
+    android:layout_centerInParent="true"
 
+    >
 
+    <EditText
+        android:paddingTop="15dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/etSearch"
+        android:layout_gravity="bottom|left"
+        android:hint="Search YouTube..."
+        android:background="@color/zoff_transparent" />
 
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:id="@+id/removeTextButton"
+        android:src="@drawable/cross"
+        android:layout_alignParentTop="false"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:padding="15dp" />
+</RelativeLayout>

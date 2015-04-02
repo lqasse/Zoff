@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent" android:layout_height="fill_parent"
+    android:background="@color/notification_background">
+
+    <ImageView
+        android:layout_width="70dp"
+        android:layout_height="fill_parent"
+        android:id="@+id/imageView"
+        android:layout_alignParentTop="false"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="false"
+        android:scaleType="centerCrop"
+        android:layout_marginRight="5dp" />
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/titleTextView"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/imageView"
+        android:layout_toEndOf="@+id/imageView"
+        android:textColor="@color/zoff_white"
+        android:text="Title"
+        android:layout_marginTop="3dp"
+        android:layout_toLeftOf="@+id/closeImageView"
+        android:lines="1" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/viewersTextView"
+        android:textColor="@color/zoff_gray"
+        android:text="Viewers"
+        android:layout_below="@+id/titleTextView"
+        android:layout_toRightOf="@+id/imageView"
+        android:layout_toEndOf="@+id/imageView" />
+
+    <ImageView
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:id="@+id/imageView3"
+        android:src="@drawable/notification"
+        android:scaleType="fitCenter"
+        android:layout_alignRight="@+id/imageView"
+        android:layout_alignEnd="@+id/imageView"
+        android:layout_alignBottom="@+id/imageView" />
+
+    <ImageView
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:id="@+id/closeImageView"
+        android:src="@drawable/cross"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:scaleType="centerInside"
+        android:layout_marginRight="10dp"
+        android:layout_centerVertical="true" />
+
+</RelativeLayout>

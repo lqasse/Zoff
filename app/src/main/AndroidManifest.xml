@@ -47,7 +47,8 @@
             android:name=".Remote.RemoteActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
-            android:parentActivityName=".MainActivity">
+            android:parentActivityName=".MainActivity"
+           >
         </activity>
         <activity
             android:name=".SettingsActivity"
@@ -57,9 +58,7 @@
         <service
             android:name=".NotificationService"
             android:enabled="true"
-            android:label="@string/app_name"
-            android:process=":remote">
-
+            android:label="@string/app_name">
         </service>
 
 

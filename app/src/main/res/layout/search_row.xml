@@ -3,96 +3,108 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:paddingTop="5dp"
-    android:paddingBottom="5dp">
+    android:id="@+id/search_row_layout">
 
 
-    <ImageView
-        android:layout_width="120dp"
-        android:layout_height="65dp"
-        android:id="@+id/imageView"
-        android:layout_marginRight="5dp"
-        android:scaleType="centerCrop"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="0"
-        android:background="#000000"
-        android:textColor="#FFFFFF"
-        android:id="@+id/durationView"
-        android:shadowColor="#FFFFFF"
-        android:layout_alignBottom="@+id/imageView"
-        android:layout_alignRight="@+id/imageView"
-        android:layout_alignEnd="@+id/imageView"
-        android:layout_marginRight="10dp"
-        android:layout_marginBottom="5dp"
-        android:paddingRight="2dp"
-        android:paddingBottom="1dp"
-        android:paddingTop="1dp"
-        android:paddingLeft="2dp"
-        android:textSize="9dp" />
 
-    <LinearLayout
-        android:orientation="vertical"
+    <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@+id/imageView"
-        android:layout_toEndOf="@+id/imageView"
-        android:id="@+id/linearLayout"
-        android:layout_marginLeft="10dp">
+        android:background="@drawable/gray_rectangle"
+        android:paddingRight="5dp"
+        android:paddingLeft="5dp">
 
-
-        <TextView
-            android:id="@+id/titleView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Title"
-            android:textSize="13dp"
-            android:textColor="@color/zoff_black"
-            android:layout_alignParentTop="true"
-            android:layout_toRightOf="@+id/imageView"
-            android:layout_toEndOf="@+id/imageView"
-            android:maxLines="2">
-        </TextView>
+        <ImageView
+            android:layout_width="120dp"
+            android:layout_height="65dp"
+            android:id="@+id/imageView"
+            android:layout_marginRight="5dp"
+            android:scaleType="centerCrop"/>
 
         <TextView
-            android:id="@+id/channelTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Channel Title"
-            android:textSize="10dp"
-            android:layout_below="@+id/titleView"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="0"
+            android:background="#000000"
+            android:textColor="#FFFFFF"
+            android:id="@+id/durationView"
+            android:shadowColor="#FFFFFF"
+            android:layout_alignBottom="@+id/imageView"
+            android:layout_alignRight="@+id/imageView"
+            android:layout_alignEnd="@+id/imageView"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="5dp"
+            android:paddingRight="2dp"
+            android:paddingBottom="1dp"
+            android:paddingTop="1dp"
+            android:paddingLeft="2dp"
+            android:textSize="9dp" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
             android:layout_toRightOf="@+id/imageView"
             android:layout_toEndOf="@+id/imageView"
-            android:lines="1"
-            android:textColor="@color/zoff_black" />
+            android:id="@+id/settingsLayout"
+            android:layout_marginLeft="10dp">
 
-        <TextView
-            android:id="@+id/viewCount"
+
+            <TextView
+                android:id="@+id/titleView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Title"
+                android:textSize="13dp"
+                android:textColor="@color/zoff_white"
+                android:layout_alignParentTop="true"
+                android:layout_toRightOf="@+id/imageView"
+                android:layout_toEndOf="@+id/imageView"
+                android:maxLines="2">
+            </TextView>
+
+            <TextView
+                android:id="@+id/channelTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Channel Title"
+                android:textSize="10dp"
+                android:layout_below="@+id/titleView"
+                android:layout_toRightOf="@+id/imageView"
+                android:layout_toEndOf="@+id/imageView"
+                android:lines="1"
+                android:textColor="@color/zoff_gray" />
+
+            <TextView
+                android:id="@+id/viewCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Views"
+                android:textSize="10dp"
+                android:layout_below="@+id/titleView"
+                android:layout_toRightOf="@+id/imageView"
+                android:layout_toEndOf="@+id/imageView"
+                android:lines="1"
+                android:textColor="@color/zoff_gray">
+            </TextView>
+        </LinearLayout>
+
+        <ProgressBar
+            style="?android:attr/progressBarStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Views"
-            android:textSize="10dp"
-            android:layout_below="@+id/titleView"
-            android:layout_toRightOf="@+id/imageView"
-            android:layout_toEndOf="@+id/imageView"
-            android:lines="1"
-            android:textColor="@color/zoff_black">
-        </TextView>
-    </LinearLayout>
+            android:id="@+id/progressBar"
+            android:layout_marginRight="31dp"
+            android:layout_marginEnd="31dp"
+            android:visibility="visible"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/durationView"
+            android:layout_toStartOf="@+id/durationView" />
 
-    <ProgressBar
-        style="?android:attr/progressBarStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/progressBar"
-        android:layout_marginRight="31dp"
-        android:layout_marginEnd="31dp"
-        android:visibility="visible"
-        android:layout_centerVertical="true"
-        android:layout_toLeftOf="@+id/durationView"
-        android:layout_toStartOf="@+id/durationView" />
+
+
+        </RelativeLayout>
 
 </RelativeLayout>

@@ -1,79 +1,62 @@
 package no.lqasse.zoff;
 
 import android.content.Intent;
-import android.os.AsyncTask;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.CheckBox;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.JSONArray;
+import java.util.ArrayList;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-
+import no.lqasse.zoff.Helpers.ImageBlur;
 import no.lqasse.zoff.Player.PlayerActivity;
 import no.lqasse.zoff.Remote.RemoteActivity;
+import no.lqasse.zoff.Server.JSONTranslator;
+import no.lqasse.zoff.Server.Server;
 
 
 public class MainActivity extends ActionBarActivity  {
 
+    private AutoCompleteTextView chanTextView;
+    private Runnable retryConnectRunnable;
+    private Handler handler;
 
-    private String ZOFF_ACTIVECHANNELS_URL = "http://zoff.no/Proggis/php/activechannels.php";
-    private AutoCompleteTextView acEditText;
-    private Runnable checkInetAccess;
-    private Handler h;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
+        Server.getChanSuggestions(this);
 
         setContentView(R.layout.activity_main);
-        acEditText = (AutoCompleteTextView) findViewById(R.id.acEditText);
+        chanTextView = (AutoCompleteTextView) findViewById(R.id.acEditText);
 
-        h = new Handler();
-        checkInetAccess = new Runnable() {
+        handler = new Handler();
+        retryConnectRunnable = new Runnable() {
             @Override
             public void run() {
 
-                Boolean hasInetAccess = isOnline();
-                if (hasInetAccess){
-                    String[] input = {ZOFF_ACTIVECHANNELS_URL};
-                    getSuggestions suggestions = new getSuggestions();
-                    suggestions.execute(input);
-                    acEditText.setEnabled(true);
-                    acEditText.setText("");
-                    h.removeCallbacks(this);
-                } else {
-                    acEditText.setEnabled(false);
-                    acEditText.setText("No Internet access");
-                    h.removeCallbacks(this);
-                    h.postDelayed(checkInetAccess, 1000);
-                }
+                Server.getChanSuggestions(MainActivity.this);
 
             }
         };
 
-        h.post(checkInetAccess);
+
+
+
 
         //Handles link clicks
         Intent i = getIntent();
@@ -94,7 +77,7 @@ public class MainActivity extends ActionBarActivity  {
             }
             if (!containsIllegalChar){
 
-                acEditText.setText(url);
+                chanTextView.setText(url);
                 initialize();
             }
 
@@ -107,12 +90,12 @@ public class MainActivity extends ActionBarActivity  {
 
 
 
-        acEditText.setOnEditorActionListener(new TextView.OnEditorActionListener(){
+        chanTextView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 
                 if (actionId == EditorInfo.IME_ACTION_GO) {
 
-                    if (isValidRoom()){
+                    if (isValidRoom()) {
 
                         initialize();
                     } else {
@@ -127,7 +110,7 @@ public class MainActivity extends ActionBarActivity  {
 
         });
 
-        acEditText.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        chanTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 initialize();
@@ -144,7 +127,7 @@ public class MainActivity extends ActionBarActivity  {
 
     @Override
     protected void onStop() {
-        h.removeCallbacks(checkInetAccess);
+        handler.removeCallbacks(retryConnectRunnable);
         super.onStop();
     }
 
@@ -152,6 +135,7 @@ public class MainActivity extends ActionBarActivity  {
 
     private void initialize(){
 
+        /*
         CheckBox checkBox = (CheckBox) findViewById(R.id.checkBox);
         Intent i;
         if (checkBox.isChecked()){
@@ -162,18 +146,16 @@ public class MainActivity extends ActionBarActivity  {
 
             i = new Intent(this, RemoteActivity.class);
         }
+        */
+        Intent i = new Intent(this, RemoteActivity.class);
 
 
 
-        i.putExtra("ROOM_NAME", acEditText.getText().toString());
+        i.putExtra("ROOM_NAME", chanTextView.getText().toString());
 
-        if (isOnline()){
-            startActivity(i);
-            h.removeCallbacks(checkInetAccess);
-        } else {
-            h.post(checkInetAccess);
+        startActivity(i);
+        handler.removeCallbacks(retryConnectRunnable);
 
-        }
 
 
 
@@ -186,11 +168,10 @@ public class MainActivity extends ActionBarActivity  {
 
     private boolean isValidRoom(){
 
-
-        String room = acEditText.getText().toString();
+        String room = chanTextView.getText().toString();
         String r = room.replace(" ","");
 
-        acEditText.setText(r);
+        chanTextView.setText(r);
         if (r.equals("")) {
             Toast.makeText(this,"Enter name",Toast.LENGTH_SHORT).show();
             return false;
@@ -207,77 +188,32 @@ public class MainActivity extends ActionBarActivity  {
 
 
 
-    private class getSuggestions extends AsyncTask<String,Void,String>{
-        @Override
-        protected String doInBackground(String... params) {
-            StringBuilder sb = new StringBuilder();
-
-            try {
-                InputStream inputStream;
-                BufferedReader r;
-
-                String url = params[0];
-                HttpClient httpClient = new DefaultHttpClient();
-                HttpResponse httpResponse = httpClient.execute(new HttpGet(url));
-                inputStream = httpResponse.getEntity().getContent();
-                if(inputStream != null){
-                    r = new BufferedReader(new InputStreamReader(inputStream));
-                    sb = new StringBuilder();
-                    String line;
-                    while((line = r.readLine()) !=null){
-                        sb.append(line);
-
-                    }
+    public void receivedChanSuggestions(String data){
 
 
+        if (data.equals("404")){
+            //There was an error connecting
+            chanTextView.setEnabled(false);
+            chanTextView.setText("Error connecting to server...");
+            handler.postDelayed(retryConnectRunnable, 1000);
+        } else {
+            chanTextView.setEnabled(true);
+            chanTextView.setText("");
 
-                }
-            } catch (Exception e){
-                throw new IllegalStateException();
-
-            }
-
-
-
-            return sb.toString();
+            ArrayList<String> activeRooms = new ArrayList<>();
+            activeRooms.addAll(JSONTranslator.toRoomSuggestions(data));
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(getBaseContext(), android.R.layout.simple_list_item_1, activeRooms);
+            chanTextView.setAdapter(adapter);
         }
 
-        @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-            ArrayAdapter<String> adapter;
-            String[] activeRooms;
-            try{
-                JSONArray array = new JSONArray(s);
-                activeRooms = new String[array.length()];
-                for (int i = 0;i<array.length();i++){
-                    activeRooms[i] = array.get(i).toString();
-                    adapter = new ArrayAdapter<>(getBaseContext(), android.R.layout.simple_list_item_1, activeRooms);
-                    acEditText.setAdapter(adapter);
-                }
 
 
-            } catch (Exception e){
-                e.printStackTrace();
-            }
 
-
-        }
     }
 
-    public boolean isOnline() {
-
-        Runtime runtime = Runtime.getRuntime();
-        try {
-
-            Process ipProcess = runtime.exec("/system/bin/ping -c 1 8.8.8.8");
-            int     exitValue = ipProcess.waitFor();
-            return (exitValue == 0);
-
-        } catch (IOException e)          { e.printStackTrace(); }
-        catch (InterruptedException e) { e.printStackTrace(); }
-
-        return false;
+    public void setBackgroundImage(Bitmap blurBg) {
+        RelativeLayout l = (RelativeLayout) findViewById(R.id.layout);
+        l.setBackground(new BitmapDrawable(getBaseContext().getResources(), blurBg));
     }
 
 

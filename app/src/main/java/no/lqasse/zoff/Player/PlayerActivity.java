@@ -1,6 +1,5 @@
 package no.lqasse.zoff.Player;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -10,20 +9,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.android.youtube.player.YouTubePlayer;
@@ -31,21 +22,28 @@ import com.google.android.youtube.player.YouTubePlayer;
 import java.net.URL;
 import java.util.ArrayList;
 
-import no.lqasse.zoff.Datatypes.TOAST_TYPES;
-import no.lqasse.zoff.Datatypes.Zoff;
+import no.lqasse.zoff.Helpers.ImageBlur;
+import no.lqasse.zoff.Helpers.ImageCache;
+import no.lqasse.zoff.Models.Video;
+import no.lqasse.zoff.NotificationService;
+import no.lqasse.zoff.Zoff;
+import no.lqasse.zoff.Zoff_Listener;
+import no.lqasse.zoff.Helpers.ToastMaster;
 import no.lqasse.zoff.R;
 import no.lqasse.zoff.Search.SearchActivity;
 import no.lqasse.zoff.SettingsActivity;
 
-public class PlayerActivity extends ActionBarActivity {
+public class PlayerActivity extends ActionBarActivity implements Zoff_Listener{
     private String ROOM_NAME;
     private String NOW_PLAYING_ID = "";
+    private boolean homePressed = true;
 
     private YouTube_Player player;
     private Zoff zoff;
     private final Handler handler = new Handler();
-    private ArrayList<Zoff.Video> videoList = new ArrayList<>();
-    private playerListAdapter adapter;
+    private ArrayList<Video> videoList = new ArrayList<>();
+    private PlayerListAdapter adapter;
+    private PlayerActivity playerActivity = this;
 
     private Menu menu;
     private ListView videoListView;
@@ -76,14 +74,15 @@ public class PlayerActivity extends ActionBarActivity {
         videoListView = (ListView) findViewById(R.id.videoList);
 
 
-        adapter = new playerListAdapter(this, videoList);
+        adapter = new PlayerListAdapter(this, videoList);
         videoListView.setAdapter(adapter);
 
         videoListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 
-                zoff.vote(position + 1);
+                Video selectedVideo = adapter.getItem(position);
+                zoff.vote(selectedVideo);
 
 
                 return true;
@@ -94,7 +93,7 @@ public class PlayerActivity extends ActionBarActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                zoff.showToast(TOAST_TYPES.HOLD_TO_VOTE);
+                ToastMaster.showToast(getBaseContext(), ToastMaster.TYPE.HOLD_TO_VOTE);
 
 
             }
@@ -124,11 +123,12 @@ public class PlayerActivity extends ActionBarActivity {
 
         switch (id) {
             case (R.id.action_settings):
+                homePressed = false;
                 Intent settingsIntent = new Intent(this, SettingsActivity.class);
                 settingsIntent.putExtra("ROOM_NAME", ROOM_NAME);
                 startActivity(settingsIntent);
                 break;
-            case (R.id.action_next):
+            case (R.id.action_skip):
                 zoff.voteSkip();
                 zoff.refreshData();
                 break;
@@ -138,6 +138,7 @@ public class PlayerActivity extends ActionBarActivity {
 
                 break;
             case (R.id.action_search):
+                homePressed = false;
                 player.pause();
                 Intent searchIntent = new Intent(this, SearchActivity.class);
                 searchIntent.putExtra("ROOM_NAME", ROOM_NAME);
@@ -155,7 +156,7 @@ public class PlayerActivity extends ActionBarActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        zoff.pauseRefresh();
+        zoff.stopRefresh();
 
     }
 
@@ -169,6 +170,7 @@ public class PlayerActivity extends ActionBarActivity {
     protected void onResume() {
         super.onResume();
         //player.play();
+        stopNotificationService();
 
         if (player == null) {
             player = new YouTube_Player(this);
@@ -182,22 +184,25 @@ public class PlayerActivity extends ActionBarActivity {
     }
 
 
-    public void zoffRefreshed() {
+    public void zoffRefreshed(Boolean hasInetAccess) {
 
 
         videoList.clear();
         videoList.addAll(zoff.getNextVideos());
 
         adapter.notifyDataSetChanged();
+
         titleLabel.setText(zoff.getNowPlayingTitle());
-        currentTimeLabel.setText(zoff.getVIEWERS_STRING());
+        currentTimeLabel.setText(zoff.getViewers());
 
-
-        if (zoff.getNowPlayingVideo().getImgBig() == null) {
+        if (!ImageCache.has(zoff.getNowPlayingID() + "_blur") && ImageCache.has(zoff.getNowPlayingID())){
             downloadBG downloadBG = new downloadBG();
-            downloadBG.execute();
+            downloadBG.execute("");
 
         }
+
+
+
 
 
         //play next video if current playing != zoff-currentplaying
@@ -225,8 +230,6 @@ public class PlayerActivity extends ActionBarActivity {
         if (zoff.hasVideos() && (player.isInitialized())) {
             player.loadVideos(zoff.getVideoIDs());
             NOW_PLAYING_ID = zoff.getNowPlayingID();
-
-
             handler.removeCallbacks(r, this);
         } else {
 
@@ -240,7 +243,7 @@ public class PlayerActivity extends ActionBarActivity {
     public void videoEnded() {
 
         zoff.voteSkip();
-        zoff.forceRefresh();
+        zoff.refreshData();
 
 
     }
@@ -250,7 +253,7 @@ public class PlayerActivity extends ActionBarActivity {
             case NOT_PLAYABLE:
 
                 videoEnded();
-                zoff.showToast(TOAST_TYPES.EMBEDDING_DISABLED, zoff.getNowPlayingTitle());
+                ToastMaster.showToast(getBaseContext(), ToastMaster.TYPE.EMBEDDING_DISABLED,zoff.getNowPlayingTitle());
 
                 break;
         }
@@ -262,120 +265,14 @@ public class PlayerActivity extends ActionBarActivity {
 
     }
 
-    public void setBlurBg(Bitmap blurBg) {
+    public void setBackgroundImage(Bitmap blurBg) {
         LinearLayout l = (LinearLayout) findViewById(R.id.layout);
         l.setBackground(new BitmapDrawable(getBaseContext().getResources(), blurBg));
     }
 
 
-    public static class playerListAdapter extends ArrayAdapter<Zoff.Video> {
-        private final Context context;
-        private final ArrayList<Zoff.Video> results;
-
-        public playerListAdapter(Context context, ArrayList<Zoff.Video> results) {
-            super(context, R.layout.now_playing_row, results);
-            this.context = context;
-            this.results = results;
 
 
-        }
-
-
-        private static class ViewHolder {
-            ImageView imageView;
-            String imageURL;
-            Bitmap bitmap;
-            int position;
-            ProgressBar progressBar;
-        }
-
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            ViewHolder viewHolder;
-            viewHolder = new ViewHolder();
-
-            View rowView;
-            LayoutInflater inflater = (LayoutInflater) context
-                    .getSystemService(LAYOUT_INFLATER_SERVICE);
-
-            rowView = inflater.inflate(R.layout.now_playing_row, parent, false);
-            viewHolder.imageURL = results.get(position).getThumbMed();
-
-
-            ImageView imageView = (ImageView) rowView.findViewById(R.id.imageView);
-            ProgressBar progressBar = (ProgressBar) rowView.findViewById(R.id.progressBar);
-
-            viewHolder.imageView = imageView;
-            viewHolder.position = position;
-            viewHolder.progressBar = progressBar;
-
-
-            if (results.get(position).getImg() == null) {
-                new downloadImage().execute(viewHolder);
-            } else {
-                imageView.setImageBitmap(results.get(position).getImg());
-                progressBar.setVisibility(View.GONE);
-            }
-
-
-            TextView title = (TextView) rowView.findViewById(R.id.titleView);
-            TextView votes = (TextView) rowView.findViewById(R.id.votesView);
-
-
-            title.setText(results.get(position).getTitle());
-            if (votes != null) {
-                votes.setText(results.get(position).getVotes());
-            }
-
-
-            return rowView;
-        }
-
-        private class downloadImage extends AsyncTask<ViewHolder, Void, ViewHolder> {
-
-
-            @Override
-            protected ViewHolder doInBackground(ViewHolder... params) {
-                ViewHolder viewHolder = params[0];
-
-                try {
-                    URL imageURL = new URL(viewHolder.imageURL);
-                    viewHolder.bitmap = BitmapFactory.decodeStream(imageURL.openStream());
-                } catch (Exception e) {
-                    Log.d("ERROR", e.getLocalizedMessage());
-                    e.printStackTrace();
-                    viewHolder.bitmap = null;
-                }
-                return viewHolder;
-            }
-
-            @Override
-            protected void onPostExecute(ViewHolder result) {
-                if (result.bitmap == null) {
-                    Log.d("FAIL", "NO IMAGE");
-                } else {
-
-
-                    result.progressBar.setVisibility(View.GONE);
-
-                    //Animate fade in <3
-                    Animation a = new AlphaAnimation(0.00f, 1.00f);
-                    a.setInterpolator(new DecelerateInterpolator());
-                    a.setDuration(700);
-                    result.imageView.setImageBitmap(result.bitmap);
-                    result.imageView.setAnimation(a);
-                    result.imageView.startAnimation(a);
-
-                    results.get(result.position).setImg(result.bitmap);
-
-
-                }
-            }
-
-        }
-
-    }
 
 
     private class downloadBG extends AsyncTask<String, Void, Bitmap> {
@@ -384,7 +281,7 @@ public class PlayerActivity extends ActionBarActivity {
 
             Bitmap b;
             try {
-                URL imageURL = new URL(zoff.getNowPlayingVideo().getThumbBig());
+                URL imageURL = new URL(zoff.getNowPlayingVideo().getThumbMed());
                 b = BitmapFactory.decodeStream(imageURL.openStream());
             } catch (Exception e) {
                 Log.d("ERROR", e.getLocalizedMessage());
@@ -397,7 +294,7 @@ public class PlayerActivity extends ActionBarActivity {
         @Override
         protected void onPostExecute(Bitmap bitmap) {
 
-            zoff.getNowPlayingVideo().setImgBig(bitmap);
+            ImageBlur.createAndSetBlurBG(bitmap,playerActivity,zoff.getNowPlayingID());
 
             super.onPostExecute(bitmap);
 
@@ -434,5 +331,32 @@ public class PlayerActivity extends ActionBarActivity {
             togglePlayIcon();
 
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        homePressed = false;
+        super.onBackPressed();
+    }
+
+    @Override
+    protected void onUserLeaveHint() {
+        super.onUserLeaveHint();
+        if(homePressed){
+           startNotificationService();
+        }
+
+        homePressed = true;
+    }
+
+    public void startNotificationService() {
+        Intent notificationIntent = new Intent(this, NotificationService.class);
+        notificationIntent.putExtra("ROOM_NAME", ROOM_NAME);
+        startService(notificationIntent);
+    }
+
+    private void stopNotificationService() {
+        Intent notificationIntent = new Intent(this, NotificationService.class);
+        stopService(notificationIntent);
     }
 }

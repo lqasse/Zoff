@@ -11,9 +11,16 @@
 
 
 
-    <item android:id="@+id/action_next" android:title="@string/action_next"
+
+
+    <item android:id="@+id/action_skip" android:title="Skip"
         android:icon="@drawable/skip"
         app:showAsAction="ifRoom" />
+
+    <item android:id="@+id/action_play" android:title="Play here"
+        android:icon="@android:drawable/ic_media_play"
+        app:showAsAction="never"
+        />
 
 
     <item android:id="@+id/action_zoff_settings" android:title="Settings" app:showAsAction="ifRoom"
