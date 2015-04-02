@@ -33,6 +33,9 @@ public class YouTubeServer {
     private static final String URL_YOUTUBE_DETAILS_PT1 = "https://www.googleapis.com/youtube/v3/videos?id=";
     private static final String URL_YOUTUBE_DETAILS_PT2 = "&part=contentDetails,statistics&key=" + API_KEY;
 
+    private static Get get = new Get();
+    private static boolean cancelled = false;
+
     private static class getHolder{
         String url;
         TYPE type;
@@ -69,7 +72,13 @@ public class YouTubeServer {
         holder.url = URL_YOUTUBE_QUERY_PT1 + encodedQuery + URL_YOUTUBE_QUERY_PT2 + categoryLimit + lenghtLimit;
         holder.context = context;
 
-        Get get = new Get();
+
+        if (get.getStatus() == AsyncTask.Status.RUNNING){
+            get.cancel(true);
+            cancelled = true;
+
+        }
+        get = new Get();
         get.execute(holder);
 
 
@@ -88,7 +97,7 @@ public class YouTubeServer {
         holder.context = context;
 
 
-        Get get = new Get();
+        get = new Get();
         get.execute(holder);
 
 
@@ -122,7 +131,7 @@ public class YouTubeServer {
         holder.url = URL_YOUTUBE_QUERY_PT1 + encodedQuery + URL_YOUTUBE_QUERY_PT2 + categoryLimit + lenghtLimit + "&pageToken="+nextPageToken;
         holder.searchActivity = searchActivity;
 
-        Get get = new Get();
+        get = new Get();
         get.execute(holder);
 
     }

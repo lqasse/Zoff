@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -61,6 +62,10 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener {
             YouTube.search(RemoteActivity.this, searchText.getText().toString(), zoff.allVideosAllowed(), zoff.LONG_SONGS());
         }
     };
+
+
+    private boolean homePressed = true;
+    private boolean appInBackGround = false;
     private boolean searchViewOpen = false;
     private final int AUTOSEARCH_DELAY_MILLIS = 600;
 
@@ -94,9 +99,6 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener {
         searchAdapter = new SearchResultListAdapter(this, YouTube.getSearchResults());
         videoList = (ListView) findViewById(R.id.videoList);
         videoList.setAdapter(adapter);
-
-
-
 
 
         videoList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
@@ -159,7 +161,11 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener {
     @Override
     protected void onPause() {
         zoff.stopRefresh();
-        startNotificationService();
+        if (appInBackGround) {
+            appInBackGround = false;
+            //startNotificationService();
+        }
+
 
         super.onPause();
 
@@ -209,7 +215,7 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener {
             case (R.id.action_settings):
                 break;
             case (R.id.action_skip):
-                if (zoff.allowSkip()){
+                if (zoff.allowSkip()) {
                     zoff.voteSkip();
                     zoff.refreshData();
                 } else {
@@ -227,6 +233,8 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener {
             case (R.id.action_zoff_settings):
                 //Display ZOff settings
 
+
+                homePressed = false;
                 Intent i = new Intent(this, SettingsActivity.class);
                 i.putExtras(zoff.getSettingsBundle());
 
@@ -234,7 +242,7 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener {
                 startActivity(i);
                 break;
             case (R.id.action_shuffle):
-                if (zoff.allowShuffle()){
+                if (zoff.allowShuffle()) {
                     if (zoff.hasROOM_PASS()) {
                         ToastMaster.showToast(getBaseContext(), ToastMaster.TYPE.SHUFFLED);
                         zoff.shuffle();
@@ -247,12 +255,11 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener {
 
                 break;
             case (R.id.action_play):
+                homePressed = false;
                 Intent playerIntent = new Intent(this, PlayerActivity.class);
                 playerIntent.putExtra("ROOM_NAME", Zoff.getROOM_NAME());
                 startActivity(playerIntent);
                 break;
-
-
 
 
         }
@@ -298,16 +305,7 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener {
         l.setBackground(new BitmapDrawable(getBaseContext().getResources(), bitmap));
     }
 
-    public void startNotificationService() {
-        Intent notificationIntent = new Intent(this, NotificationService.class);
-        notificationIntent.putExtra("ROOM_NAME", ROOM_NAME);
-        startService(notificationIntent);
-    }
 
-    private void stopNotificationService(){
-        Intent notificationIntent = new Intent(this, NotificationService.class);
-        stopService(notificationIntent);
-    }
 
 
     private void toggleSearchLayout() {
@@ -403,21 +401,46 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener {
 
     }
 
+    public void startNotificationService() {
+        Intent notificationIntent = new Intent(this, NotificationService.class);
+        notificationIntent.putExtra("ROOM_NAME", ROOM_NAME);
+        startService(notificationIntent);
+    }
+
+    private void stopNotificationService() {
+        Intent notificationIntent = new Intent(this, NotificationService.class);
+        stopService(notificationIntent);
+    }
+
 
     @Override
     public void onBackPressed() {
+        homePressed = false;
         if (searchViewOpen) {
             toggleSearchLayout();
             toggleListAdapter(true);
         } else {
-            stopNotificationService();
+            //stopNotificationService();
             super.onBackPressed();
 
         }
 
 
     }
+
+    @Override
+    protected void onUserLeaveHint() {
+        if (homePressed){
+            Log.d("Button", "HOME pressed");
+            startNotificationService();
+        } else {
+            Log.d("BUtton", "BACK pressed");
+        }
+        homePressed = true;
+        super.onUserLeaveHint();
+    }
 }
+
 
 
 

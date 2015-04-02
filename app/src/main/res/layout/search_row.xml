@@ -48,7 +48,7 @@
             android:layout_height="wrap_content"
             android:layout_toRightOf="@+id/imageView"
             android:layout_toEndOf="@+id/imageView"
-            android:id="@+id/linearLayout"
+            android:id="@+id/settingsLayout"
             android:layout_marginLeft="10dp">
 
 

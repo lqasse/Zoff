@@ -1,6 +1,9 @@
 package no.lqasse.zoff;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -11,11 +14,14 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.CheckBox;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import no.lqasse.zoff.Helpers.ImageBlur;
 import no.lqasse.zoff.Player.PlayerActivity;
 import no.lqasse.zoff.Remote.RemoteActivity;
 import no.lqasse.zoff.Server.JSONTranslator;
@@ -47,6 +53,8 @@ public class MainActivity extends ActionBarActivity  {
 
             }
         };
+
+
 
 
 
@@ -201,6 +209,11 @@ public class MainActivity extends ActionBarActivity  {
 
 
 
+    }
+
+    public void setBackgroundImage(Bitmap blurBg) {
+        RelativeLayout l = (RelativeLayout) findViewById(R.id.layout);
+        l.setBackground(new BitmapDrawable(getBaseContext().getResources(), blurBg));
     }
 
 

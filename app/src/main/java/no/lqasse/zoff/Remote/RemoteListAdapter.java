@@ -76,13 +76,17 @@ public class RemoteListAdapter extends ArrayAdapter<Video> {
         } else {
             new downloadImage().execute(viewHolder);
         }
+        if (position == 0){
+            if (ImageCache.has(currentVideo.getId()) && !ImageCache.has(currentVideo.getId()+"_blur")){
+                ImageBlur.createAndSetBlurBG(ImageCache.get(currentVideo.getId()),(RemoteActivity)context,currentVideo.getId());
 
-        if (ImageCache.has(currentVideo.getId()) && position == 0 && !ImageCache.has(currentVideo.getId()+"_blur")){
-            ImageBlur.createAndSetBlurBG(ImageCache.get(currentVideo.getId()),(RemoteActivity)context,currentVideo.getId());
+            }else if (ImageCache.has(viewHolder.video.getId()+"_blur")){
+                ((RemoteActivity)context).setBackgroundImage(ImageCache.get(viewHolder.video.getId()+"_blur"));
+            }
 
-        }else if (ImageCache.has(viewHolder.video.getId()+"_blur")){
-            ((RemoteActivity)context).setBackgroundImage(ImageCache.get(viewHolder.video.getId()+"_blur"));
         }
+
+
 
 
         TextView title = (TextView) rowView.findViewById(R.id.titleView);

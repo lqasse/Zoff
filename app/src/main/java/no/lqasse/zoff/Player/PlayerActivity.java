@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import no.lqasse.zoff.Helpers.ImageBlur;
 import no.lqasse.zoff.Helpers.ImageCache;
 import no.lqasse.zoff.Models.Video;
+import no.lqasse.zoff.NotificationService;
 import no.lqasse.zoff.Zoff;
 import no.lqasse.zoff.Zoff_Listener;
 import no.lqasse.zoff.Helpers.ToastMaster;
@@ -35,6 +36,7 @@ import no.lqasse.zoff.SettingsActivity;
 public class PlayerActivity extends ActionBarActivity implements Zoff_Listener{
     private String ROOM_NAME;
     private String NOW_PLAYING_ID = "";
+    private boolean homePressed = true;
 
     private YouTube_Player player;
     private Zoff zoff;
@@ -121,6 +123,7 @@ public class PlayerActivity extends ActionBarActivity implements Zoff_Listener{
 
         switch (id) {
             case (R.id.action_settings):
+                homePressed = false;
                 Intent settingsIntent = new Intent(this, SettingsActivity.class);
                 settingsIntent.putExtra("ROOM_NAME", ROOM_NAME);
                 startActivity(settingsIntent);
@@ -135,6 +138,7 @@ public class PlayerActivity extends ActionBarActivity implements Zoff_Listener{
 
                 break;
             case (R.id.action_search):
+                homePressed = false;
                 player.pause();
                 Intent searchIntent = new Intent(this, SearchActivity.class);
                 searchIntent.putExtra("ROOM_NAME", ROOM_NAME);
@@ -166,6 +170,7 @@ public class PlayerActivity extends ActionBarActivity implements Zoff_Listener{
     protected void onResume() {
         super.onResume();
         //player.play();
+        stopNotificationService();
 
         if (player == null) {
             player = new YouTube_Player(this);
@@ -225,8 +230,6 @@ public class PlayerActivity extends ActionBarActivity implements Zoff_Listener{
         if (zoff.hasVideos() && (player.isInitialized())) {
             player.loadVideos(zoff.getVideoIDs());
             NOW_PLAYING_ID = zoff.getNowPlayingID();
-
-
             handler.removeCallbacks(r, this);
         } else {
 
@@ -328,5 +331,32 @@ public class PlayerActivity extends ActionBarActivity implements Zoff_Listener{
             togglePlayIcon();
 
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        homePressed = false;
+        super.onBackPressed();
+    }
+
+    @Override
+    protected void onUserLeaveHint() {
+        super.onUserLeaveHint();
+        if(homePressed){
+           startNotificationService();
+        }
+
+        homePressed = true;
+    }
+
+    public void startNotificationService() {
+        Intent notificationIntent = new Intent(this, NotificationService.class);
+        notificationIntent.putExtra("ROOM_NAME", ROOM_NAME);
+        startService(notificationIntent);
+    }
+
+    private void stopNotificationService() {
+        Intent notificationIntent = new Intent(this, NotificationService.class);
+        stopService(notificationIntent);
     }
 }

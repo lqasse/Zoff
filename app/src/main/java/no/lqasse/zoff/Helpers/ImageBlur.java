@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.ImageView;
 
+import no.lqasse.zoff.MainActivity;
 import no.lqasse.zoff.Player.PlayerActivity;
 import no.lqasse.zoff.Remote.RemoteActivity;
 
@@ -290,6 +291,9 @@ public class ImageBlur {
                         ((RemoteActivity) viewHolder.activity).setBackgroundImage(viewHolder.bitmap);
                     } else if (viewHolder.activity instanceof PlayerActivity){
                         ((PlayerActivity)viewHolder.activity).setBackgroundImage(viewHolder.bitmap);
+                    } else if
+                            (viewHolder.activity instanceof MainActivity){
+                        ((MainActivity)viewHolder.activity).setBackgroundImage(viewHolder.bitmap);
                     }
                     break;
                 case SET:

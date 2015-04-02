@@ -3,7 +3,7 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/zoff_gray"
-    android:id="@+id/linearLayout"
+    android:id="@+id/settingsLayout"
     android:padding="10dp">
 
 
@@ -34,8 +34,8 @@
             android:layout_gravity="center_horizontal"
             android:textColor="@color/zoff_gray"
             android:checked="false"
-            android:layout_marginBottom="3dp" />
-
+            android:layout_marginBottom="3dp"
+            android:button="@drawable/checkbox_selector"/>
         <CheckBox
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
@@ -45,7 +45,9 @@
             android:textColor="@color/zoff_gray"
             android:checked="false"
 
-            android:layout_marginBottom="3dp" />
+            android:layout_marginBottom="3dp"
+            android:button="@drawable/checkbox_selector"
+            />
 
         <CheckBox
             android:layout_width="fill_parent"
@@ -56,7 +58,8 @@
             android:textColor="@color/zoff_gray"
             android:checked="false"
 
-            android:layout_marginBottom="3dp" />
+            android:layout_marginBottom="3dp"
+            android:button="@drawable/checkbox_selector"/>
 
         <CheckBox
             android:layout_width="fill_parent"
@@ -67,7 +70,8 @@
             android:textColor="@color/zoff_gray"
             android:checked="false"
 
-            android:layout_marginBottom="3dp" />
+            android:layout_marginBottom="3dp"
+            android:button="@drawable/checkbox_selector"/>
 
         <CheckBox
             android:layout_width="fill_parent"
@@ -78,7 +82,8 @@
             android:textColor="@color/zoff_gray"
             android:checked="false"
 
-            android:layout_marginBottom="3dp" />
+            android:layout_marginBottom="3dp"
+            android:button="@drawable/checkbox_selector"/>
 
         <CheckBox
             android:layout_width="fill_parent"
@@ -88,7 +93,8 @@
             android:textColor="@color/zoff_gray"
             android:checked="false"
 
-            android:layout_marginBottom="3dp" />
+            android:layout_marginBottom="3dp"
+            android:button="@drawable/checkbox_selector"/>
 
         <CheckBox
             android:layout_width="fill_parent"
@@ -98,7 +104,8 @@
             android:textColor="@color/zoff_gray"
             android:checked="false"
 
-            android:layout_marginBottom="3dp" />
+            android:layout_marginBottom="3dp"
+            android:button="@drawable/checkbox_selector"/>
 
         <CheckBox
             android:layout_width="fill_parent"
@@ -108,7 +115,8 @@
             android:textColor="@color/zoff_gray"
             android:checked="false"
 
-            android:layout_marginBottom="3dp" />
+            android:layout_marginBottom="3dp"
+            android:button="@drawable/checkbox_selector"/>
 
 
 
@@ -126,7 +134,7 @@
             android:inputType="textPassword"
             android:ems="10"
             android:id="@+id/pwEditText"
-            android:textColor="@color/zoff_pink"
+            android:textColor="@color/zoff_white"
             android:textColorHint="@color/zoff_gray"
             android:hint="Password"
             android:textCursorDrawable="@null"

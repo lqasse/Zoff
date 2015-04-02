@@ -3,6 +3,7 @@ package no.lqasse.zoff;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.MenuItem;
@@ -10,11 +11,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.Toast;
+import android.widget.RelativeLayout;
 
 import java.util.HashMap;
 
+import no.lqasse.zoff.Helpers.ImageCache;
 import no.lqasse.zoff.Helpers.ToastMaster;
 import no.lqasse.zoff.Server.Server;
 
@@ -28,6 +31,7 @@ public class SettingsActivity extends ActionBarActivity {
     private String ROOM_NAME;
     private String POST_URL;
     private SharedPreferences sharedPreferences;
+    private boolean homePressed = true;
 
 
     private CheckBox voteCB;
@@ -43,6 +47,7 @@ public class SettingsActivity extends ActionBarActivity {
     private Button postSettingsBtn;
     private EditText pwField;
     private ProgressBar progressBar;
+
 
     private Activity settingsActivity = this;
 
@@ -123,6 +128,13 @@ public class SettingsActivity extends ActionBarActivity {
         });
 
 
+        if (ImageCache.getCurrentBlurBG() != null){
+            RelativeLayout settingsLayout = (RelativeLayout) findViewById(R.id.settingsLayout);
+            settingsLayout.setBackground(new BitmapDrawable(getBaseContext().getResources(), ImageCache.getCurrentBlurBG()));
+
+        }
+
+
     }
 
     public void settingsPostResponse(String response){
@@ -176,13 +188,6 @@ public class SettingsActivity extends ActionBarActivity {
         super.onResume();
     }
 
-    @Override
-    protected void onPause() {
-        startNotificationService();
-
-
-        super.onPause();
-    }
 
     public void startNotificationService() {
         Intent notificationIntent = new Intent(this, NotificationService.class);
@@ -196,9 +201,18 @@ public class SettingsActivity extends ActionBarActivity {
     }
 
     @Override
-    protected void onStop() {
-        startNotificationService();
-        super.onStop();
+    public void onBackPressed() {
+        homePressed = false;
+        super.onBackPressed();
     }
 
+    @Override
+    protected void onUserLeaveHint() {
+        super.onUserLeaveHint();
+
+        if(homePressed){
+            startNotificationService();
+        }
+        homePressed = true;
+    }
 }

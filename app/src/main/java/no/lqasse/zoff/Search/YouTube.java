@@ -2,6 +2,7 @@ package no.lqasse.zoff.Search;
 
 import android.content.Context;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -36,10 +37,14 @@ public class YouTube {
     public static  void firstPageReceived(Context context, ArrayList<SearchResult> results, String nextPageToken){
 
 
+
+
         searchResultHashMap.clear();
         searchResults.clear();
         //progressBar.setVisibility(View.GONE);
         //resultsView.setSelectionAfterHeaderView();
+
+
 
 
         pageReceived(context, results, nextPageToken);
@@ -68,8 +73,13 @@ public class YouTube {
 
         for (String[] s : details){
             SearchResult result = searchResultHashMap.get(s[0]);
-            result.setDuration(s[1]);
-            result.setViews(s[2]);
+            if (result != null ){
+                result.setDuration(s[1]);
+                result.setViews(s[2]);
+            } else {
+                Log.d("YouTube", "Could not find searchresult");
+            }
+
         }
 
         ((RemoteActivity)context).notifyDatasetChanged();
