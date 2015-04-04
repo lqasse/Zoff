@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,8 +11,6 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import no.lqasse.zoff.Models.Video;
-import no.lqasse.zoff.Player.PlayerActivity;
-import no.lqasse.zoff.Remote.RemoteActivity;
 import no.lqasse.zoff.Server.JSONTranslator;
 import no.lqasse.zoff.Helpers.ToastMaster;
 import no.lqasse.zoff.Server.Server;
@@ -110,7 +107,7 @@ public class Zoff {
 
 
 
-        ((Zoff_Listener) listener).zoffRefreshed(true);
+        ((ZoffListener) listener).zoffRefreshed(true);
 
 
 
@@ -360,11 +357,6 @@ public class Zoff {
     public static String getRoomPass(){
         return ROOM_PASS;
     }
-
-
-
-
-
 
 
 

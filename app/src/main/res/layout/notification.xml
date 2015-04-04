@@ -48,14 +48,14 @@
         android:layout_alignBottom="@+id/imageView" />
 
     <ImageView
-        android:layout_width="20dp"
-        android:layout_height="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
         android:id="@+id/closeImageView"
         android:src="@drawable/cross"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:scaleType="centerInside"
-        android:layout_marginRight="10dp"
-        android:layout_centerVertical="true" />
+        android:layout_centerVertical="true"
+        android:padding="15dp" />
 
 </RelativeLayout>

@@ -6,11 +6,8 @@
         android:title="Search"
         app:showAsAction="ifRoom|collapseActionView"
         android:icon="@drawable/search"
-        android:actionLayout="@layout/actionbar_search_layout"/>
-
-
-
-
+        android:actionLayout="@layout/actionbar_search_layout"
+        android:actionViewClass="android.widget.EditText"/>
 
 
     <item android:id="@+id/action_skip" android:title="Skip"

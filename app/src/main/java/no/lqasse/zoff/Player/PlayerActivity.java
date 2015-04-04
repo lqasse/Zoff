@@ -7,7 +7,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,25 +24,21 @@ import java.util.ArrayList;
 import no.lqasse.zoff.Helpers.ImageBlur;
 import no.lqasse.zoff.Helpers.ImageCache;
 import no.lqasse.zoff.Models.Video;
-import no.lqasse.zoff.NotificationService;
+import no.lqasse.zoff.Adapters.PlayerListAdapter;
 import no.lqasse.zoff.Zoff;
-import no.lqasse.zoff.Zoff_Listener;
+import no.lqasse.zoff.ZoffActivity;
+import no.lqasse.zoff.ZoffListener;
 import no.lqasse.zoff.Helpers.ToastMaster;
 import no.lqasse.zoff.R;
 import no.lqasse.zoff.Search.SearchActivity;
 import no.lqasse.zoff.SettingsActivity;
 
-public class PlayerActivity extends ActionBarActivity implements Zoff_Listener{
-    private String ROOM_NAME;
+public class PlayerActivity extends ZoffActivity implements ZoffListener {
     private String NOW_PLAYING_ID = "";
-    private boolean homePressed = true;
-
     private YouTube_Player player;
-    private Zoff zoff;
     private final Handler handler = new Handler();
+    private PlayerListAdapter listAdapter;
     private ArrayList<Video> videoList = new ArrayList<>();
-    private PlayerListAdapter adapter;
-    private PlayerActivity playerActivity = this;
 
     private Menu menu;
     private ListView videoListView;
@@ -74,14 +69,16 @@ public class PlayerActivity extends ActionBarActivity implements Zoff_Listener{
         videoListView = (ListView) findViewById(R.id.videoList);
 
 
-        adapter = new PlayerListAdapter(this, videoList);
-        videoListView.setAdapter(adapter);
+        listAdapter = new PlayerListAdapter(this, videoList, zoff);
+
+
+        videoListView.setAdapter(listAdapter);
 
         videoListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 
-                Video selectedVideo = adapter.getItem(position);
+                Video selectedVideo = listAdapter.getItem(position);
                 zoff.vote(selectedVideo);
 
 
@@ -169,7 +166,6 @@ public class PlayerActivity extends ActionBarActivity implements Zoff_Listener{
     @Override
     protected void onResume() {
         super.onResume();
-        //player.play();
         stopNotificationService();
 
         if (player == null) {
@@ -186,11 +182,10 @@ public class PlayerActivity extends ActionBarActivity implements Zoff_Listener{
 
     public void zoffRefreshed(Boolean hasInetAccess) {
 
-
         videoList.clear();
         videoList.addAll(zoff.getNextVideos());
 
-        adapter.notifyDataSetChanged();
+        listAdapter.notifyDataSetChanged();
 
         titleLabel.setText(zoff.getNowPlayingTitle());
         currentTimeLabel.setText(zoff.getViewers());
@@ -198,7 +193,8 @@ public class PlayerActivity extends ActionBarActivity implements Zoff_Listener{
         if (!ImageCache.has(zoff.getNowPlayingID() + "_blur") && ImageCache.has(zoff.getNowPlayingID())){
             downloadBG downloadBG = new downloadBG();
             downloadBG.execute("");
-
+        } else if (ImageCache.has(zoff.getNowPlayingID()+"_blur")){
+            setBackgroundImage(ImageCache.getCurrentBlurBG());
         }
 
 
@@ -271,10 +267,6 @@ public class PlayerActivity extends ActionBarActivity implements Zoff_Listener{
     }
 
 
-
-
-
-
     private class downloadBG extends AsyncTask<String, Void, Bitmap> {
         @Override
         protected Bitmap doInBackground(String... params) {
@@ -294,7 +286,7 @@ public class PlayerActivity extends ActionBarActivity implements Zoff_Listener{
         @Override
         protected void onPostExecute(Bitmap bitmap) {
 
-            ImageBlur.createAndSetBlurBG(bitmap,playerActivity,zoff.getNowPlayingID());
+            ImageBlur.createAndSetBlurBG(bitmap, PlayerActivity.this, zoff.getNowPlayingID());
 
             super.onPostExecute(bitmap);
 
@@ -333,30 +325,9 @@ public class PlayerActivity extends ActionBarActivity implements Zoff_Listener{
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        homePressed = false;
-        super.onBackPressed();
-    }
 
-    @Override
-    protected void onUserLeaveHint() {
-        super.onUserLeaveHint();
-        if(homePressed){
-           startNotificationService();
-        }
 
-        homePressed = true;
-    }
 
-    public void startNotificationService() {
-        Intent notificationIntent = new Intent(this, NotificationService.class);
-        notificationIntent.putExtra("ROOM_NAME", ROOM_NAME);
-        startService(notificationIntent);
-    }
 
-    private void stopNotificationService() {
-        Intent notificationIntent = new Intent(this, NotificationService.class);
-        stopService(notificationIntent);
-    }
+
 }

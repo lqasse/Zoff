@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -24,11 +23,13 @@ import android.widget.TextView;
 
 import no.lqasse.zoff.Models.Video;
 import no.lqasse.zoff.Player.PlayerActivity;
+import no.lqasse.zoff.Adapters.RemoteListAdapter;
 import no.lqasse.zoff.Search.SearchResultListAdapter;
 import no.lqasse.zoff.Search.YouTube;
 import no.lqasse.zoff.Server.Server;
 import no.lqasse.zoff.Zoff;
-import no.lqasse.zoff.Zoff_Listener;
+import no.lqasse.zoff.ZoffActivity;
+import no.lqasse.zoff.ZoffListener;
 import no.lqasse.zoff.Helpers.ToastMaster;
 import no.lqasse.zoff.NotificationService;
 import no.lqasse.zoff.R;
@@ -37,17 +38,15 @@ import no.lqasse.zoff.SettingsActivity;
 /**
  * Created by lassedrevland on 21.01.15.
  */
-public class RemoteActivity extends ActionBarActivity implements Zoff_Listener {
+public class RemoteActivity extends ZoffActivity implements ZoffListener {
     private final String PREFS_FILE = "no.lqasse.zoff.prefs";
-    private String ROOM_NAME;
-    private String ROOM_PASS;
 
-    private Zoff zoff;
+
     private Menu menu;
     private Boolean paused = false;
     private Boolean keyboardVisible = false;
     private ListView videoList;
-    private RemoteListAdapter adapter;
+    private RemoteListAdapter remoteListAdapter;
     private SearchResultListAdapter searchAdapter;
     private SharedPreferences sharedPreferences;
     private TextView searchText;
@@ -64,7 +63,6 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener {
     };
 
 
-    private boolean homePressed = true;
     private boolean appInBackGround = false;
     private boolean searchViewOpen = false;
     private final int AUTOSEARCH_DELAY_MILLIS = 600;
@@ -88,17 +86,20 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener {
         zoff = new Zoff(ROOM_NAME, this);
         zoff.setROOM_PASS(getPASS());
         setContentView(R.layout.activity_remote);
-        getSupportActionBar().setIcon(R.drawable.logo);
+        getSupportActionBar().setDisplayShowCustomEnabled(true);
+        getSupportActionBar().setCustomView(R.layout.actionbar_default_layout);
+        TextView title = (TextView) getSupportActionBar().getCustomView().findViewById(R.id.titleText);
+        title.setText(zoff.getROOM_NAME());
         getSupportActionBar().setDisplayShowTitleEnabled(true);
         getSupportActionBar().setTitle(zoff.getROOM_NAME());
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
 
         //Handle everything listview related
-        adapter = new RemoteListAdapter(this, zoff.getVideos(), zoff);
+        remoteListAdapter = new RemoteListAdapter(this, zoff.getVideos(), zoff);
         searchAdapter = new SearchResultListAdapter(this, YouTube.getSearchResults());
         videoList = (ListView) findViewById(R.id.videoList);
-        videoList.setAdapter(adapter);
+        videoList.setAdapter(remoteListAdapter);
 
 
         videoList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
@@ -113,7 +114,7 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener {
                     ToastMaster.showToast(RemoteActivity.this, ToastMaster.TYPE.VIDEO_ADDED, videoTitle);
 
                 } else if ((position != 0) && (!searchViewOpen)) { //Cant vote for current video duh
-                    Video selectedVideo = adapter.getItem(position);
+                    Video selectedVideo = remoteListAdapter.getItem(position);
                     zoff.vote(selectedVideo);
                 }
                 ;
@@ -183,15 +184,7 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener {
     }
 
 
-    @Override
-    protected void onDestroy() {
-        zoff.stopRefresh();
-        stopNotificationService();
 
-        super.onDestroy();
-
-
-    }
 
 
     @Override
@@ -277,11 +270,9 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener {
     }
 
 
-    @Override
+
     public void zoffRefreshed(Boolean hasInetAccess) {
-        adapter.notifyDataSetChanged();
-
-
+        remoteListAdapter.notifyDataSetChanged();
     }
 
     private String getPASS() {
@@ -289,23 +280,14 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener {
         sharedPreferences = getSharedPreferences(PREFS_FILE, 0);
         PASS = sharedPreferences.getString(ROOM_NAME, null);
         return PASS;
-
     }
 
-
-    public Zoff getZoff() {
-        return this.zoff;
-    }
 
 
     public void setBackgroundImage(Bitmap bitmap) {
-
-
         LinearLayout l = (LinearLayout) findViewById(R.id.layout);
         l.setBackground(new BitmapDrawable(getBaseContext().getResources(), bitmap));
     }
-
-
 
 
     private void toggleSearchLayout() {
@@ -316,12 +298,20 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener {
 
 
         if (searchViewOpen) {
-            getSupportActionBar().setDisplayShowCustomEnabled(false);
+            getSupportActionBar().setCustomView(R.layout.actionbar_default_layout);
+            TextView title = (TextView) getSupportActionBar().getCustomView().findViewById(R.id.titleText);
+            title.setText(zoff.getROOM_NAME());
 
         } else {
 
-            getSupportActionBar().setDisplayShowCustomEnabled(true);
+           getSupportActionBar().setDisplayShowCustomEnabled(true);
             getSupportActionBar().setCustomView(R.layout.actionbar_search_layout);
+
+
+
+
+
+
             searchText = (EditText) getSupportActionBar().getCustomView().findViewById(R.id.etSearch);
             removeQueryButton = (ImageView) getSupportActionBar().getCustomView().findViewById(R.id.removeTextButton);
 
@@ -381,15 +371,16 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener {
         }
 
 
+
         searchViewOpen = !searchViewOpen;
     }
 
     public void toggleListAdapter(Boolean searchLayout) {
 
         if (searchLayout) {
-            videoList.setAdapter(adapter);
+            videoList.setAdapter(remoteListAdapter);
             videoList.invalidateViews();
-            adapter.notifyDataSetChanged();
+            remoteListAdapter.notifyDataSetChanged();
         } else {
 
             videoList.setAdapter(searchAdapter);
@@ -401,17 +392,6 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener {
 
     }
 
-    public void startNotificationService() {
-        Intent notificationIntent = new Intent(this, NotificationService.class);
-        notificationIntent.putExtra("ROOM_NAME", ROOM_NAME);
-        startService(notificationIntent);
-    }
-
-    private void stopNotificationService() {
-        Intent notificationIntent = new Intent(this, NotificationService.class);
-        stopService(notificationIntent);
-    }
-
 
     @Override
     public void onBackPressed() {
@@ -420,7 +400,6 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener {
             toggleSearchLayout();
             toggleListAdapter(true);
         } else {
-            //stopNotificationService();
             super.onBackPressed();
 
         }
@@ -439,6 +418,7 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener {
         homePressed = true;
         super.onUserLeaveHint();
     }
+
 }
 
 

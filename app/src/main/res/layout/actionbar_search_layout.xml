@@ -14,7 +14,8 @@
         android:id="@+id/etSearch"
         android:layout_gravity="bottom|left"
         android:hint="Search YouTube..."
-        android:background="@color/zoff_transparent" />
+        android:background="@color/zoff_transparent"
+        android:typeface="sans" />
 
     <ImageView
         android:layout_width="wrap_content"

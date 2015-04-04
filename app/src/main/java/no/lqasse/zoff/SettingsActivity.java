@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -24,12 +25,10 @@ import no.lqasse.zoff.Server.Server;
 /**
  * Created by lassedrevland on 21.01.15.
  */
-public class SettingsActivity extends ActionBarActivity {
+public class SettingsActivity extends ZoffActivity {
     private final String PREFS_FILE = "no.lqasse.zoff.prefs";
     private HashMap<String, Boolean> settings = new HashMap<>();
     private String password;
-    private String ROOM_NAME;
-    private String POST_URL;
     private SharedPreferences sharedPreferences;
     private boolean homePressed = true;
 
@@ -182,37 +181,19 @@ public class SettingsActivity extends ActionBarActivity {
         editor.commit();
     }
 
-    @Override
-    protected void onResume() {
-        stopNotificationService();
-        super.onResume();
-    }
 
-
-    public void startNotificationService() {
-        Intent notificationIntent = new Intent(this, NotificationService.class);
-        notificationIntent.putExtra("ROOM_NAME", ROOM_NAME);
-        startService(notificationIntent);
-    }
-
-    private void stopNotificationService(){
-        Intent notificationIntent = new Intent(this, NotificationService.class);
-        stopService(notificationIntent);
-    }
-
-    @Override
-    public void onBackPressed() {
-        homePressed = false;
-        super.onBackPressed();
-    }
 
     @Override
     protected void onUserLeaveHint() {
-        super.onUserLeaveHint();
-
-        if(homePressed){
+        if (homePressed){
+            Log.d("Button", "HOME pressed");
             startNotificationService();
+        } else {
+            Log.d("BUtton", "BACK pressed");
         }
         homePressed = true;
+        super.onUserLeaveHint();
     }
+
+
 }
