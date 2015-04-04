@@ -108,7 +108,7 @@ public class RemoteActivity extends ActionBarActivity implements Zoff_Listener {
 
                 if (searchViewOpen) {
                     String videoTitle = YouTube.getSearchResults().get(position).getTitle();
-                    String videoID = YouTube.getSearchResults().get(position).getVideoID();
+                    String videoID = (YouTube.getSearchResults().get(position)).getVideoID();
                     Server.add(videoID, videoTitle);
                     ToastMaster.showToast(RemoteActivity.this, ToastMaster.TYPE.VIDEO_ADDED, videoTitle);
 
