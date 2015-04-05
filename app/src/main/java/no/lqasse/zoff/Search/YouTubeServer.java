@@ -203,9 +203,7 @@ public class YouTubeServer {
                     nextPageToken = YouTubeJSONTranslator.toNextPageToken(holder.response);
 
                     getDetails(holder.searchActivity,results);
-
-
-                    holder.searchActivity.pageReceived(results, nextPageToken);
+                    //holder.searchActivity.pageReceived(results, nextPageToken);
                     break;
             }
 

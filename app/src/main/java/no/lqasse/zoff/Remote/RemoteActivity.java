@@ -26,7 +26,9 @@ import no.lqasse.zoff.Player.PlayerActivity;
 import no.lqasse.zoff.Adapters.RemoteListAdapter;
 import no.lqasse.zoff.Search.SearchResultListAdapter;
 import no.lqasse.zoff.Search.YouTube;
+import no.lqasse.zoff.Search.YouTubeListener;
 import no.lqasse.zoff.Server.Server;
+import no.lqasse.zoff.SpotifyServer;
 import no.lqasse.zoff.Zoff;
 import no.lqasse.zoff.ZoffActivity;
 import no.lqasse.zoff.ZoffListener;
@@ -38,7 +40,7 @@ import no.lqasse.zoff.SettingsActivity;
 /**
  * Created by lassedrevland on 21.01.15.
  */
-public class RemoteActivity extends ZoffActivity implements ZoffListener {
+public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTubeListener {
     private final String PREFS_FILE = "no.lqasse.zoff.prefs";
 
 
@@ -75,16 +77,20 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener {
 
         Intent i = getIntent();
         Bundle b = i.getExtras();
-        if (b != null) {
+        if (b != null && b.containsKey("ROOM_NAME")) {
+
             ROOM_NAME = b.getString("ROOM_NAME");
+            ROOM_PASS = getPASS();
+            zoff = new Zoff(ROOM_NAME, this);
+            zoff.setROOM_PASS(getPASS());
         }
 
 
-        ROOM_PASS = getPASS();
 
 
-        zoff = new Zoff(ROOM_NAME, this);
-        zoff.setROOM_PASS(getPASS());
+
+
+
         setContentView(R.layout.activity_remote);
         getSupportActionBar().setDisplayShowCustomEnabled(true);
         getSupportActionBar().setCustomView(R.layout.actionbar_default_layout);
@@ -218,7 +224,13 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener {
 
                 break;
             case (R.id.action_search):
-                toggleSearchLayout();
+                if (zoff.hasROOM_PASS()||zoff.ANYONE_CAN_ADD()){
+                    toggleSearchLayout();
+                } else{
+                    ToastMaster.showToast(this, ToastMaster.TYPE.NEEDS_PASS_TO_ADD);
+
+                }
+
 
 
                 break;
@@ -237,10 +249,10 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener {
             case (R.id.action_shuffle):
                 if (zoff.allowShuffle()) {
                     if (zoff.hasROOM_PASS()) {
-                        ToastMaster.showToast(getBaseContext(), ToastMaster.TYPE.SHUFFLED);
+                        ToastMaster.showToast(RemoteActivity.this, ToastMaster.TYPE.SHUFFLED);
                         zoff.shuffle();
                     } else {
-                        ToastMaster.showToast(getBaseContext(), ToastMaster.TYPE.NEEDS_PASS_TO_SHUFFLE);
+                        ToastMaster.showToast(RemoteActivity.this, ToastMaster.TYPE.NEEDS_PASS_TO_SHUFFLE);
                     }
                 } else {
                     ToastMaster.showToast(this, ToastMaster.TYPE.SHUFFLING_DISABLED);
@@ -282,8 +294,6 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener {
         return PASS;
     }
 
-
-
     public void setBackgroundImage(Bitmap bitmap) {
         LinearLayout l = (LinearLayout) findViewById(R.id.layout);
         l.setBackground(new BitmapDrawable(getBaseContext().getResources(), bitmap));
@@ -304,13 +314,8 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener {
 
         } else {
 
-           getSupportActionBar().setDisplayShowCustomEnabled(true);
+            getSupportActionBar().setDisplayShowCustomEnabled(true);
             getSupportActionBar().setCustomView(R.layout.actionbar_search_layout);
-
-
-
-
-
 
             searchText = (EditText) getSupportActionBar().getCustomView().findViewById(R.id.etSearch);
             removeQueryButton = (ImageView) getSupportActionBar().getCustomView().findViewById(R.id.removeTextButton);
@@ -356,6 +361,12 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener {
 
 
                     Boolean textFieldEmpty = s.toString().equals("");
+
+
+                    if (s.toString().contains("open.spotify.com/track/")){
+                        SpotifyServer.getSearchString(s.toString(),searchText);
+                    }
+
                     if (!textFieldEmpty) {
                         handler.removeCallbacks(delaySearch);
                         handler.postDelayed(delaySearch, AUTOSEARCH_DELAY_MILLIS);

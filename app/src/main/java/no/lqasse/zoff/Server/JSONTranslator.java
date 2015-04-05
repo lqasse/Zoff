@@ -28,13 +28,29 @@ public  class JSONTranslator {
 
         try {
             json = new JSONObject(JSONString);
-            songs = json.getJSONObject("songs");
-            songsArray = songs.names();
-            for (int i = 0;i<songsArray.length();i++){
-                videoObject = songs.getJSONObject(songsArray.get(i).toString());
-                videos.add(toZoffVideo(videoObject));
+            try {
 
+
+
+                //Array is not empty
+                songs = json.getJSONObject("songs");
+
+                songsArray = songs.names();
+                for (int i = 0;i<songsArray.length();i++){
+                    videoObject = songs.getJSONObject(songsArray.get(i).toString());
+                    videos.add(toZoffVideo(videoObject));
+
+                }
+            } catch (JSONException e){
+                //Array is probably empty
             }
+
+
+
+
+
+
+
 
             Collections.sort(videos);
 

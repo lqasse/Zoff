@@ -2,6 +2,8 @@ package no.lqasse.zoff.Helpers;
 
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Toast;
 
@@ -24,6 +26,7 @@ public class ToastMaster {
         EMBEDDING_DISABLED,
         VIDEO_VOTED,
         HOLD_TO_ADD,
+        HOLD_TO_DELETE,
         BACKGROUND,
         FOREGROUND,
         PAUSE,
@@ -31,7 +34,8 @@ public class ToastMaster {
         SKIP_DISABLED,
         SHUFFLING_DISABLED,
         WRONG_PASSWORD_SETTINGS,
-        SAVED_SETTINGS
+        SAVED_SETTINGS,
+        VIDEO_DELETED
     }
 
 
@@ -62,7 +66,7 @@ public class ToastMaster {
                 toastText = "+1 to " + CONTEXTUAL_STRING;
                 break;
             case HOLD_TO_VOTE:
-                toastText = "Click and hold to vote";
+                toastText = "Tap and hold to vote";
                 break;
             case SHUFFLED:
                 toastText = "Shuffled!";
@@ -75,6 +79,9 @@ public class ToastMaster {
                 break;
             case HOLD_TO_ADD:
                 toastText = "Click and hold to add videos";
+                break;
+            case HOLD_TO_DELETE:
+                toastText = "Tap and hold to delete";
                 break;
             case BACKGROUND:
                 toastText ="WENT TO BACKGROUND";
@@ -100,6 +107,9 @@ public class ToastMaster {
             case WRONG_PASSWORD_SETTINGS:
                 toastText = "Incorrect password";
                 break;
+            case VIDEO_DELETED:
+                toastText = CONTEXTUAL_STRING + " was deleted";
+                break;
 
 
 
@@ -110,7 +120,11 @@ public class ToastMaster {
             t = Toast.makeText((Activity) context, toastText, Toast.LENGTH_SHORT);
             View v = t.getView();
             v.setBackgroundResource(R.drawable.toast_background);
+
+            t.setGravity(Gravity.CENTER_VERTICAL&Gravity.CENTER_HORIZONTAL,50,0);
             t.show();
+        } else {
+            Log.d("TOAST", "No COntext");
         }
 
 

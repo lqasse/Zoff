@@ -126,22 +126,27 @@ public class PlayerActivity extends ZoffActivity implements ZoffListener {
                 startActivity(settingsIntent);
                 break;
             case (R.id.action_skip):
-                zoff.voteSkip();
-                zoff.refreshData();
+                if (zoff.allowSkip()){
+                    zoff.voteSkip();
+                } else {
+                    ToastMaster.showToast(this, ToastMaster.TYPE.SKIP_DISABLED);
+                }
+
+
+
                 break;
             case (R.id.action_togglePlay):
                 togglePlay();
-
-
                 break;
-            case (R.id.action_search):
-                homePressed = false;
-                player.pause();
-                Intent searchIntent = new Intent(this, SearchActivity.class);
-                searchIntent.putExtra("ROOM_NAME", ROOM_NAME);
-                startActivity(searchIntent);
+            case (R.id.action_shuffle):
 
+                if (zoff.allowShuffle()){
+                    ToastMaster.showToast(this, ToastMaster.TYPE.SHUFFLED);
+                    zoff.shuffle();
 
+                }else {
+                    ToastMaster.showToast(this, ToastMaster.TYPE.SHUFFLING_DISABLED);
+                }
                 break;
 
 

@@ -12,9 +12,11 @@ import java.util.ArrayList;
 
 import no.lqasse.zoff.Helpers.ImageBlur;
 import no.lqasse.zoff.Helpers.ImageCache;
+import no.lqasse.zoff.Helpers.ToastMaster;
 import no.lqasse.zoff.Models.Video;
 import no.lqasse.zoff.R;
 import no.lqasse.zoff.Remote.RemoteActivity;
+import no.lqasse.zoff.Server.Server;
 import no.lqasse.zoff.Zoff;
 
 /**
@@ -28,7 +30,7 @@ public class RemoteListAdapter extends ZoffListAdapter {
 
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
-        ViewHolder viewHolder;
+        final ViewHolder viewHolder;
         viewHolder = new ViewHolder();
 
         Video currentVideo = videoList.get(position);
@@ -79,16 +81,54 @@ public class RemoteListAdapter extends ZoffListAdapter {
         TextView views = (TextView) rowView.findViewById(R.id.viewsLabel);
         TextView skips = (TextView) rowView.findViewById(R.id.skipsLabel);
 
+        ImageView deleteButton = (ImageView) rowView.findViewById(R.id.deleteButton);
+
 
         title.setText(videoList.get(position).getTitle());
 
         if (votes != null) {
 
             votes.setText(videoList.get(position).getVotes());
+            if (Zoff.getRoomPass() == null){
+               deleteButton.setVisibility(View.INVISIBLE);
+            } else {
+                deleteButton.setTag(position);
+                deleteButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        ToastMaster.showToast(context, ToastMaster.TYPE.HOLD_TO_DELETE);
+
+
+                    }
+                });
+
+                deleteButton.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        int index = (int) v.getTag();
+                        String videoID = videoList.get(index).getId();
+                        String title = videoList.get(index).getTitle();
+
+
+                        Server.delete(videoID);
+
+                        videoList.get(index);
+                        ToastMaster.showToast(context, ToastMaster.TYPE.VIDEO_DELETED,title);
+
+
+
+                        return true;
+                    }
+                });
+            }
+
 
         } else {
             views.setText(zoff.getViewers());
-            skips.setText(zoff.getSkips()); //Implement later?
+            skips.setText(zoff.getSkips());
+
+
+
         }
 
 

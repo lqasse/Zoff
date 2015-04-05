@@ -36,14 +36,8 @@ public class YouTube {
 
     public static  void firstPageReceived(Context context, ArrayList<SearchResult> results, String nextPageToken){
 
-
-
-
         searchResultHashMap.clear();
         searchResults.clear();
-        //progressBar.setVisibility(View.GONE);
-        //resultsView.setSelectionAfterHeaderView();
-
 
 
 
@@ -61,10 +55,9 @@ public class YouTube {
             searchResultHashMap.put(r.getVideoID(), r);
         }
 
-        //progressBar.setVisibility(View.GONE);
-        //searchResultListAdapter.notifyDataSetChanged();
 
-        ((RemoteActivity)context).notifyDatasetChanged();
+
+        ((YouTubeListener)context).notifyDatasetChanged();
         YouTubeServer.getDetails(context,results);
 
     }
@@ -82,13 +75,13 @@ public class YouTube {
 
         }
 
-        ((RemoteActivity)context).notifyDatasetChanged();
+        ((YouTubeListener)context).notifyDatasetChanged();
 
 
     }
 
 
-    private void addVideo(int index) {
+    public static void addVideo(int index) {
 
 
         String videoID = searchResults.get(index).getVideoID();
