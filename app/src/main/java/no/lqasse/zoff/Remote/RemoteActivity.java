@@ -1,5 +1,6 @@
 package no.lqasse.zoff.Remote;
 
+import android.animation.Animator;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -16,12 +17,15 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
+import android.view.animation.ScaleAnimation;
+import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 
@@ -319,38 +323,7 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
                 background.setAnimation(fadeIN);
                 fadeIN.start();
                 background.setVisibility(View.VISIBLE);
-                /*
-                Animation fadeOut = new AlphaAnimation(1.00f,0.20f);
-                fadeOut.setInterpolator(new AccelerateInterpolator());
-                fadeOut.setDuration(1000);
-                background.setAnimation(fadeOut);
-                fadeOut.start();
 
-
-                fadeOut.setAnimationListener(new Animation.AnimationListener() {
-                    @Override
-                    public void onAnimationStart(Animation animation) {
-
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animation animation) {
-                        Animation fadeIN = new AlphaAnimation(0.20f, 1.00f);
-                        fadeIN.setInterpolator(new DecelerateInterpolator());
-                        fadeIN.setDuration(1000);
-
-                        background.setAnimation(fadeIN);
-                        background.setImageBitmap(bg);
-                        fadeIN.start();
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animation animation) {
-
-                    }
-
-                });
-                */
             } else {
                 Animation fadeIN = new AlphaAnimation(0.00f, 1.00f);
                 fadeIN.setInterpolator(new DecelerateInterpolator());
@@ -378,6 +351,8 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
         menu.findItem(R.id.action_search).setVisible(searchViewOpen);
 
 
+
+
         if (searchViewOpen) {
             getSupportActionBar().setCustomView(R.layout.actionbar_default_layout);
             TextView title = (TextView) getSupportActionBar().getCustomView().findViewById(R.id.titleText);
@@ -385,10 +360,50 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
 
         } else {
 
-            getSupportActionBar().setDisplayShowCustomEnabled(true);
+            getSupportActionBar().getCustomView().animate()
+                    .setDuration(200)
+                    .alpha(0)
+                    .setInterpolator(new DecelerateInterpolator())
+                    .start();
             getSupportActionBar().setCustomView(R.layout.actionbar_search_layout);
 
+
+
+            View customView = getSupportActionBar().getCustomView();
+            RelativeLayout layout = (RelativeLayout) findViewById(R.id.layout);
+            int layoutWidth = layout.getWidth();
+            layoutWidth = layoutWidth - (int) (layoutWidth*0.4);
             searchText = (EditText) getSupportActionBar().getCustomView().findViewById(R.id.etSearch);
+            final String hintText = searchText.getHint().toString();
+            searchText.setHint("");
+            searchText.setX(layoutWidth);
+            searchText.animate()
+                    .setInterpolator(new DecelerateInterpolator())
+                    .translationX(0)
+                    .setDuration(200)
+                    .setListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animation) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            searchText.setHint(hintText);
+
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animation) {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animation) {
+
+                        }
+                    })
+                    .start();
             removeQueryButton = (ImageView) getSupportActionBar().getCustomView().findViewById(R.id.removeTextButton);
 
             searchText.requestFocus();

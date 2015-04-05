@@ -15,7 +15,8 @@
         android:layout_gravity="bottom|left"
         android:hint="Search YouTube..."
         android:background="@color/zoff_transparent"
-        android:typeface="sans" />
+        android:typeface="sans"
+        android:drawableLeft="@drawable/search"/>
 
     <ImageView
         android:layout_width="wrap_content"
