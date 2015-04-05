@@ -1,8 +1,7 @@
-package no.lqasse.zoff;
+package no.lqasse.zoff.Helpers;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import org.apache.http.HttpResponse;
@@ -16,7 +15,6 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
-import no.lqasse.zoff.Search.SearchActivity;
 import no.lqasse.zoff.Search.YouTube;
 
 /**
@@ -133,6 +131,7 @@ public class SpotifyServer {
 
 
                 }catch (JSONException e){
+                    e.printStackTrace();
 
                 }
             }

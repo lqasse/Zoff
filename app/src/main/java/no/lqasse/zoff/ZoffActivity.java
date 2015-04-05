@@ -2,7 +2,6 @@ package no.lqasse.zoff;
 
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 
 /**
  * Created by lassedrevland on 04.04.15.

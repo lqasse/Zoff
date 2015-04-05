@@ -10,8 +10,8 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:typeface="monospace"
-        android:textSize="20dp"
-        android:text="lqasse"
+        android:textSize="20sp"
+        android:text=""
         android:paddingTop="15dp"
         android:textColor="@color/zoff_white" />
 

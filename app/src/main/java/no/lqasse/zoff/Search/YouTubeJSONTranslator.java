@@ -1,7 +1,6 @@
 package no.lqasse.zoff.Search;
 
 import android.text.Html;
-import android.view.View;
 
 import org.json.JSONArray;
 import org.json.JSONException;

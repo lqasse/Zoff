@@ -4,17 +4,11 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.view.View;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 
 import java.net.URL;
 
 import no.lqasse.zoff.Models.Video;
-import no.lqasse.zoff.Remote.RemoteActivity;
-import no.lqasse.zoff.Zoff;
 
 /**
  * Created by lassedrevland on 25.03.15.

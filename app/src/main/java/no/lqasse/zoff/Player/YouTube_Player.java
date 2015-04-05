@@ -1,6 +1,5 @@
 package no.lqasse.zoff.Player;
 
-import android.app.Activity;
 import android.os.Handler;
 import android.util.Log;
 

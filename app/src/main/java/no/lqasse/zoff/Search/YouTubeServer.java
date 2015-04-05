@@ -3,8 +3,6 @@ package no.lqasse.zoff.Search;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.google.android.youtube.player.YouTubePlayer;
-
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -17,7 +15,6 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 
 import no.lqasse.zoff.Models.SearchResult;
-import no.lqasse.zoff.Remote.RemoteActivity;
 
 /**
  * Created by lassedrevland on 24.03.15.

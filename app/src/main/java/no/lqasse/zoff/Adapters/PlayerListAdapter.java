@@ -32,8 +32,9 @@ public class PlayerListAdapter extends ZoffListAdapter {
 
         View rowView;
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(context.LAYOUT_INFLATER_SERVICE);
-
         rowView = inflater.inflate(R.layout.now_playing_row, parent, false);
+
+
         viewHolder.imageURL = videoList.get(position).getThumbMed();
 
 

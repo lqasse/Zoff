@@ -1,15 +1,12 @@
 package no.lqasse.zoff.Helpers;
 
 import android.app.Activity;
-import android.content.Context;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Toast;
 
-import no.lqasse.zoff.Player.PlayerActivity;
 import no.lqasse.zoff.R;
-import no.lqasse.zoff.Remote.RemoteActivity;
 
 /**
  * Created by lassedrevland on 24.03.15.

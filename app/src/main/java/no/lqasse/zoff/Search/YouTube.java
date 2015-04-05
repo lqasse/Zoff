@@ -3,16 +3,12 @@ package no.lqasse.zoff.Search;
 import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
-import android.view.View;
-import android.widget.Toast;
 
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import no.lqasse.zoff.Models.SearchResult;
-import no.lqasse.zoff.R;
-import no.lqasse.zoff.Remote.RemoteActivity;
 import no.lqasse.zoff.Server.Server;
 
 /**

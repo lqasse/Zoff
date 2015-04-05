@@ -115,8 +115,6 @@ public class RemoteListAdapter extends ZoffListAdapter {
                         videoList.get(index);
                         ToastMaster.showToast(context, ToastMaster.TYPE.VIDEO_DELETED,title);
 
-
-
                         return true;
                     }
                 });

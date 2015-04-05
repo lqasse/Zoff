@@ -30,7 +30,6 @@ import no.lqasse.zoff.ZoffActivity;
 import no.lqasse.zoff.ZoffListener;
 import no.lqasse.zoff.Helpers.ToastMaster;
 import no.lqasse.zoff.R;
-import no.lqasse.zoff.Search.SearchActivity;
 import no.lqasse.zoff.SettingsActivity;
 
 public class PlayerActivity extends ZoffActivity implements ZoffListener {

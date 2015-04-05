@@ -12,6 +12,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.EditText;
@@ -28,7 +32,7 @@ import no.lqasse.zoff.Search.SearchResultListAdapter;
 import no.lqasse.zoff.Search.YouTube;
 import no.lqasse.zoff.Search.YouTubeListener;
 import no.lqasse.zoff.Server.Server;
-import no.lqasse.zoff.SpotifyServer;
+import no.lqasse.zoff.Helpers.SpotifyServer;
 import no.lqasse.zoff.Zoff;
 import no.lqasse.zoff.ZoffActivity;
 import no.lqasse.zoff.ZoffListener;
@@ -53,6 +57,7 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
     private SharedPreferences sharedPreferences;
     private TextView searchText;
     private ImageView removeQueryButton;
+    private Bitmap currentBackground;
 
     private Handler h = new Handler();
     private Runnable r;
@@ -119,7 +124,7 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
                     Server.add(videoID, videoTitle);
                     ToastMaster.showToast(RemoteActivity.this, ToastMaster.TYPE.VIDEO_ADDED, videoTitle);
 
-                } else if ((position != 0) && (!searchViewOpen)) { //Cant vote for current video duh
+                } else if (position != 0)  { //Cant vote for current video duh
                     Video selectedVideo = remoteListAdapter.getItem(position);
                     zoff.vote(selectedVideo);
                 }
@@ -137,7 +142,7 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
                 if (searchViewOpen) {
                     ToastMaster.showToast(RemoteActivity.this, ToastMaster.TYPE.HOLD_TO_ADD);
 
-                } else if ((position != 0) && (!searchViewOpen)) { //Currently playing video cant be voted on
+                } else if (position != 0) { //Currently playing video cant be voted on
                     ToastMaster.showToast(RemoteActivity.this, ToastMaster.TYPE.HOLD_TO_VOTE);
                 }
 
@@ -295,8 +300,74 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
     }
 
     public void setBackgroundImage(Bitmap bitmap) {
-        LinearLayout l = (LinearLayout) findViewById(R.id.layout);
-        l.setBackground(new BitmapDrawable(getBaseContext().getResources(), bitmap));
+
+
+        if (currentBackground != bitmap){
+
+
+            final Bitmap bg = bitmap;
+            final ImageView background = (ImageView) findViewById(R.id.backgroundImage);
+            final ImageView oldBackground = (ImageView) findViewById(R.id.backgroundImageOLD);
+
+            if (currentBackground != null){
+                oldBackground.setImageBitmap(currentBackground);
+                Animation fadeIN = new AlphaAnimation(0.00f, 1.00f);
+                fadeIN.setInterpolator(new DecelerateInterpolator());
+                fadeIN.setDuration(1000);
+                background.setVisibility(View.INVISIBLE);
+                background.setImageBitmap(bg);
+                background.setAnimation(fadeIN);
+                fadeIN.start();
+                background.setVisibility(View.VISIBLE);
+                /*
+                Animation fadeOut = new AlphaAnimation(1.00f,0.20f);
+                fadeOut.setInterpolator(new AccelerateInterpolator());
+                fadeOut.setDuration(1000);
+                background.setAnimation(fadeOut);
+                fadeOut.start();
+
+
+                fadeOut.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        Animation fadeIN = new AlphaAnimation(0.20f, 1.00f);
+                        fadeIN.setInterpolator(new DecelerateInterpolator());
+                        fadeIN.setDuration(1000);
+
+                        background.setAnimation(fadeIN);
+                        background.setImageBitmap(bg);
+                        fadeIN.start();
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+
+                    }
+
+                });
+                */
+            } else {
+                Animation fadeIN = new AlphaAnimation(0.00f, 1.00f);
+                fadeIN.setInterpolator(new DecelerateInterpolator());
+                fadeIN.setDuration(1000);
+                background.setImageBitmap(bg);
+                background.setAnimation(fadeIN);
+                fadeIN.start();
+
+            }
+            currentBackground = bitmap;
+
+
+
+
+        }
+
+
     }
 
 

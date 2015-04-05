@@ -3,7 +3,6 @@ package no.lqasse.zoff.Helpers;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
-import android.util.Log;
 import android.widget.ImageView;
 
 import no.lqasse.zoff.MainActivity;

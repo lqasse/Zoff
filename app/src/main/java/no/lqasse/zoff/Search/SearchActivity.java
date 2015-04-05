@@ -17,24 +17,18 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 import no.lqasse.zoff.Helpers.ImageCache;
 import no.lqasse.zoff.Helpers.ToastMaster;
 import no.lqasse.zoff.R;
-import no.lqasse.zoff.Models.SearchResult;
-import no.lqasse.zoff.Remote.RemoteActivity;
 import no.lqasse.zoff.Server.Server;
-import no.lqasse.zoff.SpotifyServer;
+import no.lqasse.zoff.Helpers.SpotifyServer;
 import no.lqasse.zoff.Zoff;
 
 
