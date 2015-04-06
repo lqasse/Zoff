@@ -1,11 +1,13 @@
 package no.lqasse.zoff.Adapters;
 
+import android.animation.Animator;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -92,32 +94,7 @@ public class RemoteListAdapter extends ZoffListAdapter {
             if (Zoff.getRoomPass() == null){
                deleteButton.setVisibility(View.INVISIBLE);
             } else {
-                deleteButton.setTag(position);
-                deleteButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        ToastMaster.showToast(context, ToastMaster.TYPE.HOLD_TO_DELETE);
-
-
-                    }
-                });
-
-                deleteButton.setOnLongClickListener(new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View v) {
-                        int index = (int) v.getTag();
-                        String videoID = videoList.get(index).getId();
-                        String title = videoList.get(index).getTitle();
-
-
-                        Server.delete(videoID);
-
-                        videoList.get(index);
-                        ToastMaster.showToast(context, ToastMaster.TYPE.VIDEO_DELETED,title);
-
-                        return true;
-                    }
-                });
+                setOnDelete(deleteButton,position);
             }
 
 

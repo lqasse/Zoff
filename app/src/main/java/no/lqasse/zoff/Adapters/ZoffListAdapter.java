@@ -1,5 +1,6 @@
 package no.lqasse.zoff.Adapters;
 
+import android.animation.Animator;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -12,15 +13,18 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 
 import java.net.URL;
 import java.util.ArrayList;
 
 import no.lqasse.zoff.Helpers.ImageBlur;
 import no.lqasse.zoff.Helpers.ImageCache;
+import no.lqasse.zoff.Helpers.ToastMaster;
 import no.lqasse.zoff.Models.Video;
 import no.lqasse.zoff.R;
 import no.lqasse.zoff.Remote.RemoteActivity;
+import no.lqasse.zoff.Server.Server;
 import no.lqasse.zoff.Zoff;
 /**
  * Created by lassedrevland on 04.04.15.
@@ -54,6 +58,63 @@ public abstract class ZoffListAdapter extends ArrayAdapter<Video> {
 
         }
 
+    public void setOnDelete(ImageView view, int position){
+        view.setTag(position);
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ToastMaster.showToast(context, ToastMaster.TYPE.HOLD_TO_DELETE);
+
+
+            }
+        });
+
+        view.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                final int index = (int) v.getTag();
+                String videoID = videoList.get(index).getId();
+                String title = videoList.get(index).getTitle();
+                Server.delete(videoID);
+
+                videoList.get(index);
+                ToastMaster.showToast(context, ToastMaster.TYPE.VIDEO_DELETED, title);
+
+                RelativeLayout row = (RelativeLayout) v.getParent();
+                row.animate()
+                        .alpha(0)
+                        .setDuration(500)
+                        .setListener(new Animator.AnimatorListener() {
+                            @Override
+                            public void onAnimationStart(Animator animation) {
+
+                            }
+
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                videoList.remove(index);
+                                notifyDataSetChanged();
+
+                            }
+
+                            @Override
+                            public void onAnimationCancel(Animator animation) {
+
+                            }
+
+                            @Override
+                            public void onAnimationRepeat(Animator animation) {
+
+                            }
+                        })
+                        .start();
+
+
+                return true;
+            }
+        });
+    }
+
         protected class downloadImage extends AsyncTask<ViewHolder, Void, ViewHolder> {
 
 
@@ -71,6 +132,8 @@ public abstract class ZoffListAdapter extends ArrayAdapter<Video> {
                 }
                 return viewHolder;
             }
+
+
 
             @Override
             protected void onPostExecute(ViewHolder viewHolder) {

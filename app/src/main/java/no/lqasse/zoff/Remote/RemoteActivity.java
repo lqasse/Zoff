@@ -350,13 +350,25 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
         menu.findItem(R.id.action_zoff_settings).setVisible(searchViewOpen);
         menu.findItem(R.id.action_search).setVisible(searchViewOpen);
 
+        View customView = getSupportActionBar().getCustomView();
+        RelativeLayout layout = (RelativeLayout) findViewById(R.id.layout);
+        int layoutWidth = layout.getWidth();
+        layoutWidth = layoutWidth - (int) (layoutWidth*0.4);
 
 
 
         if (searchViewOpen) {
-            getSupportActionBar().setCustomView(R.layout.actionbar_default_layout);
-            TextView title = (TextView) getSupportActionBar().getCustomView().findViewById(R.id.titleText);
-            title.setText(zoff.getROOM_NAME());
+
+
+                            getSupportActionBar().setCustomView(R.layout.actionbar_default_layout);
+                            TextView title = (TextView) getSupportActionBar().getCustomView().findViewById(R.id.titleText);
+                            title.setText(zoff.getROOM_NAME());
+
+
+
+
+
+
 
         } else {
 
@@ -369,10 +381,7 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
 
 
 
-            View customView = getSupportActionBar().getCustomView();
-            RelativeLayout layout = (RelativeLayout) findViewById(R.id.layout);
-            int layoutWidth = layout.getWidth();
-            layoutWidth = layoutWidth - (int) (layoutWidth*0.4);
+
             searchText = (EditText) getSupportActionBar().getCustomView().findViewById(R.id.etSearch);
             final String hintText = searchText.getHint().toString();
             searchText.setHint("");

@@ -39,6 +39,9 @@ public class PlayerListAdapter extends ZoffListAdapter {
 
 
         ImageView imageView = (ImageView) rowView.findViewById(R.id.imageView);
+        ImageView deleteButton = (ImageView) rowView.findViewById(R.id.deleteButton);
+
+        setOnDelete(deleteButton,position);
         ProgressBar progressBar = (ProgressBar) rowView.findViewById(R.id.progressBar);
 
         viewHolder.imageView = imageView;
