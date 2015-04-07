@@ -42,54 +42,43 @@
             android:paddingLeft="2dp"
             android:textSize="9dp" />
 
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="fill_parent"
+        <TextView
+            android:id="@+id/videoTitleView"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="Title"
+            android:textSize="13dp"
+            android:textColor="@color/zoff_white"
+            android:layout_alignParentTop="true"
             android:layout_toRightOf="@+id/imageView"
             android:layout_toEndOf="@+id/imageView"
-            android:id="@+id/settingsLayout"
-            android:layout_marginLeft="10dp">
+            android:maxLines="2">
+        </TextView>
 
+        <TextView
+            android:id="@+id/channelTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Channel Title"
+            android:textSize="10dp"
+            android:layout_below="@+id/videoTitleView"
+            android:layout_toRightOf="@+id/imageView"
+            android:layout_toEndOf="@+id/imageView"
+            android:lines="1"
+            android:textColor="@color/zoff_gray" />
 
-            <TextView
-                android:id="@+id/titleView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Title"
-                android:textSize="13dp"
-                android:textColor="@color/zoff_white"
-                android:layout_alignParentTop="true"
-                android:layout_toRightOf="@+id/imageView"
-                android:layout_toEndOf="@+id/imageView"
-                android:maxLines="2">
-            </TextView>
-
-            <TextView
-                android:id="@+id/channelTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Channel Title"
-                android:textSize="10dp"
-                android:layout_below="@+id/titleView"
-                android:layout_toRightOf="@+id/imageView"
-                android:layout_toEndOf="@+id/imageView"
-                android:lines="1"
-                android:textColor="@color/zoff_gray" />
-
-            <TextView
-                android:id="@+id/viewCount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Views"
-                android:textSize="10dp"
-                android:layout_below="@+id/titleView"
-                android:layout_toRightOf="@+id/imageView"
-                android:layout_toEndOf="@+id/imageView"
-                android:lines="1"
-                android:textColor="@color/zoff_gray">
-            </TextView>
-        </LinearLayout>
+        <TextView
+            android:id="@+id/viewsTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Views"
+            android:textSize="10dp"
+            android:layout_below="@+id/channelTitle"
+            android:layout_toRightOf="@+id/imageView"
+            android:layout_toEndOf="@+id/imageView"
+            android:lines="1"
+            android:textColor="@color/zoff_gray">
+        </TextView>
 
         <ProgressBar
             style="?android:attr/progressBarStyleSmall"

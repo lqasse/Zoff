@@ -55,6 +55,11 @@ public class SettingsActivity extends ZoffActivity {
         setContentView(R.layout.activity_settings);
 
 
+        getSupportActionBar().setIcon(R.drawable.settings);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
+
+
         Intent i = getIntent();
         Bundle b = i.getExtras();
 

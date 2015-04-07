@@ -8,13 +8,23 @@ import android.widget.ImageView;
 import no.lqasse.zoff.MainActivity;
 import no.lqasse.zoff.Player.PlayerActivity;
 import no.lqasse.zoff.Remote.RemoteActivity;
+import no.lqasse.zoff.ZoffActivity;
 
 /**
  * Created by lassedrevland on 23.03.15.
  */
 public class ImageBlur {
 
-    private enum Action {SET_BG,SET}
+    private enum Action {SET_BG,SET,CREATE}
+
+    public static void create(Bitmap bitmap,String id){
+
+        ViewHolder holder = new ViewHolder();
+        holder.bitmap = bitmap;
+        holder.videoID = id;
+        holder.action = Action.CREATE;
+
+    }
 
     public  static void blurAndSet(Bitmap bitmap,ImageView imageView){
 
@@ -28,7 +38,7 @@ public class ImageBlur {
         create.execute(holder);
 
     }
-    public static void createAndSetBlurBG(Bitmap bitmap, Activity activity,String id){
+    public static void createAndSetBlurBG(Bitmap bitmap, ZoffActivity activity,String id){
 
         ViewHolder viewHolder = new ViewHolder();
         viewHolder.bitmap = bitmap;
@@ -42,7 +52,7 @@ public class ImageBlur {
 
     private static class ViewHolder{
         Bitmap bitmap;
-        Activity activity;
+        ZoffActivity activity;
         String videoID;
         ImageView imageView;
         Action action;
@@ -55,13 +65,7 @@ public class ImageBlur {
             this.bitmap = bitmap;
         }
 
-        public Activity getActivity() {
-            return activity;
-        }
 
-        public void setActivity(Activity activity) {
-            this.activity = activity;
-        }
     }
 
     private  static class create extends AsyncTask<ViewHolder,Void,ViewHolder> {
@@ -285,18 +289,13 @@ public class ImageBlur {
 
             switch (viewHolder.action){
                 case SET_BG:
-                    ImageCache.put(viewHolder.videoID+"_blur", viewHolder.bitmap);
-                    if (viewHolder.activity instanceof RemoteActivity){
-                        ((RemoteActivity) viewHolder.activity).setBackgroundImage(viewHolder.bitmap);
-                    } else if (viewHolder.activity instanceof PlayerActivity){
-                        ((PlayerActivity)viewHolder.activity).setBackgroundImage(viewHolder.bitmap);
-                    } else if
-                            (viewHolder.activity instanceof MainActivity){
-                        ((MainActivity)viewHolder.activity).setBackgroundImage(viewHolder.bitmap);
-                    }
+                    ImageCache.put(viewHolder.videoID, ImageCache.ImageType.BLUR, viewHolder.bitmap);
+                    viewHolder.activity.setBackgroundImage(viewHolder.bitmap);
                     break;
                 case SET:
                     break;
+                case CREATE:
+                    ImageCache.put(viewHolder.videoID, ImageCache.ImageType.BLUR,viewHolder.bitmap);
             }
 
 

@@ -5,7 +5,8 @@
             android:fromAlpha="0.0"
             android:toAlpha="1.0"
             android:fillAfter="true"
-            android:duration="300"
+            android:duration="700"
+            android:interpolator="@android:anim/decelerate_interpolator"
             />
 
 </set>

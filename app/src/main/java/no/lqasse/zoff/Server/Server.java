@@ -35,7 +35,7 @@ import no.lqasse.zoff.Zoff;
 public class Server {
 
 
-    private enum GET_TYPE{SKIP,VOTE, REFRESH,SHUFFLE,ADD,SUGGESTIONS,DELETE}
+    private enum GET_TYPE{SKIP,VOTE, REFRESH,SHUFFLE,ADD,SUGGESTIONS,DELETE,TIMEDIFF}
 
     private enum POST_TYPE{SETTINGS}
 
@@ -301,6 +301,7 @@ public class Server {
                     Log.d("Response", holder.response);
                     ((SettingsActivity) holder.activity).settingsPostResponse(holder.response);
                     break;
+
 
             }
 

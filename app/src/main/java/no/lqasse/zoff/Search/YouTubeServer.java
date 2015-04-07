@@ -102,7 +102,7 @@ public class YouTubeServer {
 
     }
 
-    public static void getNextPage(SearchActivity searchActivity, String query, Boolean allVideos, Boolean longSongs, String nextPageToken){
+    public static void getNextPage(Context context, String query, Boolean allVideos, Boolean longSongs, String nextPageToken){
         String categoryLimit = "";
         String lenghtLimit = "";
 
@@ -126,7 +126,7 @@ public class YouTubeServer {
         getHolder holder = new getHolder();
         holder.type = TYPE.APPENDING_QUERY;
         holder.url = URL_YOUTUBE_QUERY_PT1 + encodedQuery + URL_YOUTUBE_QUERY_PT2 + categoryLimit + lenghtLimit + "&pageToken="+nextPageToken;
-        holder.searchActivity = searchActivity;
+        holder.context = context;
 
         get = new Get();
         get.execute(holder);
@@ -199,8 +199,9 @@ public class YouTubeServer {
                     results.addAll(YouTubeJSONTranslator.toSearchResults(holder.response));
                     nextPageToken = YouTubeJSONTranslator.toNextPageToken(holder.response);
 
-                    getDetails(holder.searchActivity,results);
-                    //holder.searchActivity.pageReceived(results, nextPageToken);
+                    //getDetails(holder.searchActivity,results);
+
+                    YouTube.pageReceived(holder.context,results, nextPageToken);
                     break;
             }
 

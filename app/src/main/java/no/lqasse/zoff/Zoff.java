@@ -40,6 +40,7 @@ public class Zoff {
 
 
     private ArrayList<Video> videoList = new ArrayList<>();
+    private ArrayList<Video> nextVideosList = new ArrayList<>();
     private Object listener;
     private Runnable Refresher;
 
@@ -95,7 +96,11 @@ public class Zoff {
     public void refreshed(Boolean hasInetAccess,String data) {
 
         videoList.clear();
+
         videoList.addAll(JSONTranslator.toZoffVideos(data));
+        nextVideosList.clear();
+        nextVideosList.addAll(videoList);
+        nextVideosList.remove(0);
 
         settings.clear();
         settings.putAll(JSONTranslator.toSettingsMap(data));
@@ -316,15 +321,9 @@ public class Zoff {
 
     public ArrayList<Video> getNextVideos() {
 
-        ArrayList<Video> nextVideos = new ArrayList<>();
-        nextVideos.addAll(videoList);
-
-        if (videoList.size()!= 0){
-            nextVideos.remove(0);
-        }
 
 
-        return nextVideos;
+        return nextVideosList;
     }
 
 

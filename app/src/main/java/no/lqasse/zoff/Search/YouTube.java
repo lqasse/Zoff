@@ -20,12 +20,29 @@ public class YouTube {
     private static ArrayList<SearchResult> searchResults = new ArrayList<>();
     private static HashMap<String,SearchResult> searchResultHashMap = new HashMap<>();
     private Context context;
+    public static String NEXT_PAGE_TOKEN = "";
+
+    private static String QUERY;
+    private static Boolean LONG_SONGS;
+    private static Boolean ALL_CATEGORIES;
 
     public static ArrayList<SearchResult> getSearchResults() {
         return searchResults;
     }
 
+
+
+    public static void getNextPage(Context context){
+        if (!NEXT_PAGE_TOKEN.equals("")){
+            YouTubeServer.getNextPage(context,QUERY,ALL_CATEGORIES,LONG_SONGS,NEXT_PAGE_TOKEN);
+
+        }
+    }
     public static void search(Context context,String query,Boolean allsongs, Boolean longsongs){
+        QUERY = query;
+        LONG_SONGS = longsongs;
+        ALL_CATEGORIES = allsongs;
+
         YouTubeServer.search(context,query,allsongs,longsongs);
 
     }
@@ -42,9 +59,10 @@ public class YouTube {
 
 
 
+
     }
     public static void pageReceived(Context context, ArrayList<SearchResult> results, String nextPageToken){
-        //NEXT_PAGE_TOKEN = nextPageToken;
+        NEXT_PAGE_TOKEN = nextPageToken;
         searchResults.addAll(results);
 
         for (SearchResult r : results){
@@ -52,8 +70,6 @@ public class YouTube {
         }
 
 
-
-        ((YouTubeListener)context).notifyDatasetChanged();
         YouTubeServer.getDetails(context,results);
 
     }
@@ -65,8 +81,6 @@ public class YouTube {
             if (result != null ){
                 result.setDuration(s[1]);
                 result.setViews(s[2]);
-            } else {
-                Log.d("YouTube", "Could not find searchresult");
             }
 
         }
@@ -77,19 +91,6 @@ public class YouTube {
     }
 
 
-    public static void addVideo(int index) {
 
-
-        String videoID = searchResults.get(index).getVideoID();
-        String videoTitle = searchResults.get(index).getTitle();
-        try {
-            videoTitle = URLEncoder.encode(videoTitle, "UTF-8");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        Server.add(videoID, videoTitle);
-
-    }
 
 }

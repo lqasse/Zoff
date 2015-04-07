@@ -80,7 +80,11 @@ public class Video implements Comparable<Video>{
             return "https://i.ytimg.com/vi/" + id +"/hqdefault.jpg";
         }
 
-        public String getThumbHuge() {
+    public  String getThumbHuge() {
+        return "https://i.ytimg.com/vi/" + id +"/maxresdefault.jpg";
+    }
+
+        public static String getThumbHuge(String id) {
             return "https://i.ytimg.com/vi/" + id +"/maxresdefault.jpg";
         }
 

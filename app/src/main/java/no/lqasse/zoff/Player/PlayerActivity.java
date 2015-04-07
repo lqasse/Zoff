@@ -2,29 +2,25 @@ package no.lqasse.zoff.Player;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.android.youtube.player.YouTubePlayer;
 
-import java.net.URL;
 import java.util.ArrayList;
 
+import no.lqasse.zoff.Adapters.ListAdapter;
 import no.lqasse.zoff.Helpers.ImageBlur;
 import no.lqasse.zoff.Helpers.ImageCache;
+import no.lqasse.zoff.Helpers.ImageDownload;
+import no.lqasse.zoff.Helpers.ImageListener;
 import no.lqasse.zoff.Models.Video;
-import no.lqasse.zoff.Adapters.PlayerListAdapter;
 import no.lqasse.zoff.Zoff;
 import no.lqasse.zoff.ZoffActivity;
 import no.lqasse.zoff.ZoffListener;
@@ -32,11 +28,11 @@ import no.lqasse.zoff.Helpers.ToastMaster;
 import no.lqasse.zoff.R;
 import no.lqasse.zoff.SettingsActivity;
 
-public class PlayerActivity extends ZoffActivity implements ZoffListener {
+public class PlayerActivity extends ZoffActivity implements ZoffListener,ImageListener {
     private String NOW_PLAYING_ID = "";
     private YouTube_Player player;
     private final Handler handler = new Handler();
-    private PlayerListAdapter listAdapter;
+    private ListAdapter listAdapter;
     private ArrayList<Video> videoList = new ArrayList<>();
 
     private Menu menu;
@@ -62,13 +58,13 @@ public class PlayerActivity extends ZoffActivity implements ZoffListener {
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
 
-        titleLabel = (TextView) findViewById(R.id.titleView);
+        titleLabel = (TextView) findViewById(R.id.videoTitleView);
         videoDurationLabel = (TextView) findViewById(R.id.video_length_view);
         currentTimeLabel = (TextView) findViewById(R.id.video_current_time_view);
         videoListView = (ListView) findViewById(R.id.videoList);
 
 
-        listAdapter = new PlayerListAdapter(this, videoList, zoff);
+        listAdapter = new ListAdapter(this, zoff.getNextVideos(), zoff);
 
 
         videoListView.setAdapter(listAdapter);
@@ -186,8 +182,7 @@ public class PlayerActivity extends ZoffActivity implements ZoffListener {
 
     public void zoffRefreshed(Boolean hasInetAccess) {
 
-        videoList.clear();
-        videoList.addAll(zoff.getNextVideos());
+
 
         listAdapter.notifyDataSetChanged();
 
@@ -195,15 +190,14 @@ public class PlayerActivity extends ZoffActivity implements ZoffListener {
         currentTimeLabel.setText(zoff.getViewers());
 
         if (!ImageCache.has(zoff.getNowPlayingID() + "_blur") && ImageCache.has(zoff.getNowPlayingID())){
-            downloadBG downloadBG = new downloadBG();
-            downloadBG.execute("");
+            ImageBlur.createAndSetBlurBG(ImageCache.get(zoff.getNowPlayingID()), this, zoff.getNowPlayingID());
         } else if (ImageCache.has(zoff.getNowPlayingID()+"_blur")){
             setBackgroundImage(ImageCache.getCurrentBlurBG());
+        } else {
+            ImageCache.registerImageListener(this,zoff.getNowPlayingID());
+            ImageDownload.downloadToCache(zoff.getNowPlayingID());
+
         }
-
-
-
-
 
         //play next video if current playing != zoff-currentplaying
         if (!NOW_PLAYING_ID.equals(zoff.getNowPlayingID()) && !NOW_PLAYING_ID.equals("")) {
@@ -265,40 +259,6 @@ public class PlayerActivity extends ZoffActivity implements ZoffListener {
 
     }
 
-    public void setBackgroundImage(Bitmap blurBg) {
-        LinearLayout l = (LinearLayout) findViewById(R.id.layout);
-        l.setBackground(new BitmapDrawable(getBaseContext().getResources(), blurBg));
-    }
-
-
-    private class downloadBG extends AsyncTask<String, Void, Bitmap> {
-        @Override
-        protected Bitmap doInBackground(String... params) {
-
-            Bitmap b;
-            try {
-                URL imageURL = new URL(zoff.getNowPlayingVideo().getThumbMed());
-                b = BitmapFactory.decodeStream(imageURL.openStream());
-            } catch (Exception e) {
-                Log.d("ERROR", e.getLocalizedMessage());
-                e.printStackTrace();
-                b = null;
-            }
-            return b;
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap bitmap) {
-
-            ImageBlur.createAndSetBlurBG(bitmap, PlayerActivity.this, zoff.getNowPlayingID());
-
-            super.onPostExecute(bitmap);
-
-
-        }
-
-
-    }
 
 
     public void updatePlaytime() {
@@ -329,9 +289,8 @@ public class PlayerActivity extends ZoffActivity implements ZoffListener {
         }
     }
 
-
-
-
-
-
+    @Override
+    public void imageInCache(Bitmap bitmap) {
+        ImageBlur.createAndSetBlurBG(bitmap,this,zoff.getNowPlayingID());
+    }
 }

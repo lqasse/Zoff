@@ -4,14 +4,18 @@
 android:layout_width="fill_parent"
 android:layout_height="wrap_content"
 android:orientation="vertical"
-    android:paddingTop="10dp">
+    android:paddingTop="10dp"
+    android:id="@+id/nowPlayingLayout">
 
 
     <ImageView
     android:layout_width="fill_parent"
-    android:layout_height="150dp"
+    android:layout_height="wrap_content"
     android:id="@+id/imageView"
-    android:scaleType="centerCrop"/>
+
+        android:scaleType="fitCenter"
+        android:adjustViewBounds="true"
+      />
 
     <RelativeLayout
         android:layout_width="wrap_content"
@@ -26,7 +30,7 @@ android:orientation="vertical"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:id="@+id/titleView"
+            android:id="@+id/videoTitleView"
             android:textColor="@color/zoff_white"
             android:gravity="center"
             android:textSize="13dp"
@@ -42,7 +46,7 @@ android:orientation="vertical"
 
             android:textSize="13dp"
 
-            android:layout_below="@id/titleView"
+            android:layout_below="@id/videoTitleView"
             />
 
         <TextView
@@ -54,7 +58,7 @@ android:orientation="vertical"
 
 
             android:textSize="13dp"
-            android:layout_below="@+id/titleView"
+            android:layout_below="@+id/videoTitleView"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true" />
 
