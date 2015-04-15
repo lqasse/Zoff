@@ -7,7 +7,6 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.RemoteViews;
@@ -19,7 +18,7 @@ import no.lqasse.zoff.Remote.RemoteActivity;
 /**
  * Created by lassedrevland on 04.02.15.
  */
-public class NotificationService extends Service implements Zoff_Listener {
+public class NotificationService extends Service implements ZoffListener {
     private String ROOM_NAME = "";
     private Zoff zoff;
 
@@ -68,9 +67,7 @@ public class NotificationService extends Service implements Zoff_Listener {
 
     public void zoffRefreshed(Boolean hasInetAccess) {
         showNotification();
-
     }
-
 
 
     private void showNotification() {
@@ -101,22 +98,21 @@ public class NotificationService extends Service implements Zoff_Listener {
         Bundle b = new Bundle();
         b.putString("ROOM_NAME", zoff.getROOM_NAME());
         intent.putExtras(b);
-        intent.setAction(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent,PendingIntent.FLAG_UPDATE_CURRENT);
         Notification.Builder builder = new Notification.Builder(getApplicationContext())
-                //.setContentTitle(zoff.getROOM_NAME())
-                //.setContentText(zoff.getNowPlayingTitle())
                 .setOngoing(true)
                 .setSmallIcon(R.drawable.notification)
                 .setContentIntent(pendingIntent)
-                .setContent(view)
-                ;
+                .setContent(view);
 
 
         Notification notification = builder.build();
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(1, notification);
+
+
 
 
     }

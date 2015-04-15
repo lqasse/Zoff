@@ -35,7 +35,7 @@ import no.lqasse.zoff.Zoff;
 public class Server {
 
 
-    private enum GET_TYPE{SKIP,VOTE, REFRESH,SHUFFLE,ADD,SUGGESTIONS}
+    private enum GET_TYPE{SKIP,VOTE, REFRESH,SHUFFLE,ADD,SUGGESTIONS,DELETE,TIMEDIFF}
 
     private enum POST_TYPE{SETTINGS}
 
@@ -56,6 +56,17 @@ public class Server {
         Zoff zoff;
         Activity activity;
 
+    }
+
+    public static void delete(String videoID){
+        String voteUrl = Zoff.getUrl() + "vote=del&id=" + videoID + "&pass="+ Zoff.getRoomPass();
+
+        getHolder holder = new getHolder();
+        holder.type = GET_TYPE.DELETE;
+        holder.url = voteUrl;
+
+        Get get = new Get();
+        get.execute(holder);
     }
 
     public static void add(String videoID,String title){
@@ -288,11 +299,9 @@ public class Server {
             switch (holder.type){
                 case SETTINGS:
                     Log.d("Response", holder.response);
-
                     ((SettingsActivity) holder.activity).settingsPostResponse(holder.response);
-
-
                     break;
+
 
             }
 

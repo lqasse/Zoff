@@ -4,28 +4,32 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 
 import java.net.URL;
 
 import no.lqasse.zoff.Models.Video;
-import no.lqasse.zoff.Remote.RemoteActivity;
-import no.lqasse.zoff.Zoff;
 
 /**
  * Created by lassedrevland on 25.03.15.
  */
 public class ImageDownload {
 
+    private enum TYPE{downlaodAndSet,downloadToCache}
 
-    public static void downloadAndSet(String videoID, ImageView imageView){
+
+    public static void downloadAndSet(String url, String altUrl, String videoID, ImageView imageView, ImageCache.ImageType imageType){
         ViewHolder viewHolder = new ViewHolder();
-        viewHolder.imageURL = Video.getThumbMed(videoID);
+        viewHolder.imageURL = url;
+        viewHolder.altimageUrl = altUrl;
         viewHolder.imageView = imageView;
+        viewHolder.videoId = videoID;
+        viewHolder.type = TYPE.downlaodAndSet;
+        viewHolder.imageType = imageType;
 
 
         Downloader downloader = new Downloader();
@@ -36,9 +40,22 @@ public class ImageDownload {
     }
 
     public static void downloadToCache(String id){
+
+        downloadToCache(id, ImageCache.ImageType.REG);
+    }
+
+    public static void downloadToCache(String id, ImageCache.ImageType type){
         ViewHolder holder = new ViewHolder();
-        holder.imageURL = Video.getThumbMed(id);
+
+        if (type == ImageCache.ImageType.HUGE){
+            holder.imageURL = Video.getThumbHuge(id);
+        } else {
+            holder.imageURL = Video.getThumbMed(id);
+        }
+
         holder.videoId = id;
+        holder.type = TYPE.downloadToCache;
+        holder.imageType = type;
 
         Downloader downloader = new Downloader();
         downloader.execute(holder);
@@ -50,7 +67,10 @@ public class ImageDownload {
         Bitmap bitmap;
         ImageView imageView;
         String imageURL;
+        String altimageUrl;
         String videoId;
+        TYPE type;
+        ImageCache.ImageType imageType;
     }
     private static class Downloader extends AsyncTask<ViewHolder, Void, ViewHolder> {
 
@@ -63,9 +83,17 @@ public class ImageDownload {
                 URL imageURL = new URL(viewHolder.imageURL);
                 viewHolder.bitmap = BitmapFactory.decodeStream(imageURL.openStream());
             } catch (Exception e) {
-                Log.d("IMG", "Failed");
+               try {
+                   viewHolder.bitmap = null;
+                   URL imageURL = new URL(viewHolder.altimageUrl);
+                   viewHolder.bitmap = BitmapFactory.decodeStream(imageURL.openStream());
+               } catch (Exception e2){
+                   e2.printStackTrace();
+                   e.printStackTrace();
+                   viewHolder.bitmap = null;
+               }
 
-                viewHolder.bitmap = null;
+
             }
             return viewHolder;
         }
@@ -75,8 +103,25 @@ public class ImageDownload {
             if (viewHolder.bitmap == null) {
 
             } else {
+               switch (viewHolder.type){
+                   case downlaodAndSet:
 
-               ImageCache.put(viewHolder.videoId,viewHolder.bitmap);
+                       ImageCache.put(viewHolder.videoId, viewHolder.imageType, viewHolder.bitmap);
+                       Animation a = new AlphaAnimation(0.00f, 1.00f);
+                       a.setInterpolator(new DecelerateInterpolator());
+                       a.setDuration(700);
+                       viewHolder.imageView.setAnimation(a);
+                       viewHolder.imageView.startAnimation(a);
+                       viewHolder.imageView.setImageBitmap(viewHolder.bitmap);
+
+
+                       break;
+                   case downloadToCache:
+                       ImageCache.put(viewHolder.videoId, viewHolder.imageType, viewHolder.bitmap);
+                       break;
+               }
+
+
             }
         }
 

@@ -3,8 +3,6 @@ package no.lqasse.zoff.Search;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.google.android.youtube.player.YouTubePlayer;
-
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -17,7 +15,6 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 
 import no.lqasse.zoff.Models.SearchResult;
-import no.lqasse.zoff.Remote.RemoteActivity;
 
 /**
  * Created by lassedrevland on 24.03.15.
@@ -105,7 +102,7 @@ public class YouTubeServer {
 
     }
 
-    public static void getNextPage(SearchActivity searchActivity, String query, Boolean allVideos, Boolean longSongs, String nextPageToken){
+    public static void getNextPage(Context context, String query, Boolean allVideos, Boolean longSongs, String nextPageToken){
         String categoryLimit = "";
         String lenghtLimit = "";
 
@@ -129,7 +126,7 @@ public class YouTubeServer {
         getHolder holder = new getHolder();
         holder.type = TYPE.APPENDING_QUERY;
         holder.url = URL_YOUTUBE_QUERY_PT1 + encodedQuery + URL_YOUTUBE_QUERY_PT2 + categoryLimit + lenghtLimit + "&pageToken="+nextPageToken;
-        holder.searchActivity = searchActivity;
+        holder.context = context;
 
         get = new Get();
         get.execute(holder);
@@ -202,10 +199,9 @@ public class YouTubeServer {
                     results.addAll(YouTubeJSONTranslator.toSearchResults(holder.response));
                     nextPageToken = YouTubeJSONTranslator.toNextPageToken(holder.response);
 
-                    getDetails(holder.searchActivity,results);
+                    //getDetails(holder.searchActivity,results);
 
-
-                    holder.searchActivity.pageReceived(results, nextPageToken);
+                    YouTube.pageReceived(holder.context,results, nextPageToken);
                     break;
             }
 

@@ -3,7 +3,6 @@ package no.lqasse.zoff;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -13,16 +12,12 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.CheckBox;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 
-import no.lqasse.zoff.Helpers.ImageBlur;
-import no.lqasse.zoff.Player.PlayerActivity;
 import no.lqasse.zoff.Remote.RemoteActivity;
 import no.lqasse.zoff.Server.JSONTranslator;
 import no.lqasse.zoff.Server.Server;
@@ -60,7 +55,7 @@ public class MainActivity extends ActionBarActivity  {
 
         //Handles link clicks
         Intent i = getIntent();
-        if (i.getAction() == Intent.ACTION_VIEW){
+        if (i.getAction().equals(Intent.ACTION_VIEW)){
             String url = i.getData().toString();
             url = url.replace("http://www.zoff.no/","");
             url = url.replace("/","");

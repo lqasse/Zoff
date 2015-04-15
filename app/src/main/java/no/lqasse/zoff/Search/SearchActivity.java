@@ -3,6 +3,7 @@ package no.lqasse.zoff.Search;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
@@ -18,31 +19,31 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
 
+import no.lqasse.zoff.Helpers.ImageCache;
 import no.lqasse.zoff.Helpers.ToastMaster;
 import no.lqasse.zoff.R;
-import no.lqasse.zoff.Models.SearchResult;
 import no.lqasse.zoff.Server.Server;
+import no.lqasse.zoff.Helpers.SpotifyServer;
+import no.lqasse.zoff.Zoff;
 
 
 /**
  * Created by lassedrevland on 14.01.15.
  */
-public class SearchActivity extends ActionBarActivity {
+public class SearchActivity extends ActionBarActivity implements YouTubeListener {
 
     private String NEXT_PAGE_TOKEN = "";
 
 
     private final int AUTOSEARCH_DELAY_MILLIS = 600;
 
-    private String ROOM_NAME = "ROOM_NAME";
-    private String ROOM_PASS = "ROOM_PASS";
+    private String ROOM_NAME = "";
+    private String ROOM_PASS = "";
     private Boolean ALL_VIDEOS = true;
     private Boolean LONG_SONGS = true;
 
@@ -51,7 +52,6 @@ public class SearchActivity extends ActionBarActivity {
     private ProgressBar progressBar;
     private EditText queryView;
     private ListView resultsView;
-    private ArrayList<SearchResult> searchResults = new ArrayList<>();
     private SearchResultListAdapter searchResultListAdapter;
 
     private SearchActivity searchActivity = this;
@@ -59,7 +59,7 @@ public class SearchActivity extends ActionBarActivity {
 
     private Handler handler = new Handler();
     private Runnable delaySearch;
-    private HashMap<String,SearchResult> searchResultHashMap = new HashMap<>();
+
 
 
 
@@ -67,16 +67,62 @@ public class SearchActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
+        if (Zoff.getROOM_NAME() == null){
+            finish();
+
+        }
+        Intent i = getIntent();
+        String EXTRA_TEXT = i.getStringExtra(Intent.EXTRA_TEXT);
+
+
+        if (EXTRA_TEXT.contains("http://youtu.be")){
+            //Intent was from YouTube app!
+
+            String videoID = EXTRA_TEXT.split(": http://youtu.be/")[1];
+            String title = EXTRA_TEXT.split(": http://youtu.be/")[0];
+            Server.add(videoID,title);
+            ToastMaster.showToast(this, ToastMaster.TYPE.VIDEO_ADDED,title);
+            finish();
+
+
+        }
         setContentView(R.layout.activity_search);
+
+        if (EXTRA_TEXT.contains("open.spotify.com")){
+
+            //Came from spotify app
+            SpotifyServer.getAndSearchYoutube(EXTRA_TEXT, SearchActivity.this);
+
+
+
+
+
+        }
+
+
+
+
+
+
+        //setContentView(R.layout.activity_search);
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         getSupportActionBar().setTitle("Search...");
-        Intent i = getIntent();
-        Bundle b = i.getExtras();
-        ROOM_NAME = b.getString(ROOM_NAME);
-        ROOM_PASS = b.getString(ROOM_PASS);
-        ALL_VIDEOS = b.getBoolean("allVideosAllowed");
-        LONG_SONGS = b.getBoolean("LONG_SONGS");
+
+
+        if (ImageCache.getCurrentBlurBG()!=null){
+            RelativeLayout layout = (RelativeLayout) findViewById(R.id.settingsLayout);
+            layout.setBackground(new BitmapDrawable(getResources(),ImageCache.getCurrentBlurBG()));
+        }
+        //Bundle b = i.getExtras();
+        ROOM_NAME = Zoff.getROOM_NAME();
+        //ROOM_PASS = b.getString("ROOM_PASS");
+        //ALL_VIDEOS = b.getBoolean("allVideosAllowed");
+        //LONG_SONGS = b.getBoolean("LONG_SONGS");
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
+
+
 
 
         //Suppress notification
@@ -87,7 +133,15 @@ public class SearchActivity extends ActionBarActivity {
 
 
         queryView = (EditText) findViewById(R.id.searchQueryView);
-        //YouTubeServer.search(this,"",ALL_VIDEOS,LONG_SONGS);
+        SpotifyServer.getSearchString(EXTRA_TEXT, queryView);
+
+
+        Log.d("EXTRA_TEXT",EXTRA_TEXT);
+
+
+        searchResultListAdapter = new SearchResultListAdapter(this,YouTube.getSearchResults());
+        resultsView = (ListView) findViewById(R.id.searchResultsView);
+        resultsView.setAdapter(searchResultListAdapter);
 
 
         queryView.addTextChangedListener(new TextWatcher() {
@@ -138,9 +192,7 @@ public class SearchActivity extends ActionBarActivity {
                 doYoutubeSearch(false,false);
             }
         };
-        searchResultListAdapter = new SearchResultListAdapter(this, searchResults);
-        resultsView = (ListView) findViewById(R.id.searchResultsView);
-        resultsView.setAdapter(searchResultListAdapter);
+
 
 
 
@@ -148,7 +200,11 @@ public class SearchActivity extends ActionBarActivity {
         resultsView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                addVideo(position);
+                String videoId = YouTube.getSearchResults().get(position).getVideoID();
+                String title = YouTube.getSearchResults().get(position).getTitle();
+                Server.add(videoId,title);
+                ToastMaster.showToast(SearchActivity.this, ToastMaster.TYPE.VIDEO_ADDED, title);
+                finish();
                 return true;
             }
         });
@@ -171,7 +227,7 @@ public class SearchActivity extends ActionBarActivity {
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 
-                if (resultsView.getLastVisiblePosition() == searchResults.size()-10 && !NEXT_PAGE_TOKEN.equals("")){
+                if (resultsView.getLastVisiblePosition() == YouTube.getSearchResults().size()-10 && !NEXT_PAGE_TOKEN.equals("")){
                     NEXT_PAGE_TOKEN = "";
 
                     String query = queryView.getText().toString();
@@ -194,7 +250,7 @@ public class SearchActivity extends ActionBarActivity {
         query = URLEncoder.encode(query);
 
 
-        //YouTubeServer.search(this,query,ALL_VIDEOS,LONG_SONGS);
+        YouTubeServer.search(this,query,ALL_VIDEOS,LONG_SONGS);
 
 
 
@@ -203,66 +259,13 @@ public class SearchActivity extends ActionBarActivity {
 
 
 
-    public void firstPageReceived(ArrayList<SearchResult> results, String nextPageToken){
 
 
-        searchResultHashMap.clear();
-        searchResults.clear();
-        progressBar.setVisibility(View.GONE);
-        resultsView.setSelectionAfterHeaderView();
-
-        pageReceived(results, nextPageToken);
 
 
-    }
-    public void pageReceived(ArrayList<SearchResult> results, String nextPageToken){
-        NEXT_PAGE_TOKEN = nextPageToken;
-        searchResults.addAll(results);
-
-        for (SearchResult r : results){
-            searchResultHashMap.put(r.getVideoID(), r);
-        }
-
-        progressBar.setVisibility(View.GONE);
+    @Override
+    public void notifyDatasetChanged() {
+        progressBar.setVisibility(View.INVISIBLE);
         searchResultListAdapter.notifyDataSetChanged();
-
     }
-
-    public void detailsReceived(ArrayList<String[]> details){
-
-        for (String[] s : details){
-            SearchResult result = searchResultHashMap.get(s[0]);
-            result.setDuration(s[1]);
-            result.setViews(s[2]);
-        }
-
-        searchResultListAdapter.notifyDataSetChanged();
-
-
-    }
-
-
-    private void addVideo(int index) {
-
-        Toast t = Toast.makeText(getBaseContext(), searchResults.get(index).getTitle() + " was added",Toast.LENGTH_SHORT);
-        View v = t.getView();
-        v.setBackgroundResource(R.drawable.toast_background);
-        t.show();
-
-        String videoID = searchResults.get(index).getVideoID();
-        String videoTitle = searchResults.get(index).getTitle();
-        try {
-            videoTitle = URLEncoder.encode(videoTitle,"UTF-8");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-         Server.add(videoID,videoTitle);
-
-    }
-
-
-
-
-
 }

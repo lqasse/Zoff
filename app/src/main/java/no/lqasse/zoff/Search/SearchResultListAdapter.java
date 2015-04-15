@@ -38,8 +38,18 @@ public class SearchResultListAdapter extends ArrayAdapter<SearchResult> {
         this.searchResults = searchResults;
     }
 
-    private static
-    class ViewHolder{
+
+    private class ViewHolder{
+         ImageView imageView    ;
+         ProgressBar progressBar;
+         TextView title         ;
+         TextView channelTitle  ;
+         TextView viewCount     ;
+         TextView duration      ;
+
+    }
+    private
+    class downloadViewHolder {
         ImageView imageView;
         String imageURL;
         Bitmap bitmap;
@@ -51,14 +61,33 @@ public class SearchResultListAdapter extends ArrayAdapter<SearchResult> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        ViewHolder viewHolder = null;
+        downloadViewHolder downloadViewHolder;
+        ViewHolder holder;
+
+
+        View rowView = convertView;
+        if (rowView == null){
+            LayoutInflater inflater = (LayoutInflater) context
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            rowView = inflater.inflate(R.layout.search_row, parent, false);
+
+            holder = new ViewHolder();
+
+            holder.imageView       = (ImageView) rowView.findViewById(R.id.imageView);
+            holder.progressBar      = (ProgressBar) rowView.findViewById(R.id.progressBar);
+            holder.title            = (TextView) rowView.findViewById(R.id.videoTitleView);
+            holder.channelTitle     = (TextView) rowView.findViewById(R.id.channelTitle);
+            holder.viewCount        = (TextView) rowView.findViewById(R.id.viewsTextView);
+            holder.duration         = (TextView) rowView.findViewById(R.id.durationView);
 
 
 
+            rowView.setTag(holder);
+        } else {
+            holder = (ViewHolder) rowView.getTag();
 
-        LayoutInflater inflater = (LayoutInflater) context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View rowView = inflater.inflate(R.layout.search_row, parent, false);
+        }
+
 
 
        if (position == 0){
@@ -66,43 +95,27 @@ public class SearchResultListAdapter extends ArrayAdapter<SearchResult> {
            layout.setPadding(0,10,0,0);
 
        }
-        ImageView imageView = (ImageView) rowView.findViewById(R.id.imageView);
-        ProgressBar progressBar = (ProgressBar) rowView.findViewById(R.id.progressBar);
 
-        viewHolder = new ViewHolder();
-        viewHolder.imageView = imageView;
-        viewHolder.imageURL = searchResults.get(position).getThumbSmall();
-        viewHolder.position = position;
-        viewHolder.progressBar = progressBar;
 
         if (searchResults.get(position).getImgSmall() == null){
-            new downloadImage().execute(viewHolder);
+            downloadViewHolder = new downloadViewHolder();
+            downloadViewHolder.imageView = holder.imageView;
+            downloadViewHolder.imageURL = searchResults.get(position).getThumbSmall();
+            downloadViewHolder.position = position;
+            downloadViewHolder.progressBar = holder.progressBar;
+
+            holder.imageView.setImageBitmap(null);
+            holder.progressBar.setVisibility(View.VISIBLE);
+            new downloadImage().execute(downloadViewHolder);
         } else {
-            imageView.setImageBitmap(searchResults.get(position).getImgSmall());
-            progressBar.setVisibility(View.GONE);
+            holder.imageView.setImageBitmap(searchResults.get(position).getImgSmall());
+            holder.progressBar.setVisibility(View.GONE);
         }
 
-
-        //convertView.setTag(viewHolder);
-
-        TextView title = (TextView) rowView.findViewById(R.id.titleView);
-        TextView channelTitle = (TextView) rowView.findViewById(R.id.channelTitle);
-        TextView viewCount = (TextView) rowView.findViewById(R.id.viewCount);
-        TextView duration = (TextView) rowView.findViewById(R.id.durationView);
-
-
-
-        title.setText(searchResults.get(position).getTitle());
-        channelTitle.setText(searchResults.get(position).getChannelTitle());
-        String views = searchResults.get(position).getViewCountLocalized();
-        duration.setText(searchResults.get(position).getDuration());
-        viewCount.setText(views);
-        //textView.setText(values[position]);
-        // change the icon for Windows and iPhone
-        //String s = values[position];
-
-
-
+        holder.title.setText(searchResults.get(position).getTitle());
+        holder.channelTitle.setText(searchResults.get(position).getChannelTitle());
+        holder.viewCount.setText(searchResults.get(position).getViewCountLocalized());
+        holder.duration.setText(searchResults.get(position).getDuration());
 
 
         return rowView;
@@ -110,25 +123,25 @@ public class SearchResultListAdapter extends ArrayAdapter<SearchResult> {
 
 
 
-    private class downloadImage extends AsyncTask<ViewHolder, Void, ViewHolder>{
+    private class downloadImage extends AsyncTask<downloadViewHolder, Void, downloadViewHolder>{
 
         @Override
-        protected ViewHolder doInBackground(ViewHolder... params){
-            ViewHolder viewHolder = params[0];
+        protected downloadViewHolder doInBackground(downloadViewHolder... params){
+            downloadViewHolder downloadViewHolder = params[0];
 
             try {
-                URL imageURL = new URL(viewHolder.imageURL);
-                viewHolder.bitmap = BitmapFactory.decodeStream(imageURL.openStream());
+                URL imageURL = new URL(downloadViewHolder.imageURL);
+                downloadViewHolder.bitmap = BitmapFactory.decodeStream(imageURL.openStream());
             } catch (Exception e){
                 Log.d("ERROR", e.getLocalizedMessage());
                 e.printStackTrace();
-                viewHolder.bitmap = null;
+                downloadViewHolder.bitmap = null;
             }
-            return viewHolder;
+            return downloadViewHolder;
         }
 
         @Override
-        protected void onPostExecute(ViewHolder result){
+        protected void onPostExecute(downloadViewHolder result){
             if (result.bitmap == null){
                 Log.d("FAIL", "NO IMAGE");
             } else {
