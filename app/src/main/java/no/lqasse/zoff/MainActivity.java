@@ -6,6 +6,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -18,9 +19,12 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import no.lqasse.zoff.Adapters.SuggestionsAdapter;
+import no.lqasse.zoff.Models.ChanSuggestion;
 import no.lqasse.zoff.Remote.RemoteActivity;
 import no.lqasse.zoff.Server.JSONTranslator;
-import no.lqasse.zoff.Server.Server;
+//import no.lqasse.zoff.Server.Server;
+import no.lqasse.zoff.Server.SocketServer;
 
 
 public class MainActivity extends ActionBarActivity  {
@@ -34,12 +38,14 @@ public class MainActivity extends ActionBarActivity  {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Server.getChanSuggestions(this);
+        //Server.getChanSuggestions(this);
 
         setContentView(R.layout.activity_main);
         chanTextView = (AutoCompleteTextView) findViewById(R.id.acEditText);
 
         handler = new Handler();
+        SocketServer.getSuggestions(this);
+        /* Deprecated
         retryConnectRunnable = new Runnable() {
             @Override
             public void run() {
@@ -48,6 +54,7 @@ public class MainActivity extends ActionBarActivity  {
 
             }
         };
+        */
 
 
 
@@ -209,6 +216,20 @@ public class MainActivity extends ActionBarActivity  {
     public void setBackgroundImage(Bitmap blurBg) {
         RelativeLayout l = (RelativeLayout) findViewById(R.id.layout);
         l.setBackground(new BitmapDrawable(getBaseContext().getResources(), blurBg));
+    }
+
+    public void setSuggestions(ArrayList<ChanSuggestion> suggestions){
+
+        ArrayList<String> activeRooms = new ArrayList<>();
+        for (ChanSuggestion suggestion :suggestions){
+            activeRooms.add(suggestion.getName());
+        }
+
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getBaseContext(), android.R.layout.simple_list_item_1, activeRooms);
+        chanTextView.setAdapter(adapter);
+        chanTextView.setAdapter(adapter);
+
     }
 
 

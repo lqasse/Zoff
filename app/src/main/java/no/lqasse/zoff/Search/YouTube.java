@@ -2,14 +2,12 @@ package no.lqasse.zoff.Search;
 
 import android.content.Context;
 import android.os.Handler;
-import android.util.Log;
 
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import no.lqasse.zoff.Interfaces.YouTubeListener;
 import no.lqasse.zoff.Models.SearchResult;
-import no.lqasse.zoff.Server.Server;
 
 /**
  * Created by lassedrevland on 26.03.15.

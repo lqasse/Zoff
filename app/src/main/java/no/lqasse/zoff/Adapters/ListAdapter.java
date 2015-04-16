@@ -3,32 +3,22 @@ package no.lqasse.zoff.Adapters;
 import android.animation.Animator;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.media.Image;
-import android.os.AsyncTask;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import java.net.URL;
 import java.util.ArrayList;
 
-import no.lqasse.zoff.Helpers.ImageBlur;
 import no.lqasse.zoff.Helpers.ImageCache;
 import no.lqasse.zoff.Helpers.ImageDownload;
 import no.lqasse.zoff.Helpers.ToastMaster;
 import no.lqasse.zoff.Models.Video;
 import no.lqasse.zoff.R;
-import no.lqasse.zoff.Remote.RemoteActivity;
 import no.lqasse.zoff.Server.Server;
 import no.lqasse.zoff.Zoff;
 /**
@@ -106,14 +96,14 @@ public class ListAdapter extends ArrayAdapter<Video> {
         Video currentVideo = videoList.get(position);
 
         holder.title.setText(videoList.get(position).getTitle());
-        holder.votes.setText(videoList.get(position).getVotes());
+        holder.votes.setText(videoList.get(position).getVotesString());
         holder.imageURL = videoList.get(position).getThumbMed();
         holder.position = position;
         holder.video = currentVideo;
 
 
 
-            if (Zoff.getRoomPass() == null){
+            if (Zoff.getAdminpass().equals("")){
                 holder.deleteButton.setVisibility(View.INVISIBLE);
             } else {
                 setOnDelete(holder.deleteButton,position);
@@ -134,7 +124,7 @@ public class ListAdapter extends ArrayAdapter<Video> {
     }
 
 
-    public void setOnDelete(ImageView view, int position){
+    public void setOnDelete(ImageView view, final int position){
         view.setTag(position);
         view.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -151,10 +141,11 @@ public class ListAdapter extends ArrayAdapter<Video> {
                 final int index = (int) v.getTag();
                 String videoID = videoList.get(index).getId();
                 String title = videoList.get(index).getTitle();
-                Server.delete(videoID);
+                //Server.delete(videoID);
+                zoff.delete(videoList.get(index));
 
                 videoList.get(index);
-                ToastMaster.showToast(context, ToastMaster.TYPE.VIDEO_DELETED, title);
+                //ToastMaster.showToast(context, ToastMaster.TYPE.VIDEO_DELETED, title);
 
                 RelativeLayout row = (RelativeLayout) v.getParent();
                 row.animate()

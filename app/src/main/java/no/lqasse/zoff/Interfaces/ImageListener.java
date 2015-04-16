@@ -1,4 +1,4 @@
-package no.lqasse.zoff.Helpers;
+package no.lqasse.zoff.Interfaces;
 
 import android.graphics.Bitmap;
 

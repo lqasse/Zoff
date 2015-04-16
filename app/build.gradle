@@ -24,4 +24,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:21.0.3'
     compile 'com.android.support:support-v4:21.0+'
     compile files('libs/YouTubeAndroidPlayerApi.jar')
+    compile 'com.github.nkzawa:socket.io-client:0.4.2'
 }

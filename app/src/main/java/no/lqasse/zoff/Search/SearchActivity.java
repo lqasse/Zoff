@@ -26,6 +26,7 @@ import java.net.URLEncoder;
 
 import no.lqasse.zoff.Helpers.ImageCache;
 import no.lqasse.zoff.Helpers.ToastMaster;
+import no.lqasse.zoff.Interfaces.YouTubeListener;
 import no.lqasse.zoff.R;
 import no.lqasse.zoff.Server.Server;
 import no.lqasse.zoff.Helpers.SpotifyServer;

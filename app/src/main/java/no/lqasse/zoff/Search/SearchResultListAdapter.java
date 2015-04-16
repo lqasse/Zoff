@@ -115,7 +115,7 @@ public class SearchResultListAdapter extends ArrayAdapter<SearchResult> {
         holder.title.setText(searchResults.get(position).getTitle());
         holder.channelTitle.setText(searchResults.get(position).getChannelTitle());
         holder.viewCount.setText(searchResults.get(position).getViewCountLocalized());
-        holder.duration.setText(searchResults.get(position).getDuration());
+        holder.duration.setText(searchResults.get(position).getDurationLocalized());
 
 
         return rowView;

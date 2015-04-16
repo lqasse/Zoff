@@ -2,8 +2,9 @@ package no.lqasse.zoff.Helpers;
 
 import android.graphics.Bitmap;
 
-import java.sql.Statement;
 import java.util.HashMap;
+
+import no.lqasse.zoff.Interfaces.ImageListener;
 
 /**
  * Created by lassedrevland on 23.03.15.

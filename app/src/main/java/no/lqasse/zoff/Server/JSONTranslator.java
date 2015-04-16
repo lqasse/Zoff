@@ -182,4 +182,30 @@ public  class JSONTranslator {
         return activeRooms;
     }
 
+
+    public static HashMap<String,String> toSettingsMap(JSONArray array){
+        try {
+            HashMap<String,String> settings = new HashMap<>();
+            JSONObject object = (JSONObject) array.get(0);
+           JSONArray names =  object.names();
+
+            for (int i = 0;i<names.length();i++){
+                String currentSetting = names.getString(i).toString();
+                settings.put(currentSetting,object.getString(currentSetting));
+
+
+            }
+            return settings;
+
+
+        } catch (JSONException e){
+            e.printStackTrace();
+
+
+        }
+
+        return new HashMap<>();
+
+    };
+
 }

@@ -59,7 +59,7 @@ public class Server {
     }
 
     public static void delete(String videoID){
-        String voteUrl = Zoff.getUrl() + "vote=del&id=" + videoID + "&pass="+ Zoff.getRoomPass();
+        String voteUrl = Zoff.getUrl() + "vote=del&id=" + videoID + "&pass="+ Zoff.getAdminpass();
 
         getHolder holder = new getHolder();
         holder.type = GET_TYPE.DELETE;
@@ -78,7 +78,7 @@ public class Server {
             e.printStackTrace();
         }
 
-        holder.url = Zoff.getUrl() + "v=" + videoID + "&n=" + encodedTitle + "&pass=" + Zoff.getRoomPass();
+        holder.url = Zoff.getUrl() + "v=" + videoID + "&n=" + encodedTitle + "&pass=" + Zoff.getAdminpass();
         holder.type = GET_TYPE.ADD;
 
         Get get = new Get();
@@ -102,7 +102,7 @@ public class Server {
 
     public static void vote(String videoID){
 
-        String voteUrl = Zoff.getUrl() + "vote=pos&id=" + videoID + "&pass="+ Zoff.getRoomPass();
+        String voteUrl = Zoff.getUrl() + "vote=pos&id=" + videoID + "&pass="+ Zoff.getAdminpass();
 
         getHolder holder = new getHolder();
         holder.type = GET_TYPE.VOTE;
@@ -116,7 +116,7 @@ public class Server {
     public static void shuffle(){
         getHolder holder = new getHolder();
         holder.type = GET_TYPE.SHUFFLE;
-        holder.url = Zoff.getUrl() + "shuffle=true&pass=" + Zoff.getRoomPass();
+        holder.url = Zoff.getUrl() + "shuffle=true&pass=" + Zoff.getAdminpass();
 
         Get get = new Get();
         get.execute(holder);

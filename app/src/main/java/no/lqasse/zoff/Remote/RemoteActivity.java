@@ -28,18 +28,16 @@ import no.lqasse.zoff.Adapters.ListAdapterWPlaying;
 import no.lqasse.zoff.Helpers.ImageBlur;
 import no.lqasse.zoff.Helpers.ImageCache;
 import no.lqasse.zoff.Helpers.ImageDownload;
-import no.lqasse.zoff.Helpers.ImageListener;
+import no.lqasse.zoff.Interfaces.ImageListener;
 import no.lqasse.zoff.Models.Video;
 import no.lqasse.zoff.Player.PlayerActivity;
 import no.lqasse.zoff.Search.SearchResultListAdapter;
 import no.lqasse.zoff.Search.YouTube;
-import no.lqasse.zoff.Search.YouTubeListener;
-import no.lqasse.zoff.Search.YouTubeServer;
-import no.lqasse.zoff.Server.Server;
+import no.lqasse.zoff.Interfaces.YouTubeListener;
 import no.lqasse.zoff.Helpers.SpotifyServer;
 import no.lqasse.zoff.Zoff;
 import no.lqasse.zoff.ZoffActivity;
-import no.lqasse.zoff.ZoffListener;
+import no.lqasse.zoff.Interfaces.ZoffListener;
 import no.lqasse.zoff.Helpers.ToastMaster;
 import no.lqasse.zoff.NotificationService;
 import no.lqasse.zoff.R;
@@ -103,6 +101,8 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
             zoff = new Zoff(ROOM_NAME, this);
             zoff.setROOM_PASS(getPASS());
         }
+
+
 
 
 
@@ -175,18 +175,23 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 
+                Video selectedVideo = listAdapter.getItem(position);
+
 
                 if (searchViewOpen) {
                     String videoTitle = YouTube.getSearchResults().get(position).getTitle();
                     String videoID = (YouTube.getSearchResults().get(position)).getVideoID();
-                    Server.add(videoID, videoTitle);
-                    ToastMaster.showToast(RemoteActivity.this, ToastMaster.TYPE.VIDEO_ADDED, videoTitle);
+                    String duration = (YouTube.getSearchResults().get(position)).getDuration();
+                    //Server.add(videoID, videoTitle);
 
-                } else if (position != 0)  { //Cant vote for current video duh
-                    Video selectedVideo = listAdapter.getItem(position);
+                    zoff.add(videoID, videoTitle, duration);
+                    //ToastMaster.showToast(RemoteActivity.this, ToastMaster.TYPE.VIDEO_ADDED, videoTitle);
+
+                } else if (position != 0) { //Cant vote for current video duh
+
                     zoff.vote(selectedVideo);
+
                 }
-                ;
 
 
                 return true;
@@ -339,11 +344,10 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
 
     }
 
-    public void invalidateViews() {
-        videoList.invalidateViews();
+
+    public void viewersChanged(){
+        listAdapter.notifyDataSetChanged();
     }
-
-
 
     public void zoffRefreshed(Boolean hasInetAccess) {
         listAdapter.notifyDataSetChanged();
@@ -402,7 +406,7 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
     private String getPASS() {
         String PASS;
         sharedPreferences = getSharedPreferences(PREFS_FILE, 0);
-        PASS = sharedPreferences.getString(ROOM_NAME, null);
+        PASS = sharedPreferences.getString(ROOM_NAME, "");
         return PASS;
     }
 
@@ -600,7 +604,11 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
 
     }
 
-
+    @Override
+    protected void onDestroy() {
+        zoff.disconnect();
+        super.onDestroy();
+    }
 }
 
 

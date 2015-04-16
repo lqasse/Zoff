@@ -1,8 +1,11 @@
 package no.lqasse.zoff;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+
+import org.json.JSONArray;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,39 +13,36 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import no.lqasse.zoff.Interfaces.ZoffListener;
 import no.lqasse.zoff.Models.Video;
 import no.lqasse.zoff.Server.JSONTranslator;
-import no.lqasse.zoff.Helpers.ToastMaster;
 import no.lqasse.zoff.Server.Server;
+import no.lqasse.zoff.Server.SocketJSONTranslator;
+import no.lqasse.zoff.Server.SocketServer;
 
 /**
  * Created by lassedrevland on 11.01.15.
  */
 public class Zoff {
 
-    private final int NOTIFY_ZOFF_REFRESHED = 1;
-    private final int NEEDS_PASS_VOTE = 2;
-    private final int NEEDS_PASS_ADD = 3;
-    private final int ZOFF_REFRESHED = 1;
+
 
 
     private final int UPDATE_INTERVAL_MILLIS = (int) TimeUnit.SECONDS.toMillis(10);
     private final Handler handler = new Handler();
     private static String ROOM_NAME;
-    private static String ROOM_PASS;
+    private static String adminpass = "";
     private static String POST_URL;
-    private int VIEWERS_COUNT = 0;
+    private int viewers = 0;
     private int SKIPS_COUNT = 0;
     private Boolean IS_PASS_PROTECTED = false;
     private static String NOWPLAYING_URL;
-
-
-
+    private SocketServer server;
 
     private ArrayList<Video> videoList = new ArrayList<>();
     private ArrayList<Video> nextVideosList = new ArrayList<>();
     private Object listener;
-    private Runnable Refresher;
+
 
 
     private Map<String, Boolean> settings = new HashMap<>();
@@ -52,8 +52,10 @@ public class Zoff {
     public Zoff(String ROOM_NAME, Object listener) {
         init(ROOM_NAME);
 
+        if (listener instanceof Activity){
+            server = new SocketServer(ROOM_NAME,this,(Activity) listener);
+        }
 
-        //((Zoff_Listener) listener).zoffRefreshed(true);
         this.listener = listener;
     }
 
@@ -64,36 +66,46 @@ public class Zoff {
         setROOM_NAME(ROOM_NAME);
         this.NOWPLAYING_URL = "http://www.zoff.no/" + ROOM_NAME + "/php/change.php?";
         this.POST_URL =  "http://zoff.no/" + ROOM_NAME + "/php/change.php";
-        refreshData();
 
-        //Schedules refreshes
-        Refresher = new Runnable() {
-            @Override
-            public void run() {
-                refreshData();
-                handler.postDelayed(this, UPDATE_INTERVAL_MILLIS);
-            }
-        };
-        handler.postDelayed(Refresher, UPDATE_INTERVAL_MILLIS);
 
     }
 
-    public void refreshData() {
-        Server.refresh(this);
-    }
 
 
     public void stopRefresh() {
-        handler.removeCallbacks(Refresher);
         Log.d("Zoff REFRESH", "Stopped");
     }
 
     public void resumeRefresh(){
-        handler.removeCallbacks(Refresher);
-        handler.post(Refresher);
+
         Log.d("Zoff REFRESH", "Restarted");
     }
+
+    public void socketRefreshed(JSONArray data){
+
+        videoList.clear();
+        videoList.addAll(SocketJSONTranslator.toVideos(data));
+        settings.clear();
+        settings.putAll(SocketJSONTranslator.toSettingsMap(data));
+
+
+        ((ZoffListener) listener).zoffRefreshed(true);
+
+
+
+
+
+    }
+
+    public void viewersChanged(int viewers){
+        this.viewers = viewers;
+
+        ((ZoffListener) listener).viewersChanged();
+
+    }
     public void refreshed(Boolean hasInetAccess,String data) {
+
+
 
         videoList.clear();
 
@@ -105,7 +117,7 @@ public class Zoff {
         settings.clear();
         settings.putAll(JSONTranslator.toSettingsMap(data));
 
-        VIEWERS_COUNT = JSONTranslator.toViews(data);
+        viewers = JSONTranslator.toViews(data);
         SKIPS_COUNT = JSONTranslator.toSkips(data);
         IS_PASS_PROTECTED = JSONTranslator.hasAdminPass(data);
 
@@ -120,7 +132,7 @@ public class Zoff {
 
 
     public void setROOM_PASS(String PASS){
-        this.ROOM_PASS = PASS;
+        this.adminpass = PASS;
     }
 
     private void setROOM_NAME(String ROOM_NAME){
@@ -130,32 +142,9 @@ public class Zoff {
         this.ROOM_NAME = new String(nameArray);
     }
 
-    public void vote(Video selectedVideo) {
+    public void vote(Video video) {
 
-        String videoID = selectedVideo.getId();
-        String title = selectedVideo.getTitle();
-
-
-        if (this.ANYONE_CAN_VOTE())
-        {
-
-            ToastMaster.showToast(listener, ToastMaster.TYPE.VIDEO_VOTED,title);
-
-            Server.vote(videoID);
-        }
-        else if (IS_PASS_PROTECTED && this.hasROOM_PASS())
-        {
-
-            ToastMaster.showToast(listener, ToastMaster.TYPE.VIDEO_VOTED,title);
-            Server.vote(videoID);
-        }
-        else {
-
-            ToastMaster.showToast(listener, ToastMaster.TYPE.NEEDS_PASS_TO_VOTE);
-
-        }
-
-
+        server.vote(video, adminpass);
 
     }
 
@@ -164,28 +153,26 @@ public class Zoff {
 
     }
 
-    public void voteSkip() {
+    public void add(String id, String title, String duration){
 
-        if (hasVideos()){
-            Server.skip(getNowPlayingID());
+        server.add(id,title,adminpass, duration);
+    }
 
-        }
+    public void skip() {
 
 
+        server.skip(adminpass);
 
 
     }
 
+    public void delete(Video video){
+        server.delete(video,adminpass);
+    }
+
     public Boolean hasROOM_PASS(){
 
-        if (this.ROOM_PASS != null){ //Redundant? Zoff doesnt save "" as pw anymore
-            if (this.ROOM_PASS.equals("")){
-                return true;
-            }
-        }
-
-        return this.ROOM_PASS != null;
-
+        return Zoff.adminpass.equals("");
 
 
     }
@@ -229,7 +216,7 @@ public class Zoff {
                 b.putBoolean(key, settings.get(key));
             }
 
-            b.putString("adminpass", ROOM_PASS);
+            b.putString("adminpass", adminpass);
             b.putString("ROOM_NAME", ROOM_NAME);
         } catch (Exception e){
             e.printStackTrace();
@@ -245,17 +232,17 @@ public class Zoff {
     public String getViewers(){
 
 
-        if (VIEWERS_COUNT < 2){
-            return VIEWERS_COUNT + " viewer";
+        if (viewers < 2){
+            return viewers + " viewer";
         } else {
-            return VIEWERS_COUNT + " viewers";
+            return viewers + " viewers";
         }
 
     }
 
     public String getSkips(){
         if (SKIPS_COUNT > 0){
-            return SKIPS_COUNT+"/"+VIEWERS_COUNT + " skipped";
+            return SKIPS_COUNT+"/"+ viewers + " skipped";
         } else {
             return "";
         }
@@ -353,8 +340,8 @@ public class Zoff {
         return POST_URL;
     }
 
-    public static String getRoomPass(){
-        return ROOM_PASS;
+    public static String getAdminpass(){
+        return adminpass;
     }
 
 
@@ -362,6 +349,10 @@ public class Zoff {
     @Override
     public String toString() {
         return getROOM_NAME() + ": " + videoList.size();
+    }
+
+    public void disconnect(){
+        server.off();
     }
 
 

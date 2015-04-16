@@ -19,11 +19,11 @@ import no.lqasse.zoff.Adapters.ListAdapter;
 import no.lqasse.zoff.Helpers.ImageBlur;
 import no.lqasse.zoff.Helpers.ImageCache;
 import no.lqasse.zoff.Helpers.ImageDownload;
-import no.lqasse.zoff.Helpers.ImageListener;
+import no.lqasse.zoff.Interfaces.ImageListener;
 import no.lqasse.zoff.Models.Video;
 import no.lqasse.zoff.Zoff;
 import no.lqasse.zoff.ZoffActivity;
-import no.lqasse.zoff.ZoffListener;
+import no.lqasse.zoff.Interfaces.ZoffListener;
 import no.lqasse.zoff.Helpers.ToastMaster;
 import no.lqasse.zoff.R;
 import no.lqasse.zoff.SettingsActivity;
@@ -122,7 +122,7 @@ public class PlayerActivity extends ZoffActivity implements ZoffListener,ImageLi
                 break;
             case (R.id.action_skip):
                 if (zoff.allowSkip()){
-                    zoff.voteSkip();
+                    zoff.skip();
                 } else {
                     ToastMaster.showToast(this, ToastMaster.TYPE.SKIP_DISABLED);
                 }
@@ -179,6 +179,10 @@ public class PlayerActivity extends ZoffActivity implements ZoffListener,ImageLi
 
     }
 
+    @Override
+    public void viewersChanged() {
+
+    }
 
     public void zoffRefreshed(Boolean hasInetAccess) {
 
@@ -236,8 +240,8 @@ public class PlayerActivity extends ZoffActivity implements ZoffListener,ImageLi
 
     public void videoEnded() {
 
-        zoff.voteSkip();
-        zoff.refreshData();
+        zoff.skip();
+        //zoff.refreshData();
 
 
     }

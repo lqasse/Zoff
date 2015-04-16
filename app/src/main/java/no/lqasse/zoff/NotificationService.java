@@ -13,6 +13,7 @@ import android.widget.RemoteViews;
 
 import no.lqasse.zoff.Helpers.ImageCache;
 import no.lqasse.zoff.Helpers.ImageDownload;
+import no.lqasse.zoff.Interfaces.ZoffListener;
 import no.lqasse.zoff.Remote.RemoteActivity;
 
 /**
@@ -69,6 +70,10 @@ public class NotificationService extends Service implements ZoffListener {
         showNotification();
     }
 
+    @Override
+    public void viewersChanged() {
+
+    }
 
     private void showNotification() {
 

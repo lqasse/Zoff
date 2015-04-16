@@ -9,7 +9,6 @@ import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 
-import no.lqasse.zoff.Helpers.ImageListener;
 import no.lqasse.zoff.Helpers.ToastMaster;
 
 /**
@@ -66,12 +65,7 @@ public abstract class ZoffActivity extends ActionBarActivity {
     protected void handleEvent(event_type type){
         switch (type){
             case skip:
-                if (zoff.allowSkip()) {
-                    zoff.voteSkip();
-                    zoff.refreshData();
-                } else {
-                    ToastMaster.showToast(this, ToastMaster.TYPE.SKIP_DISABLED);
-                }
+                zoff.skip();
                 break;
             case search:
 
