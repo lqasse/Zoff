@@ -1,8 +1,10 @@
 package no.lqasse.zoff;
 
 import android.app.Activity;
+import android.app.Service;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -41,9 +43,14 @@ public class Zoff {
     private ArrayList<Video> nextVideosList = new ArrayList<>();
     private Object listener;
 
+    private String android_id;
+
+
+
 
 
     private Map<String, Boolean> settings = new HashMap<>();
+
 
 
 
@@ -51,9 +58,19 @@ public class Zoff {
         init(ROOM_NAME);
         log(ROOM_NAME);
 
-        server = new SocketServer(ROOM_NAME,this);
+        if (listener instanceof Activity){
+            android_id = Settings.Secure.getString( ((Activity) listener).getBaseContext().getContentResolver(),
+                    Settings.Secure.ANDROID_ID);
+        } else if (listener instanceof Service){
+            android_id = Settings.Secure.getString( ((Service) listener).getBaseContext().getContentResolver(),
+                    Settings.Secure.ANDROID_ID);
+        }
+
+        server = new SocketServer(ROOM_NAME,this,android_id);
 
         this.listener = listener;
+
+
     }
 
 
@@ -85,15 +102,20 @@ public class Zoff {
         settings.clear();
         settings.putAll(SocketJSONTranslator.toSettingsMap(data));
 
+        if (!empty()){
+            ((ZoffListener) listener).zoffRefreshed();
+        }
 
-        ((ZoffListener) listener).zoffRefreshed(true);
 
     }
 
     public void viewersChanged(int viewers){
         this.viewers = viewers;
 
-        ((ZoffListener) listener).viewersChanged();
+        if (!empty()){
+            ((ZoffListener) listener).viewersChanged();
+        }
+
 
     }
     public void refreshed(Boolean hasInetAccess,String data) {
@@ -117,7 +139,7 @@ public class Zoff {
 
 
 
-        ((ZoffListener) listener).zoffRefreshed(true);
+        ((ZoffListener) listener).zoffRefreshed();
 
 
 
@@ -256,7 +278,7 @@ public class Zoff {
 
     public String getNextId() {
 
-        if (videoList.size() >= 1){
+        if (videoList.size() > 1){
             return videoList.get(1).getId();
         }
 
@@ -347,6 +369,10 @@ public class Zoff {
 
     private void log(String data){
         Log.i(LOG_IDENTIFIER,data);
+    }
+
+    public boolean empty(){
+        return videoList.isEmpty();
     }
 
 

@@ -178,7 +178,7 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 
-                Video selectedVideo = listAdapter.getItem(position);
+
 
 
                 if (searchViewOpen) {
@@ -191,7 +191,7 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
                     //ToastMaster.showToast(RemoteActivity.this, ToastMaster.TYPE.VIDEO_ADDED, videoTitle);
 
                 } else if (position != 0) { //Cant vote for current video duh
-
+                    Video selectedVideo = listAdapter.getItem(position);
                     zoff.vote(selectedVideo);
 
                 }
@@ -356,7 +356,7 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
         listAdapter.notifyDataSetChanged();
     }
 
-    public void zoffRefreshed(Boolean hasInetAccess) {
+    public void zoffRefreshed() {
         listAdapter.notifyDataSetChanged();
 
         if (BIG_SCREEN){
@@ -389,6 +389,7 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
 
 
         //Set background image
+
         Video currentVideo = zoff.getNowPlayingVideo();
 
             if (ImageCache.has(currentVideo.getId()) && !ImageCache.has(currentVideo.getId(), ImageCache.ImageType.BLUR)){

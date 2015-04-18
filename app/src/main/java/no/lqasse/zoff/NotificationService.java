@@ -122,7 +122,7 @@ public class NotificationService extends Service implements ZoffListener,ImageLi
 
 
 
-    public void zoffRefreshed(Boolean hasInetAccess) {
+    public void zoffRefreshed() {
         showNotification();
     }
 

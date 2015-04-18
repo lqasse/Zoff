@@ -183,7 +183,7 @@ public class PlayerActivity extends ZoffActivity implements ZoffListener,ImageLi
 
     }
 
-    public void zoffRefreshed(Boolean hasInetAccess) {
+    public void zoffRefreshed() {
 
 
 

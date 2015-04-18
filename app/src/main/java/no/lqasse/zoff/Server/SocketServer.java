@@ -3,6 +3,7 @@ package no.lqasse.zoff.Server;
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.Settings;
 import android.util.Log;
 
 import com.github.nkzawa.emitter.Emitter;
@@ -36,11 +37,18 @@ public class SocketServer  {
     String guid = "1337";
     Handler handler;
 
-    public  SocketServer(String chan,Zoff zoff){
+
+
+
+
+    public  SocketServer(String chan,Zoff zoff, String android_id){
+
+
         this.zoff = zoff;
         this.chan = chan;
+        this.guid = android_id;
         handler = new Handler(Looper.getMainLooper());
-        log("Started on: " + chan);
+        log("Started on: " + chan + " ID: " + guid);
 
 
         try {

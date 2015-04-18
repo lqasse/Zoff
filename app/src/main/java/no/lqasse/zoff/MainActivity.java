@@ -111,8 +111,7 @@ public class MainActivity extends ActionBarActivity  {
 
     @Override
     protected void onPostResume() {
-        SocketServer.getSuggestions(this);
-        log("Getting suggestions");
+
         super.onPostResume();
     }
 
@@ -157,8 +156,6 @@ public class MainActivity extends ActionBarActivity  {
         }
 
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(getBaseContext(), android.R.layout.simple_list_item_1, activeRooms);
-        //chanTextView.setAdapter(adapter);
 
 
         GridView gridView = (GridView) findViewById(R.id.chanGrid);
@@ -182,7 +179,10 @@ public class MainActivity extends ActionBarActivity  {
         Log.i(LOG_IDENTIFIER,log);
     }
 
-
-
-
+    @Override
+    protected void onResume() {
+        SocketServer.getSuggestions(this);
+        log("Getting suggestions");
+        super.onResume();
+    }
 }
