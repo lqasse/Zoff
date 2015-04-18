@@ -249,7 +249,7 @@ public class Server {
                 case SKIP:
                     break;
                 case SUGGESTIONS:
-                    ((MainActivity)holder.context).receivedChanSuggestions(holder.response);
+                    //((MainActivity)holder.context).receivedChanSuggestions(holder.response);
                     break;
 
             }

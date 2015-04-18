@@ -47,6 +47,7 @@ import no.lqasse.zoff.R;
  */
 public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTubeListener,ImageListener {
     private final String PREFS_FILE = "no.lqasse.zoff.prefs";
+    private final String LOG_IDENTIFIER = "RemoteActivity";
 
     private Menu menu;
     private Boolean paused = false;
@@ -75,13 +76,6 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
 
 
 
-
-
-
-
-
-
-
     private boolean appInBackGround = false;
     private boolean searchViewOpen = false;
     private final int AUTOSEARCH_DELAY_MILLIS = 600;
@@ -90,7 +84,11 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
+
+
         super.onCreate(savedInstanceState);
+
+        log("onCreate");
 
         Intent i = getIntent();
         Bundle b = i.getExtras();
@@ -98,9 +96,14 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
 
             ROOM_NAME = b.getString("ROOM_NAME");
             ROOM_PASS = getPASS();
-            zoff = new Zoff(ROOM_NAME, this);
-            zoff.setROOM_PASS(getPASS());
+
+
         }
+        zoff = new Zoff(ROOM_NAME,this);
+        zoff.setROOM_PASS(ROOM_PASS);
+
+
+
 
 
 
@@ -245,16 +248,20 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
 
     @Override
     protected void onResume() {
-
-
         stopNotificationService();
-        zoff.resumeRefresh();
+
+        if (zoff == null && ROOM_NAME !=null){
+            zoff = new Zoff(ROOM_NAME,this);
+            zoff.setROOM_PASS(ROOM_PASS);
+        }
+
+
         super.onResume();
     }
 
     @Override
     protected void onPause() {
-        zoff.stopRefresh();
+
         if (appInBackGround) {
             appInBackGround = false;
             //startNotificationService();
@@ -396,6 +403,7 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
 
         if (!ImageCache.has(zoff.getNextId(), ImageCache.ImageType.HUGE)){
             ImageDownload.downloadToCache(zoff.getNextId(), ImageCache.ImageType.HUGE);
+
 
         }
 
@@ -582,6 +590,7 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
             toggleSearchLayout();
             toggleListAdapter(true);
         } else {
+            zoff.disconnect();
             super.onBackPressed();
 
         }
@@ -593,6 +602,8 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
     protected void onUserLeaveHint() {
         if (homePressed){
             startNotificationService();
+            zoff.disconnect();
+            zoff = null;
         }
         homePressed = true;
         super.onUserLeaveHint();
@@ -606,8 +617,15 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
 
     @Override
     protected void onDestroy() {
-        zoff.disconnect();
+        if (zoff != null){
+            zoff.disconnect();
+        }
+
         super.onDestroy();
+    }
+
+    private void log(String log){
+        Log.i(LOG_IDENTIFIER,log);
     }
 }
 

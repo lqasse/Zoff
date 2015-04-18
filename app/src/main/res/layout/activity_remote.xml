@@ -26,10 +26,13 @@
         android:fastScrollEnabled="false"
         android:scrollbars="none"
         android:overScrollMode="ifContentScrolls"
+        android:clipToPadding="false"
         android:layout_marginLeft="13dp"
         android:layout_marginRight="13dp"
         android:dividerHeight="5dp"
         android:divider="#00000000"
+        android:padding="5dp"
+
         />
 
 

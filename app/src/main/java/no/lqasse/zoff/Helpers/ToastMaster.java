@@ -42,6 +42,54 @@ public class ToastMaster {
 
     }
 
+
+    public static void showToast(Object context, String type){
+        String toastText = "";
+
+        switch (type){
+            case "savedsettings":
+                toastText="Saved settings";
+                break;
+            case "wrongpass":
+                toastText="Wrong password";
+                break;
+            case "shuffled":
+                toastText="Shuffled playlist";
+                break;
+            case "deletesong":
+                toastText="Deleted song";
+                break;
+            case "voted":
+                toastText="Voted on video";
+                break;
+            case "alreadyvoted":
+                toastText="You've already voted on that video";
+                break;
+            case "listhaspass":
+                toastText="The list is password protected";
+                break;
+            case "noskip":
+                toastText="Only admin can skip songs on this channel";
+                break;
+            case "alreadyskip":
+                toastText="You've already voted to skip!";
+                break;
+        }
+
+
+
+        Toast t = Toast.makeText((Activity) context, toastText, Toast.LENGTH_SHORT);
+        View v = t.getView();
+        v.setBackgroundResource(R.drawable.toast_background);
+
+        t.setGravity(Gravity.CENTER_VERTICAL&Gravity.CENTER_HORIZONTAL,50,0);
+        t.show();
+
+
+
+
+    }
+
     public static void showToast(Object context, TYPE type, String CONTEXTUAL_STRING){
 
 
@@ -87,7 +135,7 @@ public class ToastMaster {
                 toastText = "Came to foreground";
                 break;
             case STOP:
-                toastText = "STOPPed";
+                toastText = "Stopped";
                 break;
             case PAUSE:
                 toastText = "Paused";

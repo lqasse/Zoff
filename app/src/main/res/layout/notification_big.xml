@@ -4,8 +4,8 @@
     android:background="@color/notification_background">
 
     <ImageView
-        android:layout_width="70dp"
-        android:layout_height="fill_parent"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:id="@+id/imageView"
         android:layout_alignParentTop="false"
         android:layout_alignParentLeft="true"
@@ -33,40 +33,50 @@
         android:id="@+id/viewersTextView"
         android:textColor="@color/zoff_gray"
         android:text="Viewers"
-        android:layout_below="@+id/titleTextView"
-        android:layout_toRightOf="@+id/imageView"
-        android:layout_toEndOf="@+id/imageView" />
-
-    <ImageView
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:id="@+id/imageView3"
-        android:src="@drawable/notification"
-        android:scaleType="fitCenter"
-        android:layout_alignRight="@+id/imageView"
-        android:layout_alignEnd="@+id/imageView"
-        android:layout_alignBottom="@+id/imageView" />
+        android:layout_toRightOf="@+id/textView4"
+        android:layout_alignBottom="@+id/textView4" />
 
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="40dp"
         android:id="@+id/closeImageView"
         android:src="@drawable/cross"
+        android:scaleType="fitCenter"
+        android:padding="10dp"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:scaleType="fitCenter"
-        android:layout_centerVertical="true"
-        android:padding="10dp" />
+        android:layout_alignParentTop="true" />
 
     <ImageView
         android:layout_width="wrap_content"
-        android:layout_height="40dp"
+        android:layout_height="wrap_content"
         android:id="@+id/skipImageView"
         android:src="@drawable/skip"
         android:scaleType="fitCenter"
         android:padding="10dp"
-        android:layout_alignTop="@+id/closeImageView"
-        android:layout_toLeftOf="@+id/closeImageView"
-        android:layout_toStartOf="@+id/closeImageView" />
+        android:layout_alignBottom="@+id/imageView"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/channelTextView"
+        android:textColor="@color/zoff_gray"
+        android:text="Channel"
+        android:layout_below="@+id/titleTextView"
+        android:layout_alignLeft="@+id/titleTextView"
+        android:layout_alignStart="@+id/titleTextView" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView4"
+        android:textColor="@color/zoff_gray"
+        android:text="-"
+        android:layout_toRightOf="@+id/channelTextView"
+        android:layout_marginRight="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_alignBottom="@+id/channelTextView" />
 
 </RelativeLayout>

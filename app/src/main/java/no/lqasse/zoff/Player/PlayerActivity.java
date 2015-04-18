@@ -153,7 +153,6 @@ public class PlayerActivity extends ZoffActivity implements ZoffListener,ImageLi
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        zoff.stopRefresh();
 
     }
 

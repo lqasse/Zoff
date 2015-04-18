@@ -18,6 +18,7 @@ import no.lqasse.zoff.Models.Video;
  * Created by lassedrevland on 25.03.15.
  */
 public class ImageDownload {
+    private static final String LOG_IDENTIFIER = "ImageDownload";
 
     private enum TYPE{downlaodAndSet,downloadToCache}
 
@@ -39,6 +40,8 @@ public class ImageDownload {
 
     }
 
+
+
     public static void downloadToCache(String id){
 
         downloadToCache(id, ImageCache.ImageType.REG);
@@ -49,6 +52,7 @@ public class ImageDownload {
 
         if (type == ImageCache.ImageType.HUGE){
             holder.imageURL = Video.getThumbHuge(id);
+            holder.altimageUrl = Video.getThumbMed(id);
         } else {
             holder.imageURL = Video.getThumbMed(id);
         }
@@ -88,8 +92,11 @@ public class ImageDownload {
                    URL imageURL = new URL(viewHolder.altimageUrl);
                    viewHolder.bitmap = BitmapFactory.decodeStream(imageURL.openStream());
                } catch (Exception e2){
-                   e2.printStackTrace();
-                   e.printStackTrace();
+
+                   Log.i(LOG_IDENTIFIER, "Download failed: " + viewHolder.imageURL + " ; " + viewHolder.altimageUrl);
+                   //e2.printStackTrace();
+                   //e.printStackTrace();
+
                    viewHolder.bitmap = null;
                }
 
@@ -126,5 +133,9 @@ public class ImageDownload {
         }
 
 
+    }
+
+    private void log(String log){
+        Log.i(LOG_IDENTIFIER,log);
     }
 }

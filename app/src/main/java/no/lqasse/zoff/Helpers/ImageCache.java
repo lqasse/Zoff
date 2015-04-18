@@ -2,6 +2,7 @@ package no.lqasse.zoff.Helpers;
 
 import android.graphics.Bitmap;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import no.lqasse.zoff.Interfaces.ImageListener;
@@ -18,7 +19,11 @@ public class ImageCache {
     private static Bitmap currentBlurBG;
 
     private static ImageListener listener;
+
+
     private static String listenID;
+
+    private static HashMap<String,ImageListener> listenersMap = new HashMap<>();
 
     private static HashMap<String,Bitmap> ImageMap = new HashMap<>();
 
@@ -70,6 +75,7 @@ public class ImageCache {
             currentBlurBG = image;
         }
 
+
         if(listener !=null && id.equals(listenID)){
             listener.imageInCache(image);
             listener = null;
@@ -95,6 +101,11 @@ public class ImageCache {
 
         ImageMap.put(id + appendix,bitmap);
 
+        notifyListeners(id + appendix,bitmap);
+
+
+
+
 
 
         if(listener !=null && id.equals(listenID)){
@@ -115,5 +126,42 @@ public class ImageCache {
     public static void registerImageListener(ImageListener listener, String idToListenFor){
         ImageCache.listener = listener;
         listenID = idToListenFor;
+
+
+        listenersMap.put(idToListenFor,listener);
+
+
     }
+
+
+    public static void registerImageListener(ImageListener listener, String idToListenFor, ImageType type){
+        ImageCache.listener = listener;
+        listenID = idToListenFor;
+
+        String appendix = "";
+        switch (type){
+            case HUGE:
+                appendix = HUGE_APPENDIX;
+                break;
+            case BLUR:
+                appendix = BLUR_APPENDIX;
+                break;
+        }
+
+
+        listenersMap.put(idToListenFor + appendix,listener );
+
+
+    }
+
+    private static void notifyListeners(String id, Bitmap bitmap){
+
+        if (listenersMap.containsKey(id)){
+            listenersMap.get(id).imageInCache(bitmap);
+            listenersMap.remove(id);
+        }
+
+    }
+
+
 }

@@ -5,7 +5,9 @@ android:layout_width="fill_parent"
 android:layout_height="wrap_content"
 android:orientation="horizontal"
     android:id="@+id/layout"
-    android:background="@drawable/list_bg">
+    android:background="@drawable/gray_rectangle_solid"
+    android:elevation="5dp"
+    android:translationY="0dp">
 
     <ProgressBar
         style="?android:attr/progressBarStyleSmall"

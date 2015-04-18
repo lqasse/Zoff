@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import no.lqasse.zoff.Helpers.ToastMaster;
 import no.lqasse.zoff.Interfaces.ZoffListener;
 import no.lqasse.zoff.Models.Video;
 import no.lqasse.zoff.Server.JSONTranslator;
@@ -26,10 +27,7 @@ import no.lqasse.zoff.Server.SocketServer;
 public class Zoff {
 
 
-
-
-    private final int UPDATE_INTERVAL_MILLIS = (int) TimeUnit.SECONDS.toMillis(10);
-    private final Handler handler = new Handler();
+    private static final String LOG_IDENTIFIER = "Zoff_LOG";
     private static String ROOM_NAME;
     private static String adminpass = "";
     private static String POST_URL;
@@ -51,10 +49,9 @@ public class Zoff {
 
     public Zoff(String ROOM_NAME, Object listener) {
         init(ROOM_NAME);
+        log(ROOM_NAME);
 
-        if (listener instanceof Activity){
-            server = new SocketServer(ROOM_NAME,this,(Activity) listener);
-        }
+        server = new SocketServer(ROOM_NAME,this);
 
         this.listener = listener;
     }
@@ -70,15 +67,15 @@ public class Zoff {
 
     }
 
+    public void showToast(String toastKeyword){
+
+        if (listener instanceof Activity){
+            ToastMaster.showToast(listener,toastKeyword);
+        }
 
 
-    public void stopRefresh() {
-        Log.d("Zoff REFRESH", "Stopped");
-    }
 
-    public void resumeRefresh(){
 
-        Log.d("Zoff REFRESH", "Restarted");
     }
 
     public void socketRefreshed(JSONArray data){
@@ -90,10 +87,6 @@ public class Zoff {
 
 
         ((ZoffListener) listener).zoffRefreshed(true);
-
-
-
-
 
     }
 
@@ -143,14 +136,12 @@ public class Zoff {
     }
 
     public void vote(Video video) {
-
         server.vote(video, adminpass);
 
     }
 
     public void shuffle(){
         Server.shuffle();
-
     }
 
     public void add(String id, String title, String duration){
@@ -159,7 +150,6 @@ public class Zoff {
     }
 
     public void skip() {
-
 
         server.skip(adminpass);
 
@@ -182,13 +172,7 @@ public class Zoff {
         return settings.get("allvideos");
     }
 
-    public Boolean ANYONE_CAN_VOTE(){
-        if (settings.containsKey("vote")){
-            return !settings.get("vote"); //Reversed due to zoff confusion
-        }
-        return true;
 
-    }
 
     public Boolean LONG_SONGS(){
         return settings.get("longsongs");
@@ -271,9 +255,12 @@ public class Zoff {
     }
 
     public String getNextId() {
-        Video v = videoList.get(1);
 
-        return v.getId();
+        if (videoList.size() >= 1){
+            return videoList.get(1).getId();
+        }
+
+        return "";
     }
 
     public List<String> getVideoIDs() {
@@ -352,7 +339,14 @@ public class Zoff {
     }
 
     public void disconnect(){
-        server.off();
+
+       server.off();
+
+
+    }
+
+    private void log(String data){
+        Log.i(LOG_IDENTIFIER,data);
     }
 
 

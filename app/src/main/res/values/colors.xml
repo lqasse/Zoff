@@ -8,6 +8,7 @@
     <color name="zoff_black_transparent_list">#33000000</color>
     <color name="zoff_white_transparent">#33FFFFFF</color>
     <color name="zoff_transparent">#00000000</color>
+    <color name="dark_gray_solid">#1a1a1a</color>
 
 
     <color name="zoff_bg_general">#ffbdbdbd</color>

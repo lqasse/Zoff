@@ -1,9 +1,12 @@
 package no.lqasse.zoff.Server;
 
 import android.app.Activity;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import com.github.nkzawa.emitter.Emitter;
+import com.github.nkzawa.socketio.client.Ack;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 
@@ -13,6 +16,7 @@ import org.json.JSONException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 
+import no.lqasse.zoff.Helpers.ToastMaster;
 import no.lqasse.zoff.MainActivity;
 import no.lqasse.zoff.Models.ChanSuggestion;
 import no.lqasse.zoff.Models.Video;
@@ -24,17 +28,19 @@ import no.lqasse.zoff.Zoff;
 public class SocketServer  {
 
     private static final String ZOFF_URL = "http://dev.zoff.no:3000";
+    private static String LOG_IDENTIFIER = "SocketServer";
     Socket socket;
     Zoff zoff;
     Activity context;
     String chan;
     String guid = "1337";
+    Handler handler;
 
-    public  SocketServer(String chan,Zoff zoff, Activity context){
+    public  SocketServer(String chan,Zoff zoff){
         this.zoff = zoff;
-        this.context = context;
         this.chan = chan;
-        Log.d("SocketServer", "Started");
+        handler = new Handler(Looper.getMainLooper());
+        log("Started on: " + chan);
 
 
         try {
@@ -42,7 +48,7 @@ public class SocketServer  {
 
         } catch (Exception e){
             e.printStackTrace();
-            Log.d("SocketServer", "Failed to connect");
+            log("Failed to connect");
         }
         socket.connect();
 
@@ -52,7 +58,7 @@ public class SocketServer  {
         socket.on(chan+",np"        ,onNewVideo);
         socket.on("skipping"        ,onSkip);
         socket.on(chan+",viewers"   ,onViewersChanged);
-
+        socket.on("toast"           ,onToast);
 
 
     }
@@ -64,11 +70,15 @@ public class SocketServer  {
     private Emitter.Listener onChannelRefresh = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
-            context.runOnUiThread(new Runnable() {
+
+
+
+
+            handler.post(new Runnable() {
 
                 @Override
                 public void run() {
-                    Log.d("SocketServer", "onChannelRefresh");
+                    log( "onChannelRefresh");
                     JSONArray array;
                      array = (JSONArray) args[0];
                      zoff.socketRefreshed(array);
@@ -91,11 +101,11 @@ public class SocketServer  {
 
         @Override
         public void call(Object... args) {
-            context.runOnUiThread(new Runnable() {
+            handler.post(new Runnable() {
 
                 @Override
                 public void run() {
-                    Log.d("SocketServer", "onNewVideo");
+                    log( "onNewVideo");
                 }
             });
 
@@ -105,15 +115,35 @@ public class SocketServer  {
     private Emitter.Listener onSkip = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
-            Log.d("SocketServer", "onSkip");
+            log( "onSkip");
 
+        }
+    };
+
+    private Emitter.Listener onToast = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            handler.post(new Runnable() {
+
+                @Override
+                public void run() {
+
+
+                    String toast = (String) args[0];
+                    zoff.showToast(toast);
+
+
+
+                    log("onToast: " + toast);
+                }
+            });
         }
     };
 
     private Emitter.Listener onViewersChanged = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
-            context.runOnUiThread(new Runnable() {
+            handler.post(new Runnable() {
 
                 @Override
                 public void run() {
@@ -123,19 +153,23 @@ public class SocketServer  {
                     zoff.viewersChanged(viewers);
 
 
-                    Log.d("SocketServer", "onViewesChanged: " + Integer.toString(viewers));
+                    log("onViewesChanged: " + viewers);
+
+
                 }
             });
         }
     };
 
 
-    public void off(){
+    public void off()  {
+        log("disconnect");
         socket.off(chan);
         socket.off(chan+",np");
         socket.off("skipping");
         socket.off(chan+",viewers");
         socket.disconnect();
+
     }
 
     public static void getSuggestions(final MainActivity main){
@@ -207,8 +241,7 @@ public class SocketServer  {
         jsonmessage.put(adminpass);
 
 
-        Log.d("SocketServer", "Connected status " + Boolean.toString(socket.connected()));
-        Log.d("SocketServer", "vote, " + jsonmessage.toString());
+        log("vote, " + jsonmessage.toString());
 
 
         socket.emit("vote", jsonmessage);
@@ -231,8 +264,7 @@ public class SocketServer  {
         jsonmessage.put(adminpass);
 
 
-        Log.d("SocketServer", "Connected status " + Boolean.toString(socket.connected()));
-        Log.d("SocketServer", "vote, " + jsonmessage.toString());
+        log( "vote, " + jsonmessage.toString());
 
         socket.emit("vote", jsonmessage);
 
@@ -248,8 +280,9 @@ public class SocketServer  {
         jsonmessage.put(adminpass);
         jsonmessage.put(duration);
 
-        Log.d("SocketServer", "Connected status " + Boolean.toString(socket.connected()));
-        Log.d("SocketServer", "add" + jsonmessage.toString());
+        log("Connection status: " + Boolean.toString(socket.connected()));
+        log("add" + jsonmessage.toString());
+
         socket.emit("add", jsonmessage);
 
     }
@@ -261,10 +294,29 @@ public class SocketServer  {
         jsonmessage.put(guid);
         jsonmessage.put(adminpass);
 
-        Log.d("SocketServer", "Connected status " + Boolean.toString(socket.connected()));
-        Log.d("SocketServer", "Skip");
-        socket.emit("skip",jsonmessage);
+
+        log("Connection status: " + Boolean.toString(socket.connected()));
+        log("Skip");
+
+        Ack ack = new Ack() {
+            @Override
+            public void call(Object... args) {
+                Log.d("SocketServer", "ack: " + args[0].toString());
+            }
+        };
+        socket.emit("skip",jsonmessage,ack,"lol");
+
+
+
+
     }
+
+    private void log(String data){
+        Log.i(LOG_IDENTIFIER, data);
+
+    }
+
+
 
 
 

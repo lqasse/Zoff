@@ -13,6 +13,8 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.GridLayout;
+import android.widget.GridView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,6 +22,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 import no.lqasse.zoff.Adapters.SuggestionsAdapter;
+import no.lqasse.zoff.Adapters.SuggestionsGridAdapter;
 import no.lqasse.zoff.Models.ChanSuggestion;
 import no.lqasse.zoff.Remote.RemoteActivity;
 import no.lqasse.zoff.Server.JSONTranslator;
@@ -30,33 +33,16 @@ import no.lqasse.zoff.Server.SocketServer;
 public class MainActivity extends ActionBarActivity  {
 
     private AutoCompleteTextView chanTextView;
-    private Runnable retryConnectRunnable;
-    private Handler handler;
+    private static final String LOG_IDENTIFIER = "MainActivity";
+
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //Server.getChanSuggestions(this);
-
         setContentView(R.layout.activity_main);
         chanTextView = (AutoCompleteTextView) findViewById(R.id.acEditText);
-
-        handler = new Handler();
-        SocketServer.getSuggestions(this);
-        /* Deprecated
-        retryConnectRunnable = new Runnable() {
-            @Override
-            public void run() {
-
-                Server.getChanSuggestions(MainActivity.this);
-
-            }
-        };
-        */
-
-
 
 
 
@@ -80,7 +66,7 @@ public class MainActivity extends ActionBarActivity  {
             if (!containsIllegalChar){
 
                 chanTextView.setText(url);
-                initialize();
+                initialize(url);
             }
 
 
@@ -99,7 +85,7 @@ public class MainActivity extends ActionBarActivity  {
 
                     if (isValidRoom()) {
 
-                        initialize();
+                        initialize(chanTextView.getText().toString());
                     } else {
                         t.show();
 
@@ -115,54 +101,26 @@ public class MainActivity extends ActionBarActivity  {
         chanTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                initialize();
+                initialize(chanTextView.getText().toString());
             }
         });
 
 
-
-
-
-
-
     }
+
 
     @Override
-    protected void onStop() {
-        handler.removeCallbacks(retryConnectRunnable);
-        super.onStop();
+    protected void onPostResume() {
+        SocketServer.getSuggestions(this);
+        log("Getting suggestions");
+        super.onPostResume();
     }
 
+    private void initialize(String chan){
 
-
-    private void initialize(){
-
-        /*
-        CheckBox checkBox = (CheckBox) findViewById(R.id.checkBox);
-        Intent i;
-        if (checkBox.isChecked()){
-            //Starter PLayerActivity
-                i = new Intent(this, PlayerActivity.class);
-        } else {
-            //Starter RemoteActivity
-
-            i = new Intent(this, RemoteActivity.class);
-        }
-        */
         Intent i = new Intent(this, RemoteActivity.class);
-
-
-
-        i.putExtra("ROOM_NAME", chanTextView.getText().toString());
-
+        i.putExtra("ROOM_NAME", chan);
         startActivity(i);
-        handler.removeCallbacks(retryConnectRunnable);
-
-
-
-
-
-
 
     }
 
@@ -190,35 +148,8 @@ public class MainActivity extends ActionBarActivity  {
 
 
 
-    public void receivedChanSuggestions(String data){
 
-
-        if (data.equals("404")){
-            //There was an error connecting
-            chanTextView.setEnabled(false);
-            chanTextView.setText("Error connecting to server...");
-            handler.postDelayed(retryConnectRunnable, 1000);
-        } else {
-            chanTextView.setEnabled(true);
-            chanTextView.setText("");
-
-            ArrayList<String> activeRooms = new ArrayList<>();
-            activeRooms.addAll(JSONTranslator.toRoomSuggestions(data));
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(getBaseContext(), android.R.layout.simple_list_item_1, activeRooms);
-            chanTextView.setAdapter(adapter);
-        }
-
-
-
-
-    }
-
-    public void setBackgroundImage(Bitmap blurBg) {
-        RelativeLayout l = (RelativeLayout) findViewById(R.id.layout);
-        l.setBackground(new BitmapDrawable(getBaseContext().getResources(), blurBg));
-    }
-
-    public void setSuggestions(ArrayList<ChanSuggestion> suggestions){
+    public void setSuggestions(final ArrayList<ChanSuggestion> suggestions){
 
         ArrayList<String> activeRooms = new ArrayList<>();
         for (ChanSuggestion suggestion :suggestions){
@@ -227,9 +158,28 @@ public class MainActivity extends ActionBarActivity  {
 
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getBaseContext(), android.R.layout.simple_list_item_1, activeRooms);
-        chanTextView.setAdapter(adapter);
-        chanTextView.setAdapter(adapter);
+        //chanTextView.setAdapter(adapter);
 
+
+        GridView gridView = (GridView) findViewById(R.id.chanGrid);
+        SuggestionsGridAdapter suggestionArrayAdapter = new SuggestionsGridAdapter(this,suggestions);
+
+        gridView.setAdapter(suggestionArrayAdapter);
+
+
+
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                initialize(suggestions.get(position).getName());
+
+            }
+        });
+
+    }
+
+    private void log(String log){
+        Log.i(LOG_IDENTIFIER,log);
     }
 
 

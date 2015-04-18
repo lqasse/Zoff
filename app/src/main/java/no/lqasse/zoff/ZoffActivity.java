@@ -3,6 +3,7 @@ package no.lqasse.zoff;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -15,6 +16,7 @@ import no.lqasse.zoff.Helpers.ToastMaster;
  * Created by lassedrevland on 04.04.15.
  */
 public abstract class ZoffActivity extends ActionBarActivity {
+    private final String LOG_IDENTIFIER = "ZoffActivity";
     protected String ROOM_NAME;
     protected String ROOM_PASS;
     protected Zoff zoff;
@@ -29,19 +31,18 @@ public abstract class ZoffActivity extends ActionBarActivity {
     protected void startNotificationService() {
         Intent notificationIntent = new Intent(this, NotificationService.class);
         notificationIntent.putExtra("ROOM_NAME", ROOM_NAME);
+        notificationIntent.setAction("START");
         startService(notificationIntent);
     }
 
     protected void stopNotificationService() {
+        log("Killing service");
         Intent notificationIntent = new Intent(this, NotificationService.class);
-        stopService(notificationIntent);
+        notificationIntent.setAction(NotificationService.INTENT_KEY_CLOSE);
+        startService(notificationIntent);
     }
 
-    @Override
-    protected void onResume() {
-        stopNotificationService();
-        super.onResume();
-    }
+
 
 
     @Override
@@ -52,9 +53,6 @@ public abstract class ZoffActivity extends ActionBarActivity {
 
     @Override
     protected void onDestroy() {
-        if (zoff != null){
-            zoff.stopRefresh();
-        }
         stopNotificationService();
         super.onDestroy();
 
@@ -130,6 +128,11 @@ public abstract class ZoffActivity extends ActionBarActivity {
 
 
         }
+    }
+
+    private void log(String log){
+        Log.i(LOG_IDENTIFIER, log);
+
     }
 
 

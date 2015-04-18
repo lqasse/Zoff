@@ -1,7 +1,9 @@
 package no.lqasse.zoff.Adapters;
 
 import android.content.Context;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -9,6 +11,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+
 
 import no.lqasse.zoff.Helpers.ImageCache;
 import no.lqasse.zoff.Helpers.ImageDownload;
@@ -66,6 +69,7 @@ public class ListAdapterWPlaying extends ListAdapter {
 
 
             }
+
 
 
 
