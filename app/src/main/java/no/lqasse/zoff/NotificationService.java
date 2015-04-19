@@ -74,7 +74,7 @@ public class NotificationService extends Service implements ZoffListener,ImageLi
             case INTENT_KEY_SKIP:
                 log("skip");
                 if (zoff == null){
-                    zoff = new Zoff("ROOM_NAME",ROOM_NAME);
+                    zoff = new Zoff(ROOM_NAME,this);
                 }
                 zoff.skip();
                 break;
@@ -119,15 +119,23 @@ public class NotificationService extends Service implements ZoffListener,ImageLi
 
 
 
-    public void zoffRefreshed() {
+    //communication FROM Zof instance START
+    public void onZoffRefreshed() {
         showNotification();
     }
 
     @Override
-    public void viewersChanged() {
+    public void onViewersChanged() {
         showNotification();
 
     }
+
+    @Override
+    public void onCorrectPassword() {
+
+    }
+
+    //Communication FROM Zoff instance END
 
     private void showNotification() {
         log("Showing notification");

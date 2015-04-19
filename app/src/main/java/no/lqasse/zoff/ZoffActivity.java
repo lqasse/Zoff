@@ -70,7 +70,7 @@ public abstract class ZoffActivity extends ActionBarActivity {
                 break;
             case shuffle:
                 if (zoff.allowShuffle()) {
-                    if (zoff.hasROOM_PASS()) {
+                    if (zoff.hasPassword()) {
                         ToastMaster.showToast(this, ToastMaster.TYPE.SHUFFLED);
                         zoff.shuffle();
                     } else {

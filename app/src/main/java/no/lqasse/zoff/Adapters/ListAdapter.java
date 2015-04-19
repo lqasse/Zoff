@@ -19,7 +19,6 @@ import no.lqasse.zoff.Helpers.ImageDownload;
 import no.lqasse.zoff.Helpers.ToastMaster;
 import no.lqasse.zoff.Models.Video;
 import no.lqasse.zoff.R;
-import no.lqasse.zoff.Server.Server;
 import no.lqasse.zoff.Zoff;
 /**
  * Created by lassedrevland on 04.04.15.
@@ -103,10 +102,12 @@ public class ListAdapter extends ArrayAdapter<Video> {
 
 
 
-            if (Zoff.getAdminpass().equals("")){
-                holder.deleteButton.setVisibility(View.INVISIBLE);
-            } else {
+            if (zoff.hasPassword()){
                 setOnDelete(holder.deleteButton,position);
+                holder.deleteButton.setVisibility(View.VISIBLE);
+            } else {
+
+                holder.deleteButton.setVisibility(View.INVISIBLE);
             }
 
 

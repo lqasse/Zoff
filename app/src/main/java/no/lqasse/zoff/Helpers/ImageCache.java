@@ -1,11 +1,9 @@
 package no.lqasse.zoff.Helpers;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.util.Log;
 import android.util.LruCache;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import no.lqasse.zoff.Interfaces.ImageListener;
@@ -18,17 +16,28 @@ public class ImageCache {
     private static final String HUGE_APPENDIX = "_huge";
     private static final String BLUR_APPENDIX = "_blur";
 
-    private static final float SCALE_FACTOR = 0.5f;
-    private static final float SCALE_FACTOR_AGGRESSIVE = 0.75f;
+    private static boolean SCALED = false;
+    private static final float IMAGE_RATIO = (16f/9f);
+    private static final float DOWNSCALE_RATIO = 0.75f;
+    private static int IMAGE_WIDTH_BIG  = 640;
+    private static int IMAGE_HEIGHT_BIG = (int)( IMAGE_WIDTH_BIG / IMAGE_RATIO);
+    private static int IMAGE_WIDTH      = 200;
+    private static int IMAGE_HEIGHT     = (int)( IMAGE_WIDTH/ IMAGE_RATIO);
 
+    private static final int LOWER_MEMORY_THRESHOLD = 10 * 1024; //10mb
     final static int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
     final static int cacheSize = maxMemory / 8;
+
+
 
     private static LruCache<String, Bitmap> mMemoryCache = new LruCache<String,Bitmap>(cacheSize){
         @Override
         protected int sizeOf(String key, Bitmap value) {
             return value.getByteCount() /1024;
         }
+
+
+
 
     };
 
@@ -118,6 +127,15 @@ public class ImageCache {
     }
 
     public static void put(String id, ImageType type, Bitmap bitmap){
+
+        if (cacheSize < LOWER_MEMORY_THRESHOLD && !SCALED){
+            //Downscale even more to preserve memory
+            IMAGE_WIDTH_BIG  =(int) (IMAGE_WIDTH_BIG * DOWNSCALE_RATIO);
+            IMAGE_HEIGHT_BIG =(int) (IMAGE_HEIGHT_BIG * DOWNSCALE_RATIO);
+            IMAGE_WIDTH      =(int) (IMAGE_WIDTH * DOWNSCALE_RATIO);
+            IMAGE_HEIGHT     =(int) (IMAGE_HEIGHT * DOWNSCALE_RATIO);
+            SCALED = true;
+        }
         String appendix = "";
         switch (type){
             case HUGE:
@@ -134,11 +152,13 @@ public class ImageCache {
 
 
        if (bitmap.getWidth() >= 640){
-           log("Compressing..." + bitmap.getByteCount()/1024);
 
-           bitmap = Bitmap.createScaledBitmap(bitmap, (int) 640, 320,true);
-           log("Compressed..." + bitmap.getByteCount()/1024);
+           bitmap = Bitmap.createScaledBitmap(bitmap, (int) IMAGE_WIDTH_BIG, IMAGE_HEIGHT_BIG,true);
 
+
+       } else if (type != ImageType.HUGE){
+
+           bitmap = Bitmap.createScaledBitmap(bitmap, (int) IMAGE_WIDTH, IMAGE_HEIGHT,true);
        }
 
         mMemoryCache.put(id + appendix,bitmap);
@@ -216,7 +236,10 @@ public class ImageCache {
 
 
     private static void log(){
-        Log.i(LOG_IDENTIFIER, LOG_IDENTIFIER + " " + mMemoryCache.size() + "/" + mMemoryCache.maxSize());
+
+
+        int FILL_PERCENTAGE =  (int) (((float)mMemoryCache.size()/(float)mMemoryCache.maxSize()*100));
+        Log.i(LOG_IDENTIFIER,  FILL_PERCENTAGE +"%: " + mMemoryCache.size() + "/" + mMemoryCache.maxSize());
     }
     private static void log(String data){
         Log.i(LOG_IDENTIFIER, data);

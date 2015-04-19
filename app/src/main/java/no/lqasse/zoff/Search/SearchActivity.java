@@ -83,7 +83,7 @@ public class SearchActivity extends ActionBarActivity implements YouTubeListener
 
             String videoID = EXTRA_TEXT.split(": http://youtu.be/")[1];
             String title = EXTRA_TEXT.split(": http://youtu.be/")[0];
-            Server.add(videoID,title);
+           // Server.add(videoID,title);
             ToastMaster.showToast(this, ToastMaster.TYPE.VIDEO_ADDED,title);
             finish();
 
@@ -203,7 +203,7 @@ public class SearchActivity extends ActionBarActivity implements YouTubeListener
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 String videoId = YouTube.getSearchResults().get(position).getVideoID();
                 String title = YouTube.getSearchResults().get(position).getTitle();
-                Server.add(videoId,title);
+                //Server.add(videoId,title);
                 ToastMaster.showToast(SearchActivity.this, ToastMaster.TYPE.VIDEO_ADDED, title);
                 finish();
                 return true;

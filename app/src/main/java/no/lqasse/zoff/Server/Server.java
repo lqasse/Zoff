@@ -39,6 +39,7 @@ public class Server {
 
     private enum POST_TYPE{SETTINGS}
 
+    /*
     private static class getHolder{
         GET_TYPE type;
         String response;
@@ -102,7 +103,7 @@ public class Server {
 
     public static void vote(String videoID){
 
-        String voteUrl = Zoff.getUrl() + "vote=pos&id=" + videoID + "&pass="+ Zoff.getAdminpass();
+       // String voteUrl = Zoff.getUrl() + "vote=pos&id=" + videoID + "&pass="+ Zoff.getAdminpass();
 
         getHolder holder = new getHolder();
         holder.type = GET_TYPE.VOTE;
@@ -116,7 +117,7 @@ public class Server {
     public static void shuffle(){
         getHolder holder = new getHolder();
         holder.type = GET_TYPE.SHUFFLE;
-        holder.url = Zoff.getUrl() + "shuffle=true&pass=" + Zoff.getAdminpass();
+       // holder.url = Zoff.getUrl() + "shuffle=true&pass=" + Zoff.getAdminpass();
 
         Get get = new Get();
         get.execute(holder);
@@ -239,7 +240,7 @@ public class Server {
             switch (holder.type){
 
                 case REFRESH:
-                    holder.zoff.refreshed(true,holder.response);
+                   // holder.zoff.refreshed(true,holder.response);
                     break;
                 case VOTE:
                     //DO Nothing
@@ -308,5 +309,6 @@ public class Server {
 
         }
     }
+    */
 
 }

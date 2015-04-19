@@ -3,7 +3,6 @@ package no.lqasse.zoff;
 import android.app.Activity;
 import android.app.Service;
 import android.os.Bundle;
-import android.os.Handler;
 import android.provider.Settings;
 import android.util.Log;
 
@@ -13,14 +12,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import no.lqasse.zoff.Helpers.ImageCache;
 import no.lqasse.zoff.Helpers.ToastMaster;
 import no.lqasse.zoff.Interfaces.ZoffListener;
 import no.lqasse.zoff.Models.Video;
-import no.lqasse.zoff.Server.JSONTranslator;
-import no.lqasse.zoff.Server.Server;
 import no.lqasse.zoff.Server.SocketJSONTranslator;
 import no.lqasse.zoff.Server.SocketServer;
 
@@ -29,10 +25,29 @@ import no.lqasse.zoff.Server.SocketServer;
  */
 public class Zoff {
 
+    public static final String SETTINGS_KEY_ADD_SONGS  = "addsongs";
+    public static final String SETTINGS_KEY_ALL_VIDEOS = "allvideos";
+    public static final String SETTINGS_KEY_FRONTPAGE  = "frontpage";
+    public static final String SETTINGS_KEY_LONG_SONGS = "longsongs";
+    public static final String SETTINGS_KEY_SHUFFLE    = "shuffle";
+    public static final String SETTINGS_KEY_SKIP       = "skip";
+    public static final String SETTINGS_KEY_VOTE       = "vote";
+    public static final String SETTINGS_KEY_REMOVE_PLAY= "removeplay";
+
+    public static final String[] SETTINGS_KEYS =
+            {       SETTINGS_KEY_ADD_SONGS,
+                    SETTINGS_KEY_ALL_VIDEOS,
+                    SETTINGS_KEY_FRONTPAGE,
+                    SETTINGS_KEY_LONG_SONGS,
+                    SETTINGS_KEY_SHUFFLE,
+                    SETTINGS_KEY_SKIP,
+                    SETTINGS_KEY_VOTE,
+                    SETTINGS_KEY_REMOVE_PLAY
+            };
 
     private static final String LOG_IDENTIFIER = "Zoff_LOG";
     private static String ROOM_NAME;
-    private static String adminpass = "";
+    private  String adminpass = "";
     private static String POST_URL;
     private int viewers = 0;
     private int SKIPS_COUNT = 0;
@@ -44,7 +59,7 @@ public class Zoff {
     private ArrayList<Video> nextVideosList = new ArrayList<>();
 
 
-    private Object listener;
+    private ZoffListener listener;
 
     private String android_id;
 
@@ -57,7 +72,7 @@ public class Zoff {
 
 
 
-    public Zoff(String ChannelName, Object listener) {
+    public Zoff(String ChannelName, ZoffListener listener) {
         init(ChannelName);
         log(ChannelName);
 
@@ -87,14 +102,12 @@ public class Zoff {
 
     }
 
-    public void showToast(String toastKeyword){
+    //Communication FROM server START
 
+    public void showToast(String toastKeyword){
         if (listener instanceof Activity && listener!=null){
             ToastMaster.showToast(listener,toastKeyword);
         }
-
-
-
 
     }
 
@@ -106,7 +119,7 @@ public class Zoff {
         settings.putAll(SocketJSONTranslator.toSettingsMap(data));
 
         if (!empty() && listener != null ){
-            ((ZoffListener) listener).zoffRefreshed();
+            (listener).onZoffRefreshed();
         }
 
 
@@ -114,39 +127,21 @@ public class Zoff {
 
     public void viewersChanged(int viewers){
         this.viewers = viewers;
-
         if (!empty() && listener !=null){
-            ((ZoffListener) listener).viewersChanged();
+            (listener).onViewersChanged();
         }
 
 
     }
-    public void refreshed(Boolean hasInetAccess,String data) {
 
-
-
-        videoList.clear();
-
-        videoList.addAll(JSONTranslator.toZoffVideos(data));
-        nextVideosList.clear();
-        nextVideosList.addAll(videoList);
-        nextVideosList.remove(0);
-
-        settings.clear();
-        settings.putAll(JSONTranslator.toSettingsMap(data));
-
-        viewers = JSONTranslator.toViews(data);
-        SKIPS_COUNT = JSONTranslator.toSkips(data);
-        IS_PASS_PROTECTED = JSONTranslator.hasAdminPass(data);
-
-
-
-
-        ((ZoffListener) listener).zoffRefreshed();
-
-
+    public void onCorrectPassword(String password){
+        adminpass = password;
+        listener.onCorrectPassword();
 
     }
+
+    //Communication FROM server END
+
 
 
     public void setROOM_PASS(String PASS){
@@ -160,24 +155,23 @@ public class Zoff {
         this.ROOM_NAME = new String(nameArray);
     }
 
+
+    //Communication TO server START
     public void vote(Video video) {
         server.vote(video, adminpass);
 
     }
 
     public void shuffle(){
-        Server.shuffle();
+       // Server.shuffle();
     }
 
     public void add(String id, String title, String duration){
-
         server.add(id,title,adminpass, duration);
     }
 
     public void skip() {
-
         server.skip(adminpass);
-
 
     }
 
@@ -185,9 +179,23 @@ public class Zoff {
         server.delete(video,adminpass);
     }
 
-    public Boolean hasROOM_PASS(){
+    public void savePassword(String password){
+        server.savePassword(password);
+    }
 
-        return Zoff.adminpass.equals("");
+    public void saveSettings(Boolean[] settings){
+
+        //Settings should be = [voting, addsongs, longsongs, frontpage, allvideos, removeplay, skipping, shuffling];
+        server.saveSettings(adminpass,settings);
+
+
+    }
+
+    //Communication TO server END
+
+    public Boolean hasPassword(){
+
+        return !adminpass.equals("");
 
 
     }
@@ -352,7 +360,7 @@ public class Zoff {
         return POST_URL;
     }
 
-    public static String getAdminpass(){
+    public String getAdminpass(){
         return adminpass;
     }
 
@@ -378,6 +386,10 @@ public class Zoff {
 
     public boolean empty(){
         return videoList.isEmpty();
+    }
+
+    public Map<String,Boolean> getSettings(){
+        return this.settings;
     }
 
 

@@ -24,6 +24,7 @@ import no.lqasse.zoff.Server.Server;
  * Created by lassedrevland on 21.01.15.
  */
 public class SettingsActivity extends ZoffActivity {
+    /*
     private final String PREFS_FILE = "no.lqasse.zoff.prefs";
     private HashMap<String, Boolean> settings = new HashMap<>();
     private String password;
@@ -75,7 +76,8 @@ public class SettingsActivity extends ZoffActivity {
         ROOM_NAME = b.getString("ROOM_NAME");
         password = getPassword();
 
-        voteCB = (CheckBox) findViewById(R.id.vote);
+
+        voteCB      = (CheckBox) findViewById(R.id.vote);
         addsongsCB = (CheckBox) findViewById(R.id.addsongs);
         longsongsCB = (CheckBox) findViewById(R.id.longsongs);
         frontpageCB = (CheckBox) findViewById(R.id.frontpage);
@@ -113,16 +115,16 @@ public class SettingsActivity extends ZoffActivity {
             public void onClick(View v) {
                 String password = pwField.getText().toString();
 
-                Boolean vote =       (!voteCB.isChecked()); //Reverse back to match zoff
-                Boolean addsongs =   (!addsongsCB.isChecked());//Reverse back to match zoff
+                Boolean vote =       (!voteCB.isChecked());         //Reverse back to match zoff
+                Boolean addsongs =   (!addsongsCB.isChecked());     //Reverse back to match zoff
                 Boolean longsongs =  (longsongsCB.isChecked());
                 Boolean frontpage =  (frontpageCB.isChecked());
                 Boolean allvideos =  (allvideosCB.isChecked());
                 Boolean removeplay = (removeplayCB.isChecked());
-                Boolean skip = (skipCB.isChecked());
-                Boolean shuffle = (shuffleCB.isChecked());
+                Boolean skip =       (skipCB.isChecked());
+                Boolean shuffle =    (shuffleCB.isChecked());
 
-                Server.postSettings(settingsActivity, password, vote, addsongs, longsongs, frontpage, allvideos, removeplay, skip, shuffle);
+                //Server.postSettings(settingsActivity, password, vote, addsongs, longsongs, frontpage, allvideos, removeplay, skip, shuffle);
 
                 progressBar.setVisibility(View.VISIBLE);
                 postSettingsBtn.setEnabled(false);
@@ -139,22 +141,7 @@ public class SettingsActivity extends ZoffActivity {
 
     }
 
-    public void settingsPostResponse(String response){
-        progressBar.setVisibility(View.GONE);
-        postSettingsBtn.setEnabled(true);
 
-        if (response.contains("correct")) {
-            ToastMaster.showToast(this, ToastMaster.TYPE.SAVED_SETTINGS);
-            password = pwField.getText().toString();
-            setPass(password);
-
-
-        } else {
-            ToastMaster.showToast(this, ToastMaster.TYPE.WRONG_PASSWORD_SETTINGS);
-
-        }
-
-    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -177,12 +164,7 @@ public class SettingsActivity extends ZoffActivity {
 
     }
 
-    private void setPass(String password) {
-        sharedPreferences = getSharedPreferences(PREFS_FILE, 0);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(ROOM_NAME, password);
-        editor.commit();
-    }
+
 
 
 
@@ -197,6 +179,7 @@ public class SettingsActivity extends ZoffActivity {
         homePressed = true;
         super.onUserLeaveHint();
     }
+    */
 
 
 }

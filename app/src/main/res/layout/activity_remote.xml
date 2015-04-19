@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.DrawerLayout
+
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -36,4 +41,167 @@
 
 
 
+
+
 </RelativeLayout>
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="250dp"
+        android:choiceMode="singleChoice"
+        android:layout_gravity="start"
+        android:layout_height="fill_parent"
+        android:id="@+id/linearLayout2"
+        android:padding="10dp"
+        android:background="@drawable/gray_rectangle_solid"
+        android:elevation="5dp">
+
+
+        <EditText
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPassword"
+            android:textColor="@color/zoff_white"
+            android:id="@+id/passwordField"
+            android:imeOptions="actionGo"
+            android:imeActionLabel="Save"
+            android:textColorHint="@color/zoff_gray"
+            android:hint="Enter channel password"
+        />
+
+        <Switch
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/switch_addsongs"
+            android:textColor="@color/zoff_gray"
+            android:enabled="true"
+            android:checked="false"
+            android:layout_below="@+id/passwordField"
+            android:id="@+id/addsongs"
+
+            android:layout_marginTop="10dp" />
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/switch_addsongs_description_enabled"
+            android:id="@+id/addsongsLabel"
+            android:textColor="@color/zoff_white_transparent"/>
+        <Switch
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/switch_vote"
+            android:textColor="@color/zoff_gray"
+
+            android:layout_below="@+id/addsongs"
+            android:id="@+id/vote"
+            android:layout_marginTop="10dp"/>
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/switch_vote_description_enabled"
+            android:id="@+id/voteLabel"
+            android:textColor="@color/zoff_white_transparent"/>
+        <Switch
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/switch_shuffle"
+            android:textColor="@color/zoff_gray"
+            android:enabled="true"
+            android:checked="false"
+            android:layout_below="@+id/vote"
+            android:id="@+id/shuffle"
+            android:layout_marginTop="10dp"
+/>
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/switch_shuffle_description_enabled"
+            android:id="@+id/shuffleLabel"
+            android:textColor="@color/zoff_white_transparent"/>
+        <Switch
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/switch_skip"
+            android:textColor="@color/zoff_gray"
+
+            android:layout_below="@+id/shuffle"
+            android:id="@+id/skip"
+            android:layout_marginTop="10dp"
+        />
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/switch_skip_description_enabled"
+            android:id="@+id/skipLabel"
+            android:textColor="@color/zoff_white_transparent"/>
+        <Switch
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/switch_longsongs"
+            android:textColor="@color/zoff_gray"
+
+            android:layout_below="@+id/skip"
+            android:id="@+id/longsongs"
+            android:layout_marginTop="10dp"
+            />
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/switch_longsongs_description_enabled"
+            android:id="@+id/longsongsLabel"
+            android:textColor="@color/zoff_white_transparent"/>
+        <Switch
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/switch_allvideos"
+            android:textColor="@color/zoff_gray"
+
+            android:layout_below="@+id/longsongs"
+            android:id="@+id/allvideos"
+            android:layout_marginTop="10dp"
+           />
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/switch_allvideos_description_enabled"
+            android:id="@+id/allvideosLabel"
+            android:textColor="@color/zoff_white_transparent"/>
+        <Switch
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/switch_frontpage"
+            android:textColor="@color/zoff_gray"
+
+            android:layout_below="@+id/allvideos"
+            android:id="@+id/frontpage"
+            android:layout_marginTop="10dp"/>
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/switch_frontpage_description_enabled"
+            android:id="@+id/frontpageLabel"
+            android:textColor="@color/zoff_white_transparent"/>
+        <Switch
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/switch_removeplay"
+            android:textColor="@color/zoff_gray"
+
+            android:layout_below="@+id/frontpage"
+            android:id="@+id/removeplay"
+            android:layout_marginTop="10dp"/>
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/switch_removeplay_description_disabled"
+            android:id="@+id/removeplayLabel"
+            android:textColor="@color/zoff_white_transparent"/>
+
+
+    </LinearLayout>
+
+
+
+</android.support.v4.widget.DrawerLayout>

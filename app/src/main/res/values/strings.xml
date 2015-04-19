@@ -11,4 +11,38 @@
     <string name="action_refresh">Refresh</string>
     <string name="action_settings">Settings</string>
 
+    <!--Settings Drawer-->
+
+    <string name="switch_addsongs">Add songs</string>
+    <string name="switch_addsongs_description_enabled">Anyone can add songs</string>
+    <string name="switch_addsongs_description_disabled">Admin can add songs</string>
+
+    <string name="switch_vote">Vote</string>
+    <string name="switch_vote_description_enabled">Anyone can vote</string>
+    <string name="switch_vote_description_disabled">Admin can vote</string>
+
+    <string name="switch_longsongs">Song length</string>
+    <string name="switch_longsongs_description_enabled">Any</string>
+    <string name="switch_longsongs_description_disabled">Short</string>
+
+    <string name="switch_shuffle">Shuffle</string>
+    <string name="switch_shuffle_description_enabled">Anyone can shuffle</string>
+    <string name="switch_shuffle_description_disabled">Admin can shuffle</string>
+
+    <string name="switch_skip">Skip</string>
+    <string name="switch_skip_description_enabled">Anyone can skip</string>
+    <string name="switch_skip_description_disabled">Admin can skip</string>
+
+    <string name="switch_allvideos">Type</string>
+    <string name="switch_allvideos_description_enabled">Any</string>
+    <string name="switch_allvideos_description_disabled">Song</string>
+
+    <string name="switch_frontpage">Frontpage</string>
+    <string name="switch_frontpage_description_enabled">Display on frontpage</string>
+    <string name="switch_frontpage_description_disabled">Hidden</string>
+
+    <string name="switch_removeplay">After playing</string>
+    <string name="switch_removeplay_description_enabled">Remove videos</string>
+    <string name="switch_removeplay_description_disabled">Keep videos</string>
+
 </resources>

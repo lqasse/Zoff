@@ -179,11 +179,16 @@ public class PlayerActivity extends ZoffActivity implements ZoffListener,ImageLi
     }
 
     @Override
-    public void viewersChanged() {
+    public void onCorrectPassword() {
 
     }
 
-    public void zoffRefreshed() {
+    @Override
+    public void onViewersChanged() {
+
+    }
+
+    public void onZoffRefreshed() {
 
 
 

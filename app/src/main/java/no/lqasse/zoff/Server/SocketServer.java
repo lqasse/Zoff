@@ -3,7 +3,6 @@ package no.lqasse.zoff.Server;
 import android.app.Activity;
 import android.os.Handler;
 import android.os.Looper;
-import android.provider.Settings;
 import android.util.Log;
 
 import com.github.nkzawa.emitter.Emitter;
@@ -17,7 +16,6 @@ import org.json.JSONException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 
-import no.lqasse.zoff.Helpers.ToastMaster;
 import no.lqasse.zoff.MainActivity;
 import no.lqasse.zoff.Models.ChanSuggestion;
 import no.lqasse.zoff.Models.Video;
@@ -67,6 +65,8 @@ public class SocketServer  {
         socket.on("skipping"        ,onSkip);
         socket.on(chan+",viewers"   ,onViewersChanged);
         socket.on("toast"           ,onToast);
+        socket.on("pw"              ,onPw);
+        socket.on(chan+"savedsettings",onSavedSettings);
 
 
     }
@@ -168,6 +168,41 @@ public class SocketServer  {
             });
         }
     };
+    private Emitter.Listener onPw = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            handler.post(new Runnable() {
+
+                @Override
+                public void run() {
+
+                    String data = args[0].toString();
+                    log("onPw: " + data);
+                    zoff.onCorrectPassword(data);
+
+
+                }
+            });
+        }
+    };
+    private Emitter.Listener onSavedSettings = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            handler.post(new Runnable() {
+
+                @Override
+                public void run() {
+
+
+                    String data = args[0].toString();
+                    log("Settings saved" + data);
+
+
+
+                }
+            });
+        }
+    };
 
 
     public void off()  {
@@ -176,6 +211,10 @@ public class SocketServer  {
         socket.off(chan+",np");
         socket.off("skipping");
         socket.off(chan+",viewers");
+        socket.off("toast");
+        socket.off("pw");
+        socket.off(chan+"savedsettings");
+
         socket.disconnect();
 
     }
@@ -315,6 +354,29 @@ public class SocketServer  {
         socket.emit("skip",jsonmessage,ack,"lol");
 
 
+
+
+    }
+
+    public void savePassword(String password){
+        socket.emit("password", password);
+    }
+
+    public void saveSettings(String adminpass, Boolean[] settings){
+
+        JSONArray data = new JSONArray();
+        data.put(settings[0]);  //Vote
+        data.put(settings[1]);  //Addsongs
+        data.put(settings[2]);  //LongSongs
+        data.put(settings[3]);  //frontpage
+        data.put(settings[4]);  //allvideos
+        data.put(settings[5]);  //removePLay
+        data.put(adminpass);   //admin Password
+        data.put(settings[6]);  //skipping
+        data.put(settings[7]); //shuffling
+
+        socket.emit("conf", data);
+        log("Saving settings:" + data.toString());
 
 
     }
