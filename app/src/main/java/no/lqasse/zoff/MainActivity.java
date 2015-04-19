@@ -150,13 +150,6 @@ public class MainActivity extends ActionBarActivity  {
 
     public void setSuggestions(final ArrayList<ChanSuggestion> suggestions){
 
-        ArrayList<String> activeRooms = new ArrayList<>();
-        for (ChanSuggestion suggestion :suggestions){
-            activeRooms.add(suggestion.getName());
-        }
-
-
-
 
         GridView gridView = (GridView) findViewById(R.id.chanGrid);
         SuggestionsGridAdapter suggestionArrayAdapter = new SuggestionsGridAdapter(this,suggestions);

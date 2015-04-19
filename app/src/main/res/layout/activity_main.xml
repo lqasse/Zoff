@@ -5,7 +5,9 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".Main"
     android:background="@color/zoff_white"
-    android:id="@+id/layout">
+    android:id="@+id/layout"
+    android:descendantFocusability="beforeDescendants"
+    android:focusableInTouchMode="true">
 
 
     <AutoCompleteTextView
@@ -14,15 +16,13 @@
         android:id="@+id/acEditText"
 
         android:textCursorDrawable="@null"
-        android:selectAllOnFocus="false"
+        android:selectAllOnFocus="true"
         android:hint="Find or create channel"
         android:imeOptions="actionGo"
         android:singleLine="true"
 
         android:textSize="20dp"
-        android:paddingLeft="30dp"
         android:paddingTop="8dp"
-        android:paddingRight="30dp"
         android:paddingBottom="8dp"
         android:textColorHint="@color/zoff_gray"
         android:textColor="@color/zoff_black"

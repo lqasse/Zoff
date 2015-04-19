@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import no.lqasse.zoff.Helpers.ImageCache;
 import no.lqasse.zoff.Helpers.ToastMaster;
 import no.lqasse.zoff.Interfaces.ZoffListener;
 import no.lqasse.zoff.Models.Video;
@@ -41,6 +42,8 @@ public class Zoff {
 
     private ArrayList<Video> videoList = new ArrayList<>();
     private ArrayList<Video> nextVideosList = new ArrayList<>();
+
+
     private Object listener;
 
     private String android_id;
@@ -54,9 +57,9 @@ public class Zoff {
 
 
 
-    public Zoff(String ROOM_NAME, Object listener) {
-        init(ROOM_NAME);
-        log(ROOM_NAME);
+    public Zoff(String ChannelName, Object listener) {
+        init(ChannelName);
+        log(ChannelName);
 
         if (listener instanceof Activity){
             android_id = Settings.Secure.getString( ((Activity) listener).getBaseContext().getContentResolver(),
@@ -66,7 +69,7 @@ public class Zoff {
                     Settings.Secure.ANDROID_ID);
         }
 
-        server = new SocketServer(ROOM_NAME,this,android_id);
+        server = new SocketServer(ChannelName,this,android_id);
 
         this.listener = listener;
 
@@ -86,7 +89,7 @@ public class Zoff {
 
     public void showToast(String toastKeyword){
 
-        if (listener instanceof Activity){
+        if (listener instanceof Activity && listener!=null){
             ToastMaster.showToast(listener,toastKeyword);
         }
 
@@ -102,7 +105,7 @@ public class Zoff {
         settings.clear();
         settings.putAll(SocketJSONTranslator.toSettingsMap(data));
 
-        if (!empty()){
+        if (!empty() && listener != null ){
             ((ZoffListener) listener).zoffRefreshed();
         }
 
@@ -112,7 +115,7 @@ public class Zoff {
     public void viewersChanged(int viewers){
         this.viewers = viewers;
 
-        if (!empty()){
+        if (!empty() && listener !=null){
             ((ZoffListener) listener).viewersChanged();
         }
 
@@ -363,6 +366,8 @@ public class Zoff {
     public void disconnect(){
 
        server.off();
+       listener = null;
+       ImageCache.empty();
 
 
     }

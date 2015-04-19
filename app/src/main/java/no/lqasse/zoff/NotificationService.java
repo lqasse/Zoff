@@ -27,12 +27,14 @@ import no.lqasse.zoff.Remote.RemoteActivity;
  */
 public class NotificationService extends Service implements ZoffListener,ImageListener {
     private String ROOM_NAME = "";
+
     private String TAG = "MediaSessionTAG1227";
     private static final String LOG_IDENTIFIER = "NotificationService";
     public static final String INTENT_KEY_SKIP = "SKIP";
     public static final String INTENT_KEY_CLOSE = "CLOSE";
     public static final String INTENT_KEY_OPEN_REMOTE = "OPEN";
     public static final String INTENT_KEY_START = "START";
+    public static final String INTENT_KEY_CHAN_NAME = "CHAN_NAME";
 
     private Zoff zoff;
 
@@ -65,17 +67,22 @@ public class NotificationService extends Service implements ZoffListener,ImageLi
                     zoff = null;
                 }
 
-
                 clearNotification();
 
                 stopSelf();
                 break;
             case INTENT_KEY_SKIP:
                 log("skip");
+                if (zoff == null){
+                    zoff = new Zoff("ROOM_NAME",ROOM_NAME);
+                }
                 zoff.skip();
                 break;
             case INTENT_KEY_OPEN_REMOTE:
-                zoff.disconnect();
+                if (zoff != null){
+                    zoff.disconnect();
+                }
+
                 zoff = null;
 
                 intent = new Intent(this, RemoteActivity.class);
@@ -101,16 +108,6 @@ public class NotificationService extends Service implements ZoffListener,ImageLi
                 break;
 
         }
-
-
-
-        if (b!=null){
-
-
-
-
-        }
-
 
 
 
