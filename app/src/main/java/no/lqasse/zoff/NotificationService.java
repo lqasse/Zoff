@@ -16,11 +16,11 @@ import android.os.IBinder;
 import android.util.Log;
 import android.widget.RemoteViews;
 
-import no.lqasse.zoff.Helpers.ImageCache;
-import no.lqasse.zoff.Helpers.ImageDownload;
+import no.lqasse.zoff.ImageTools.ImageCache;
+import no.lqasse.zoff.ImageTools.ImageDownload;
 import no.lqasse.zoff.Interfaces.ImageListener;
 import no.lqasse.zoff.Interfaces.ZoffListener;
-import no.lqasse.zoff.Remote.RemoteActivity;
+import no.lqasse.zoff.Models.Zoff;
 
 /**
  * Created by lassedrevland on 04.02.15.
@@ -154,10 +154,10 @@ public class NotificationService extends Service implements ZoffListener,ImageLi
         }
 
         view.setTextViewText(R.id.titleTextView, zoff.getNowPlayingTitle());
-        view.setTextViewText(R.id.viewersTextView, zoff.getViewers());
+        view.setTextViewText(R.id.viewersTextView, zoff.getViewersCount());
         bigView.setTextViewText(R.id.titleTextView, zoff.getNowPlayingTitle());
-        bigView.setTextViewText(R.id.viewersTextView, zoff.getViewers());
-        bigView.setTextViewText(R.id.channelTextView, zoff.getROOM_NAME());
+        bigView.setTextViewText(R.id.viewersTextView, zoff.getViewersCount());
+        bigView.setTextViewText(R.id.channelTextView, zoff.getChannelName());
 
         //Closes notification
         Intent stopIntent = new Intent(this,NotificationService.class);
@@ -254,7 +254,7 @@ public class NotificationService extends Service implements ZoffListener,ImageLi
 
 
             metadataBuilder.putString(MediaMetadata.METADATA_KEY_TITLE, zoff.getNowPlayingTitle());
-            metadataBuilder.putString(MediaMetadata.METADATA_KEY_ARTIST,zoff.getROOM_NAME());
+            metadataBuilder.putString(MediaMetadata.METADATA_KEY_ARTIST,zoff.getChannelName());
 
 
             if (ImageCache.has(zoff.getNowPlayingID(), ImageCache.ImageType.HUGE)){

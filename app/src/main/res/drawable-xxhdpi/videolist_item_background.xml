@@ -2,15 +2,12 @@
 
 <shape
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="rectangle"
-
-
-    >
+    android:shape="rectangle" >
 
     <corners
         android:radius="4dp"
         />
     <solid
-        android:color="@color/dark_gray_solid"/>
+        android:color="@color/videolist_item_background"/>
 
     </shape>

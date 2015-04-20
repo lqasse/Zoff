@@ -1,25 +1,5 @@
 package no.lqasse.zoff;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.drawable.BitmapDrawable;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
-
-import java.util.HashMap;
-
-import no.lqasse.zoff.Helpers.ImageCache;
-import no.lqasse.zoff.Helpers.ToastMaster;
-import no.lqasse.zoff.Server.Server;
-
 /**
  * Created by lassedrevland on 21.01.15.
  */

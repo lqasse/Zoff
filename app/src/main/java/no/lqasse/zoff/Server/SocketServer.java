@@ -1,6 +1,5 @@
 package no.lqasse.zoff.Server;
 
-import android.app.Activity;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -19,18 +18,23 @@ import java.util.ArrayList;
 import no.lqasse.zoff.MainActivity;
 import no.lqasse.zoff.Models.ChanSuggestion;
 import no.lqasse.zoff.Models.Video;
-import no.lqasse.zoff.Zoff;
+import no.lqasse.zoff.Models.Zoff;
 
 /**
  * Created by lassedrevland on 15.04.15.
  */
 public class SocketServer  {
 
-    private static final String ZOFF_URL = "http://dev.zoff.no:3000";
-    private static String LOG_IDENTIFIER = "SocketServer";
+    private final static String ZOFF_URL            = "http://dev.zoff.no:3000";
+    private final String LOG_IDENTIFIER             = "SocketServer";
+    private final String SOCKET_KEY_EMIT_SKIP       = "skip";
+    private final String SOCKET_KEY_EMIT_SETTINGS   = "conf";
+    private final String SOCKET_KEY_EMIT_PASSWORD   = "password";
+    private final String SOCKET_KEY_EMIT_VOTE       = "vote";
+    private final String SOCKET_KEY_EMIT_SHUFFLE    = "shuffle";
+
     Socket socket;
     Zoff zoff;
-    Activity context;
     String chan;
     String guid = "1337";
     Handler handler;
@@ -78,9 +82,6 @@ public class SocketServer  {
     private Emitter.Listener onChannelRefresh = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
-
-
-
 
             handler.post(new Runnable() {
 
@@ -205,19 +206,6 @@ public class SocketServer  {
     };
 
 
-    public void off()  {
-        log("disconnect");
-        socket.off(chan);
-        socket.off(chan+",np");
-        socket.off("skipping");
-        socket.off(chan+",viewers");
-        socket.off("toast");
-        socket.off("pw");
-        socket.off(chan+"savedsettings");
-
-        socket.disconnect();
-
-    }
 
     public static void getSuggestions(final MainActivity main){
         final Socket tempSocket;
@@ -273,6 +261,9 @@ public class SocketServer  {
 
     ////////////Emitters
 
+    public void shuffle(String adminpass){
+        socket.emit(SOCKET_KEY_EMIT_SHUFFLE, adminpass);
+    }
 
     public void vote(Video video, String adminpass){
 
@@ -291,7 +282,7 @@ public class SocketServer  {
         log("vote, " + jsonmessage.toString());
 
 
-        socket.emit("vote", jsonmessage);
+        socket.emit(SOCKET_KEY_EMIT_VOTE, jsonmessage);
 
 
 
@@ -313,7 +304,7 @@ public class SocketServer  {
 
         log( "vote, " + jsonmessage.toString());
 
-        socket.emit("vote", jsonmessage);
+        socket.emit(SOCKET_KEY_EMIT_VOTE, jsonmessage);
 
 
 
@@ -351,7 +342,7 @@ public class SocketServer  {
                 Log.d("SocketServer", "ack: " + args[0].toString());
             }
         };
-        socket.emit("skip",jsonmessage,ack,"lol");
+        socket.emit(SOCKET_KEY_EMIT_SKIP,jsonmessage,ack,"lol");
 
 
 
@@ -359,7 +350,7 @@ public class SocketServer  {
     }
 
     public void savePassword(String password){
-        socket.emit("password", password);
+        socket.emit(SOCKET_KEY_EMIT_PASSWORD, password);
     }
 
     public void saveSettings(String adminpass, Boolean[] settings){
@@ -375,7 +366,7 @@ public class SocketServer  {
         data.put(settings[6]);  //skipping
         data.put(settings[7]); //shuffling
 
-        socket.emit("conf", data);
+        socket.emit(SOCKET_KEY_EMIT_SETTINGS, data);
         log("Saving settings:" + data.toString());
 
 
@@ -383,6 +374,20 @@ public class SocketServer  {
 
     private void log(String data){
         Log.i(LOG_IDENTIFIER, data);
+
+    }
+
+    public void off()  {
+        log("disconnect");
+        socket.off(chan);
+        socket.off(chan+",np");
+        socket.off("skipping");
+        socket.off(chan+",viewers");
+        socket.off("toast");
+        socket.off("pw");
+        socket.off(chan+"savedsettings");
+
+        socket.disconnect();
 
     }
 

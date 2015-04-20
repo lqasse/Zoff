@@ -1,63 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-android:layout_width="fill_parent"
-android:layout_height="wrap_content"
-android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
     android:id="@+id/nowPlayingLayout"
-    android:background="@drawable/gray_rectangle_solid"
+    android:background="@drawable/videolist_item_background"
     android:elevation="5dp"
     android:translationY="0dp">
 
 
     <ImageView
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:id="@+id/imageView"
-
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageView"
         android:scaleType="fitCenter"
-        android:adjustViewBounds="true"
-      />
+        android:adjustViewBounds="true"/>
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:id="@+id/videoTitleView"
+        android:textColor="@color/videolist_item_title"
+        android:gravity="center"
+        android:textSize="13dp"
+        android:layout_below="@+id/imageView"
+        android:layout_marginTop="3dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:id="@+id/skipsLabel"
+        android:textColor="@color/videolist_item_top_skip"
 
 
+        android:textSize="13dp"
 
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:id="@+id/videoTitleView"
-            android:textColor="@color/zoff_white"
-            android:gravity="center"
-            android:textSize="13dp"
-            android:layout_below="@+id/imageView"
-            android:layout_marginTop="3dp" />
+        android:layout_below="@id/videoTitleView"
+        android:layout_marginRight="3dp" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:id="@+id/skipsLabel"
-            android:textColor="@color/zoff_white"
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:id="@+id/viewsLabel"
+        android:textColor="@color/videolist_item_top_viewers"
 
 
-            android:textSize="13dp"
-
-            android:layout_below="@id/videoTitleView"
-            android:layout_marginRight="3dp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:id="@+id/viewsLabel"
-            android:textColor="@color/zoff_white"
-
-
-            android:textSize="13dp"
-            android:layout_below="@+id/videoTitleView"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginRight="3dp" />
+        android:textSize="13dp"
+        android:layout_below="@+id/videoTitleView"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="3dp" />
 
 
 

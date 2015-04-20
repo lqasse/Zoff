@@ -1,4 +1,4 @@
-package no.lqasse.zoff.Helpers;
+package no.lqasse.zoff.ImageTools;
 
 import android.graphics.Bitmap;
 import android.util.Log;
@@ -15,14 +15,6 @@ public class ImageCache {
     private static final String LOG_IDENTIFIER = "ImageCache";
     private static final String HUGE_APPENDIX = "_huge";
     private static final String BLUR_APPENDIX = "_blur";
-
-    private static boolean SCALED = false;
-    private static final float IMAGE_RATIO = (16f/9f);
-    private static final float DOWNSCALE_RATIO = 0.75f;
-    private static int IMAGE_WIDTH_BIG  = 640;
-    private static int IMAGE_HEIGHT_BIG = (int)( IMAGE_WIDTH_BIG / IMAGE_RATIO);
-    private static int IMAGE_WIDTH      = 200;
-    private static int IMAGE_HEIGHT     = (int)( IMAGE_WIDTH/ IMAGE_RATIO);
 
     private static final int LOWER_MEMORY_THRESHOLD = 10 * 1024; //10mb
     final static int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
@@ -128,13 +120,9 @@ public class ImageCache {
 
     public static void put(String id, ImageType type, Bitmap bitmap){
 
-        if (cacheSize < LOWER_MEMORY_THRESHOLD && !SCALED){
-            //Downscale even more to preserve memory
-            IMAGE_WIDTH_BIG  =(int) (IMAGE_WIDTH_BIG * DOWNSCALE_RATIO);
-            IMAGE_HEIGHT_BIG =(int) (IMAGE_HEIGHT_BIG * DOWNSCALE_RATIO);
-            IMAGE_WIDTH      =(int) (IMAGE_WIDTH * DOWNSCALE_RATIO);
-            IMAGE_HEIGHT     =(int) (IMAGE_HEIGHT * DOWNSCALE_RATIO);
-            SCALED = true;
+        if (cacheSize < LOWER_MEMORY_THRESHOLD){
+
+            ImageScaler.setAggressiveScaling(0.75f);
         }
         String appendix = "";
         switch (type){
@@ -149,25 +137,14 @@ public class ImageCache {
                 break;
         }
 
+        bitmap = ImageScaler.Scale(bitmap,type); //Scale to preserve memory
 
 
-       if (bitmap.getWidth() >= 640){
-
-           bitmap = Bitmap.createScaledBitmap(bitmap, (int) IMAGE_WIDTH_BIG, IMAGE_HEIGHT_BIG,true);
-
-
-       } else if (type != ImageType.HUGE){
-
-           bitmap = Bitmap.createScaledBitmap(bitmap, (int) IMAGE_WIDTH, IMAGE_HEIGHT,true);
-       }
 
         mMemoryCache.put(id + appendix,bitmap);
-
         notifyListeners(id + appendix,bitmap);
-
-        log(appendix + ": " + Integer.toString(bitmap.getByteCount()/1024/1024));
-        log(appendix + ":" + " x"+ bitmap.getWidth()+ " y"+ bitmap.getHeight());
         log();
+
 
 
 

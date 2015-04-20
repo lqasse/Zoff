@@ -6,12 +6,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import no.lqasse.zoff.Models.Video;
-import no.lqasse.zoff.Zoff;
+import no.lqasse.zoff.Models.Zoff;
 
 /**
  * Created by lassedrevland on 16.04.15.

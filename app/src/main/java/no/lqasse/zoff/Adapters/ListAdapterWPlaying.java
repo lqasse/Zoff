@@ -1,9 +1,7 @@
 package no.lqasse.zoff.Adapters;
 
 import android.content.Context;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -13,11 +11,11 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 
-import no.lqasse.zoff.Helpers.ImageCache;
-import no.lqasse.zoff.Helpers.ImageDownload;
+import no.lqasse.zoff.ImageTools.ImageCache;
+import no.lqasse.zoff.ImageTools.ImageDownload;
 import no.lqasse.zoff.Models.Video;
 import no.lqasse.zoff.R;
-import no.lqasse.zoff.Zoff;
+import no.lqasse.zoff.Models.Zoff;
 
 /**
  * Created by lassedrevland on 07.04.15.
@@ -46,7 +44,7 @@ public class ListAdapterWPlaying extends ListAdapter {
 
 
             title.setText(currentVideo.getTitle());
-            views.setText(zoff.getViewers());
+            views.setText(zoff.getViewersCount());
             skips.setText(zoff.getSkips());
 
 

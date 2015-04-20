@@ -10,6 +10,7 @@ import com.google.android.youtube.player.YouTubePlayerFragment;
 
 import java.util.List;
 
+import no.lqasse.zoff.PlayerActivity;
 import no.lqasse.zoff.R;
 
 public class YouTube_Player extends YouTubeBaseActivity implements YouTubePlayer.OnInitializedListener {

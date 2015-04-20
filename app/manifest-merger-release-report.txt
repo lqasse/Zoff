@@ -89,7 +89,7 @@ ADDED from AndroidManifest.xml:31:17
 		ADDED from AndroidManifest.xml:31:23
 	android:scheme
 		ADDED from AndroidManifest.xml:31:50
-activity#no.lqasse.zoff.Player.PlayerActivity
+activity#no.lqasse.zoff.PlayerActivity
 ADDED from AndroidManifest.xml:34:9
 	android:screenOrientation
 		ADDED from AndroidManifest.xml:37:13
@@ -99,7 +99,7 @@ ADDED from AndroidManifest.xml:34:9
 		ADDED from AndroidManifest.xml:38:13
 	android:name
 		ADDED from AndroidManifest.xml:35:13
-activity#no.lqasse.zoff.Search.SearchActivity
+activity#no.lqasse.zoff.SearchActivity
 ADDED from AndroidManifest.xml:40:9
 	android:screenOrientation
 		ADDED from AndroidManifest.xml:43:13
@@ -109,7 +109,7 @@ ADDED from AndroidManifest.xml:40:9
 		ADDED from AndroidManifest.xml:44:13
 	android:name
 		ADDED from AndroidManifest.xml:41:13
-activity#no.lqasse.zoff.Remote.RemoteActivity
+activity#no.lqasse.zoff.RemoteActivity
 ADDED from AndroidManifest.xml:46:9
 	android:screenOrientation
 		ADDED from AndroidManifest.xml:49:13

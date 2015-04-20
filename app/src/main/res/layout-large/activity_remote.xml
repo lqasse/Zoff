@@ -49,7 +49,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/imageView"
-                android:background="@drawable/gray_rectangle"
+                android:background="@drawable/searchresult_item_background"
                 android:layout_marginTop="5dp"
                 android:id="@+id/relativeLayout2">
 
@@ -59,7 +59,7 @@
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
                     android:id="@+id/videoTitleView"
-                    android:textColor="@color/zoff_white"
+                    android:textColor="@color/white"
                     android:gravity="center"
                     android:textSize="13dp"
                     />
@@ -69,7 +69,7 @@
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
                     android:id="@+id/skipsLabel"
-                    android:textColor="@color/zoff_white"
+                    android:textColor="@color/white"
 
 
                     android:textSize="13dp"
@@ -82,7 +82,7 @@
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
                     android:id="@+id/viewsLabel"
-                    android:textColor="@color/zoff_white"
+                    android:textColor="@color/white"
 
 
                     android:textSize="13dp"
@@ -113,7 +113,7 @@
                 android:layout_toEndOf="@+id/progressBar"
                 android:src="@drawable/skip"
                 android:padding="15dp"
-                android:background="@drawable/gray_rectangle"
+                android:background="@drawable/searchresult_item_background"
                 android:layout_marginTop="3dp"
                 android:layout_marginRight="3dp" />
 
@@ -126,7 +126,7 @@
                 android:layout_toEndOf="@+id/skipButton"
                 android:src="@drawable/search"
                 android:padding="15dp"
-                android:background="@drawable/gray_rectangle"
+                android:background="@drawable/searchresult_item_background"
                 android:layout_margin="3dp" />
 
             <ImageView
@@ -138,7 +138,7 @@
                 android:layout_below="@+id/relativeLayout2"
                 android:layout_toRightOf="@+id/searchButton"
                 android:layout_toEndOf="@+id/searchButton"
-                android:background="@drawable/gray_rectangle"
+                android:background="@drawable/searchresult_item_background"
                 android:layout_margin="3dp" />
 
             <ImageView
@@ -150,7 +150,7 @@
                 android:layout_toEndOf="@+id/settingsButton"
                 android:src="@drawable/shuffle"
                 android:padding="15dp"
-                android:background="@drawable/gray_rectangle"
+                android:background="@drawable/searchresult_item_background"
                 android:layout_margin="3dp" />
 
         </RelativeLayout>

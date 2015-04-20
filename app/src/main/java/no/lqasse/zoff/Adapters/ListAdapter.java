@@ -14,12 +14,12 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import no.lqasse.zoff.Helpers.ImageCache;
-import no.lqasse.zoff.Helpers.ImageDownload;
+import no.lqasse.zoff.ImageTools.ImageCache;
+import no.lqasse.zoff.ImageTools.ImageDownload;
 import no.lqasse.zoff.Helpers.ToastMaster;
 import no.lqasse.zoff.Models.Video;
 import no.lqasse.zoff.R;
-import no.lqasse.zoff.Zoff;
+import no.lqasse.zoff.Models.Zoff;
 /**
  * Created by lassedrevland on 04.04.15.
  */
@@ -140,13 +140,8 @@ public class ListAdapter extends ArrayAdapter<Video> {
             @Override
             public boolean onLongClick(View v) {
                 final int index = (int) v.getTag();
-                String videoID = videoList.get(index).getId();
-                String title = videoList.get(index).getTitle();
-                //Server.delete(videoID);
                 zoff.delete(videoList.get(index));
-
-                videoList.get(index);
-                //ToastMaster.showToast(context, ToastMaster.TYPE.VIDEO_DELETED, title);
+                videoList.remove(index);
 
                 RelativeLayout row = (RelativeLayout) v.getParent();
                 row.animate()
@@ -160,7 +155,8 @@ public class ListAdapter extends ArrayAdapter<Video> {
 
                             @Override
                             public void onAnimationEnd(Animator animation) {
-                                videoList.remove(index);
+
+
                                 notifyDataSetChanged();
 
                             }

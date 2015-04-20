@@ -8,12 +8,10 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
 
-import no.lqasse.zoff.Helpers.ImageCache;
-import no.lqasse.zoff.Helpers.ImageDownload;
+import no.lqasse.zoff.ImageTools.ImageCache;
+import no.lqasse.zoff.ImageTools.ImageDownload;
 import no.lqasse.zoff.Models.ChanSuggestion;
 import no.lqasse.zoff.Models.Video;
 import no.lqasse.zoff.R;

@@ -11,6 +11,7 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 
 import no.lqasse.zoff.Helpers.ToastMaster;
+import no.lqasse.zoff.Models.Zoff;
 
 /**
  * Created by lassedrevland on 04.04.15.

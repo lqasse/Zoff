@@ -1,34 +1,5 @@
 package no.lqasse.zoff.Server;
 
-import android.app.Activity;
-import android.content.Context;
-import android.os.AsyncTask;
-import android.util.Log;
-
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
-
-import no.lqasse.zoff.MainActivity;
-import no.lqasse.zoff.SettingsActivity;
-import no.lqasse.zoff.Zoff;
-
 /**
  * Created by lassedrevland on 23.03.15.
  */

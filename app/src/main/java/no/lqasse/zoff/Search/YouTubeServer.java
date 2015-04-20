@@ -15,6 +15,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 
 import no.lqasse.zoff.Models.SearchResult;
+import no.lqasse.zoff.SearchActivity;
 
 /**
  * Created by lassedrevland on 24.03.15.

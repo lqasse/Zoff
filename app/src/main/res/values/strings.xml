@@ -4,6 +4,9 @@
     <string name="app_name">Zöff</string>
 
 
+    <!--Remote activity layou-->
+    <string name="remote_drawer_open"></string>
+    <string name="remote_drawer_closed">Settings</string>
     <!--Menus-->
     <string name="action_pause">Pause</string>
     <string name="action_next">Next</string>

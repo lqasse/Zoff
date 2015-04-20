@@ -1,4 +1,4 @@
-package no.lqasse.zoff.Search;
+package no.lqasse.zoff;
 
 import android.app.NotificationManager;
 import android.content.Context;
@@ -24,13 +24,13 @@ import android.widget.TextView;
 
 import java.net.URLEncoder;
 
-import no.lqasse.zoff.Helpers.ImageCache;
+import no.lqasse.zoff.Adapters.SearchResultListAdapter;
+import no.lqasse.zoff.ImageTools.ImageCache;
 import no.lqasse.zoff.Helpers.ToastMaster;
 import no.lqasse.zoff.Interfaces.YouTubeListener;
-import no.lqasse.zoff.R;
-import no.lqasse.zoff.Server.Server;
 import no.lqasse.zoff.Helpers.SpotifyServer;
-import no.lqasse.zoff.Zoff;
+import no.lqasse.zoff.Search.YouTube;
+import no.lqasse.zoff.Search.YouTubeServer;
 
 
 /**
@@ -69,11 +69,12 @@ public class SearchActivity extends ActionBarActivity implements YouTubeListener
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
-        if (Zoff.getROOM_NAME() == null){
+/*
+       if (zoff.getChannelName() == null){
             finish();
 
         }
+        */
         Intent i = getIntent();
         String EXTRA_TEXT = i.getStringExtra(Intent.EXTRA_TEXT);
 
@@ -117,7 +118,7 @@ public class SearchActivity extends ActionBarActivity implements YouTubeListener
             layout.setBackground(new BitmapDrawable(getResources(),ImageCache.getCurrentBlurBG()));
         }
         //Bundle b = i.getExtras();
-        ROOM_NAME = Zoff.getROOM_NAME();
+        /*ROOM_NAME = Zoff.getChannelName();*/
         //ROOM_PASS = b.getString("ROOM_PASS");
         //ALL_VIDEOS = b.getBoolean("allVideosAllowed");
         //LONG_SONGS = b.getBoolean("LONG_SONGS");
@@ -140,7 +141,7 @@ public class SearchActivity extends ActionBarActivity implements YouTubeListener
         Log.d("EXTRA_TEXT",EXTRA_TEXT);
 
 
-        searchResultListAdapter = new SearchResultListAdapter(this,YouTube.getSearchResults());
+        searchResultListAdapter = new SearchResultListAdapter(this, YouTube.getSearchResults());
         resultsView = (ListView) findViewById(R.id.searchResultsView);
         resultsView.setAdapter(searchResultListAdapter);
 
@@ -232,7 +233,7 @@ public class SearchActivity extends ActionBarActivity implements YouTubeListener
                     NEXT_PAGE_TOKEN = "";
 
                     String query = queryView.getText().toString();
-                    YouTubeServer.getNextPage(searchActivity,query,ALL_VIDEOS,LONG_SONGS,NEXT_PAGE_TOKEN);
+                    YouTubeServer.getNextPage(searchActivity, query, ALL_VIDEOS, LONG_SONGS, NEXT_PAGE_TOKEN);
                     Log.d("Scroll", "Loading next page");
 
                 }

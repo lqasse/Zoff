@@ -1,4 +1,4 @@
-package no.lqasse.zoff;
+package no.lqasse.zoff.Models;
 
 import android.app.Activity;
 import android.app.Service;
@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import no.lqasse.zoff.Helpers.ImageCache;
+import no.lqasse.zoff.ImageTools.ImageCache;
 import no.lqasse.zoff.Helpers.ToastMaster;
 import no.lqasse.zoff.Interfaces.ZoffListener;
 import no.lqasse.zoff.Models.Video;
@@ -24,6 +24,8 @@ import no.lqasse.zoff.Server.SocketServer;
  * Created by lassedrevland on 11.01.15.
  */
 public class Zoff {
+
+    private static final String LOG_IDENTIFIER         = "Zoff_LOG";
 
     public static final String SETTINGS_KEY_ADD_SONGS  = "addsongs";
     public static final String SETTINGS_KEY_ALL_VIDEOS = "allvideos";
@@ -45,19 +47,16 @@ public class Zoff {
                     SETTINGS_KEY_REMOVE_PLAY
             };
 
-    private static final String LOG_IDENTIFIER = "Zoff_LOG";
-    private static String ROOM_NAME;
-    private  String adminpass = "";
-    private static String POST_URL;
-    private int viewers = 0;
-    private int SKIPS_COUNT = 0;
-    private Boolean IS_PASS_PROTECTED = false;
-    private static String NOWPLAYING_URL;
+
+    private String channelName;
+    private String adminpass = "";
+    private int viewersCount = 0;
+    private int skipsCount = 0;
     private SocketServer server;
 
     private ArrayList<Video> videoList = new ArrayList<>();
     private ArrayList<Video> nextVideosList = new ArrayList<>();
-
+    private Map<String, Boolean> settings = new HashMap<>();
 
     private ZoffListener listener;
 
@@ -67,14 +66,10 @@ public class Zoff {
 
 
 
-    private Map<String, Boolean> settings = new HashMap<>();
 
-
-
-
-    public Zoff(String ChannelName, ZoffListener listener) {
-        init(ChannelName);
-        log(ChannelName);
+    public Zoff(String channelName, ZoffListener listener) {
+        this.channelName = channelName;
+        log(channelName);
 
         if (listener instanceof Activity){
             android_id = Settings.Secure.getString( ((Activity) listener).getBaseContext().getContentResolver(),
@@ -84,7 +79,7 @@ public class Zoff {
                     Settings.Secure.ANDROID_ID);
         }
 
-        server = new SocketServer(ChannelName,this,android_id);
+        server = new SocketServer(channelName,this,android_id);
 
         this.listener = listener;
 
@@ -93,14 +88,7 @@ public class Zoff {
 
 
 
-    private void init(String ROOM_NAME){
 
-        setROOM_NAME(ROOM_NAME);
-        this.NOWPLAYING_URL = "http://www.zoff.no/" + ROOM_NAME + "/php/change.php?";
-        this.POST_URL =  "http://zoff.no/" + ROOM_NAME + "/php/change.php";
-
-
-    }
 
     //Communication FROM server START
 
@@ -118,7 +106,7 @@ public class Zoff {
         settings.clear();
         settings.putAll(SocketJSONTranslator.toSettingsMap(data));
 
-        if (!empty() && listener != null ){
+        if (!isEmpty() && listener != null ){
             (listener).onZoffRefreshed();
         }
 
@@ -126,8 +114,8 @@ public class Zoff {
     }
 
     public void viewersChanged(int viewers){
-        this.viewers = viewers;
-        if (!empty() && listener !=null){
+        this.viewersCount = viewers;
+        if (!isEmpty() && listener !=null){
             (listener).onViewersChanged();
         }
 
@@ -142,19 +130,9 @@ public class Zoff {
 
     //Communication FROM server END
 
-
-
-    public void setROOM_PASS(String PASS){
+    public void setAdminpass(String PASS){
         this.adminpass = PASS;
     }
-
-    private void setROOM_NAME(String ROOM_NAME){
-        ROOM_NAME = ROOM_NAME.replace(" ","");
-        char[] nameArray = ROOM_NAME.toCharArray();
-        nameArray[0] = Character.toUpperCase(nameArray[0]);
-        this.ROOM_NAME = new String(nameArray);
-    }
-
 
     //Communication TO server START
     public void vote(Video video) {
@@ -163,7 +141,7 @@ public class Zoff {
     }
 
     public void shuffle(){
-       // Server.shuffle();
+       server.shuffle(adminpass);
     }
 
     public void add(String id, String title, String duration){
@@ -205,19 +183,8 @@ public class Zoff {
         return settings.get("allvideos");
     }
 
-
-
     public Boolean LONG_SONGS(){
         return settings.get("longsongs");
-    }
-
-    public Boolean ANYONE_CAN_ADD(){
-
-        if (settings.containsKey("addsongs")){
-            return !settings.get("addsongs"); //Reversed due to zoff confusion
-        }
-        return true;
-
     }
 
     public boolean hasVideos() {
@@ -234,7 +201,7 @@ public class Zoff {
             }
 
             b.putString("adminpass", adminpass);
-            b.putString("ROOM_NAME", ROOM_NAME);
+            b.putString("channelName", channelName);
         } catch (Exception e){
             e.printStackTrace();
         }
@@ -244,22 +211,20 @@ public class Zoff {
 
     }
 
+    public String getViewersCount(){
 
 
-    public String getViewers(){
-
-
-        if (viewers < 2){
-            return viewers + " viewer";
+        if (viewersCount < 2){
+            return viewersCount + " viewer";
         } else {
-            return viewers + " viewers";
+            return viewersCount + " viewers";
         }
 
     }
 
     public String getSkips(){
-        if (SKIPS_COUNT > 0){
-            return SKIPS_COUNT+"/"+ viewers + " skipped";
+        if (skipsCount > 0){
+            return skipsCount +"/"+ viewersCount + " skipped";
         } else {
             return "";
         }
@@ -307,8 +272,8 @@ public class Zoff {
 
     }
 
-    public static String getROOM_NAME() {
-        return ROOM_NAME;
+    public String getChannelName() {
+        return channelName;
     }
 
     public String getNowPlayingTitle() {
@@ -333,8 +298,6 @@ public class Zoff {
         return nextVideosList;
     }
 
-
-
     public List<String> getNextVideoIDs() {
         ArrayList<String> nextVideos = new ArrayList();
         nextVideos.addAll(getVideoIDs());
@@ -342,7 +305,6 @@ public class Zoff {
 
         return nextVideos;
     }
-
 
     public String getNowPlayingID() {
         if (videoList.isEmpty()){
@@ -353,22 +315,9 @@ public class Zoff {
 
     }
 
-    public static String getUrl(){
-        return "http://www.zoff.no/" + ROOM_NAME + "/php/change.php?";
-    }
-    public static String getPOST_URL(){
-        return POST_URL;
-    }
-
-    public String getAdminpass(){
-        return adminpass;
-    }
-
-
-
     @Override
     public String toString() {
-        return getROOM_NAME() + ": " + videoList.size();
+        return getChannelName() + ": " + videoList.size();
     }
 
     public void disconnect(){
@@ -384,7 +333,7 @@ public class Zoff {
         Log.i(LOG_IDENTIFIER,data);
     }
 
-    public boolean empty(){
+    public boolean isEmpty(){
         return videoList.isEmpty();
     }
 
