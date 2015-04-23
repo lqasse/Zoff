@@ -50,6 +50,18 @@
         android:paddingLeft="15dp"
         android:paddingRight="15dp" />
 
+    <ProgressBar
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/loadingProgressbar"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/videolist_item_background"
+        android:visibility="visible"
+        android:indeterminate="true"
+        android:indeterminateBehavior="repeat"
+        android:elevation="5dp"/>
 
 
 </RelativeLayout>

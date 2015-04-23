@@ -1,100 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+    android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:id="@+id/search_row_layout">
+    android:background="@drawable/searchresult_item_background"
+    android:id="@+id/search_row_layout"
+    android:elevation="5dp"
+    android:translationY="0dp"
+    >
 
 
 
 
-    <RelativeLayout
-        android:layout_width="fill_parent"
+    <ImageView
+        android:layout_width="120dp"
+        android:layout_height="65dp"
+        android:id="@+id/imageView"
+        android:layout_marginRight="5dp"
+        android:scaleType="centerCrop"/>
+
+    <!--Playtime box-->
+    <TextView
+
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/searchresult_item_background"
-       >
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="0"
+        android:background="@color/searchresult_list_item_playtime_background"
+        android:textColor="@color/searchresult_list_item_playtime"
+        android:id="@+id/durationView"
+        android:shadowColor="@color/searchresult_list_item_playtime_shadow"
+        android:layout_alignBottom="@+id/imageView"
+        android:layout_alignRight="@+id/imageView"
+        android:layout_alignEnd="@+id/imageView"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="5dp"
+        android:paddingRight="2dp"
+        android:paddingBottom="1dp"
+        android:paddingTop="1dp"
+        android:paddingLeft="2dp"
+        android:textSize="9dp" />
 
-        <ImageView
-            android:layout_width="120dp"
-            android:layout_height="65dp"
-            android:id="@+id/imageView"
-            android:layout_marginRight="5dp"
-            android:scaleType="centerCrop"/>
+    <TextView
+        android:id="@+id/videoTitleView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Title"
+        android:textSize="13dp"
+        android:textColor="@color/searchresult_list_item_title"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/imageView"
+        android:layout_toEndOf="@+id/imageView"
+        android:maxLines="2">
+    </TextView>
 
-        <!--Playtime box-->
-        <TextView
+    <TextView
+        android:id="@+id/channelTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Channel Title"
+        android:textSize="10dp"
+        android:layout_below="@+id/videoTitleView"
+        android:layout_toRightOf="@+id/imageView"
+        android:layout_toEndOf="@+id/imageView"
+        android:lines="1"
+        android:textColor="@color/searchresult_list_item_channel_title" />
 
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="0"
-            android:background="@color/searchresult_list_item_playtime_background"
-            android:textColor="@color/searchresult_list_item_playtime"
-            android:id="@+id/durationView"
-            android:shadowColor="@color/searchresult_list_item_playtime_shadow"
-            android:layout_alignBottom="@+id/imageView"
-            android:layout_alignRight="@+id/imageView"
-            android:layout_alignEnd="@+id/imageView"
-            android:layout_marginRight="10dp"
-            android:layout_marginBottom="5dp"
-            android:paddingRight="2dp"
-            android:paddingBottom="1dp"
-            android:paddingTop="1dp"
-            android:paddingLeft="2dp"
-            android:textSize="9dp" />
+    <TextView
+        android:id="@+id/viewsTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Views"
+        android:textSize="10dp"
+        android:layout_below="@+id/channelTitle"
+        android:layout_toRightOf="@+id/imageView"
+        android:layout_toEndOf="@+id/imageView"
+        android:lines="1"
+        android:textColor="@color/searchresult_list_item_views">
+    </TextView>
 
-        <TextView
-            android:id="@+id/videoTitleView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Title"
-            android:textSize="13dp"
-            android:textColor="@color/searchresult_list_item_title"
-            android:layout_alignParentTop="true"
-            android:layout_toRightOf="@+id/imageView"
-            android:layout_toEndOf="@+id/imageView"
-            android:maxLines="2">
-        </TextView>
-
-        <TextView
-            android:id="@+id/channelTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Channel Title"
-            android:textSize="10dp"
-            android:layout_below="@+id/videoTitleView"
-            android:layout_toRightOf="@+id/imageView"
-            android:layout_toEndOf="@+id/imageView"
-            android:lines="1"
-            android:textColor="@color/searchresult_list_item_channel_title" />
-
-        <TextView
-            android:id="@+id/viewsTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Views"
-            android:textSize="10dp"
-            android:layout_below="@+id/channelTitle"
-            android:layout_toRightOf="@+id/imageView"
-            android:layout_toEndOf="@+id/imageView"
-            android:lines="1"
-            android:textColor="@color/searchresult_list_item_views">
-        </TextView>
-
-        <ProgressBar
-            style="?android:attr/progressBarStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/progressBar"
-            android:layout_marginRight="31dp"
-            android:layout_marginEnd="31dp"
-            android:visibility="visible"
-            android:layout_centerVertical="true"
-            android:layout_toLeftOf="@+id/durationView"
-            android:layout_toStartOf="@+id/durationView" />
+    <ProgressBar
+        style="?android:attr/progressBarStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/progressBar"
+        android:layout_marginRight="31dp"
+        android:layout_marginEnd="31dp"
+        android:visibility="visible"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@+id/durationView"
+        android:layout_toStartOf="@+id/durationView" />
 
 
 
-        </RelativeLayout>
 
 </RelativeLayout>

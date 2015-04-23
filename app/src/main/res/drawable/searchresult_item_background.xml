@@ -6,15 +6,9 @@
 
     >
     <padding
-        android:bottom="4dp"
-        android:top="5dp"
-        android:right="10dp"
-
-
-        />
+        android:right="10dp"/>
     <corners
-        android:radius="4dp"
-        />
+        android:radius="4dp"/>
     <solid
         android:color="@color/searchresult_list_item_background"/>
 

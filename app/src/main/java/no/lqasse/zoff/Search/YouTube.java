@@ -83,7 +83,7 @@ public class YouTube {
 
         }
 
-        ((YouTubeListener)context).notifyDatasetChanged();
+        ((YouTubeListener)context).notifySearchResultChange();
 
 
     }

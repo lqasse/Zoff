@@ -59,7 +59,6 @@ public class Zoff {
     private Map<String, Boolean> settings = new HashMap<>();
 
     private ZoffListener listener;
-
     private String android_id;
 
 
@@ -135,6 +134,15 @@ public class Zoff {
     }
 
     //Communication TO server START
+
+    public void ping(ZoffListener listener){
+        server.ping();
+        if (this.listener == null){
+            this.listener = listener;
+        }
+    }
+
+
     public void vote(Video video) {
         server.vote(video, adminpass);
 
@@ -324,7 +332,7 @@ public class Zoff {
 
        server.off();
        listener = null;
-       ImageCache.empty();
+
 
 
     }

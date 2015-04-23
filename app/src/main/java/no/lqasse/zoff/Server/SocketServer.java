@@ -14,6 +14,7 @@ import org.json.JSONException;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 import no.lqasse.zoff.MainActivity;
 import no.lqasse.zoff.Models.ChanSuggestion;
@@ -33,11 +34,22 @@ public class SocketServer  {
     private final String SOCKET_KEY_EMIT_VOTE       = "vote";
     private final String SOCKET_KEY_EMIT_SHUFFLE    = "shuffle";
 
+    private boolean pinging = false;
+
     Socket socket;
     Zoff zoff;
     String chan;
     String guid = "1337";
     Handler handler;
+    Runnable pingTimer = new Runnable() {
+        @Override
+        public void run() {
+
+            log("Trying to connect");
+            connect();
+            ping();
+        }
+    };
 
 
 
@@ -50,8 +62,28 @@ public class SocketServer  {
         this.chan = chan;
         this.guid = android_id;
         handler = new Handler(Looper.getMainLooper());
-        log("Started on: " + chan + " ID: " + guid);
 
+        connect();
+
+
+    }
+
+    public void ping(){
+        pinging = true;
+        log("ping..");
+        socket.emit("password", "");  //Returns wrong password toast
+        handler.postDelayed(pingTimer, TimeUnit.SECONDS.toMillis(5));
+    }
+
+
+
+    private void connect(){
+
+
+        if (socket != null){
+            socket.disconnect();
+            socket.close();
+        }
 
         try {
             socket = IO.socket(ZOFF_URL);
@@ -63,7 +95,6 @@ public class SocketServer  {
         socket.connect();
 
         socket.emit("list", chan + "," + guid);
-
         socket.on(chan              ,onChannelRefresh);
         socket.on(chan+",np"        ,onNewVideo);
         socket.on("skipping"        ,onSkip);
@@ -71,8 +102,6 @@ public class SocketServer  {
         socket.on("toast"           ,onToast);
         socket.on("pw"              ,onPw);
         socket.on(chan+"savedsettings",onSavedSettings);
-
-
     }
 
     ///////////Socket Listeners\\\\\\\\\\\\\\
@@ -139,11 +168,23 @@ public class SocketServer  {
 
 
                     String toast = (String) args[0];
-                    zoff.showToast(toast);
+
+
+                    if (toast.equals("wrongpass") && pinging == true){ //IF true: this was a ping
+                        pinging = false;
+                        handler.removeCallbacks(pingTimer);
+                        log("ping OK");
+                    } else {
+
+                        log("onToast: " + toast);
+                        zoff.showToast(toast);
+
+                    }
 
 
 
-                    log("onToast: " + toast);
+
+
                 }
             });
         }
@@ -388,6 +429,7 @@ public class SocketServer  {
         socket.off(chan+"savedsettings");
 
         socket.disconnect();
+        socket.close();
 
     }
 

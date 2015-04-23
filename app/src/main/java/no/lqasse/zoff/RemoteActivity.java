@@ -24,6 +24,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -60,13 +61,10 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
     private DrawerLayout            drawerLayout;
     private ListAdapter             listAdapter;
     private SearchResultListAdapter searchAdapter;
-    private SharedPreferences       sharedPreferences;
-    private TextView                searchText;
-    private ImageView               removeQueryButton;
-    private Button                  savePasswordButton;
     private TextView                passwordField;
     private android.support.v7.widget.Toolbar toolBar;
     private EditText                toolBarSearchField;
+    private ProgressBar             loadingProgressbar;
 
     private Switch voteSwitch;
     private Switch addsongsSwitch;
@@ -116,6 +114,7 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
         @Override
         public void run() {
             YouTube.search(RemoteActivity.this, toolBarSearchField.getText().toString(), zoff.allVideosAllowed(), zoff.LONG_SONGS());
+            loadingProgressbar.setVisibility(View.VISIBLE);
         }
     };
 
@@ -162,10 +161,11 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
 
 
         //Find views
-        videoList = (ListView) findViewById(R.id.videoList);
-        drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
-        passwordField = (TextView) findViewById(R.id.passwordField);
-        toolBarSearchField = (EditText) findViewById(R.id.tool_bar_search_edittext);
+        videoList           = (ListView) findViewById(R.id.videoList);
+        drawerLayout        = (DrawerLayout) findViewById(R.id.drawerLayout);
+        passwordField       = (TextView) findViewById(R.id.passwordField);
+        toolBarSearchField  = (EditText) findViewById(R.id.tool_bar_search_edittext);
+        loadingProgressbar  = (ProgressBar) findViewById(R.id.loadingProgressbar);
 
         voteSwitch          = (Switch) findViewById(R.id.vote);
         addsongsSwitch      = (Switch) findViewById(R.id.addsongs);
@@ -282,7 +282,7 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
 
 
                 if (s.toString().contains("open.spotify.com/track/")){
-                    SpotifyServer.getSearchString(s.toString(),searchText);
+                    SpotifyServer.getSearchString(s.toString(),toolBarSearchField);
                 }
 
                 handler.removeCallbacks(delaySearch);
@@ -421,13 +421,7 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
     @Override
     protected void onResume() {
         stopNotificationService();
-
-        if (zoff == null && ROOM_NAME !=null){
-            zoff = new Zoff(ROOM_NAME,this);
-            zoff.setAdminpass(ROOM_PASS);
-        }
-
-
+        zoff.ping(this);
         super.onResume();
     }
 
@@ -436,7 +430,7 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
 
         if (appInBackGround) {
             appInBackGround = false;
-            //startNotificationService();
+
         }
 
 
@@ -495,7 +489,8 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
         return super.onOptionsItemSelected(item);
     }
 
-    public void notifyDatasetChanged() {
+    public void notifySearchResultChange() {
+        loadingProgressbar.setVisibility(View.INVISIBLE);
         searchAdapter.notifyDataSetChanged();
     }
 
@@ -507,6 +502,7 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
     }
 
     public void onZoffRefreshed() {
+        loadingProgressbar.setVisibility(View.INVISIBLE);
         listAdapter.notifyDataSetChanged();
 
         if (BIG_SCREEN){
@@ -691,80 +687,9 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
 
             }
 
-        RelativeLayout layout = (RelativeLayout) findViewById(R.id.layout);
-        int layoutWidth = layout.getWidth();
-        layoutWidth = layoutWidth - (int) (layoutWidth*0.4);
-
-/*
-
-        if (searchViewOpen) {
-
-            getSupportActionBar().setDisplayShowCustomEnabled(false);
-
-
-        } else {
-
-            getSupportActionBar().setCustomView(R.layout.actionbar_search_layout);
-
-            getSupportActionBar().getCustomView().animate()
-                    .setDuration(200)
-                    .alpha(0)
-                    .setInterpolator(new DecelerateInterpolator())
-                    .start();
-            getSupportActionBar().setCustomView(R.layout.actionbar_search_layout);
 
 
 
-
-
-            searchText = (EditText) getSupportActionBar().getCustomView().findViewById(R.id.etSearch);
-            final String hintText = searchText.getHint().toString();
-            searchText.setHint("");
-            searchText.setX(layoutWidth);
-            searchText.animate()
-                    .setInterpolator(new DecelerateInterpolator())
-                    .translationX(0)
-                    .setDuration(200)
-                    .setListener(new Animator.AnimatorListener() {
-                        @Override
-                        public void onAnimationStart(Animator animation) {
-
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            searchText.setHint(hintText);
-
-                        }
-
-                        @Override
-                        public void onAnimationCancel(Animator animation) {
-
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animator animation) {
-
-                        }
-                    })
-                    .start();
-            removeQueryButton = (ImageView) getSupportActionBar().getCustomView().findViewById(R.id.removeTextButton);
-
-            searchText.requestFocus();
-            InputMethodManager imm = (InputMethodManager) getSystemService(RemoteActivity.this.INPUT_METHOD_SERVICE);
-            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-
-
-
-
-
-
-            });
-
-
-
-        }
-        */
 
 
 
@@ -810,6 +735,7 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
         if (zoff != null){
             zoff.disconnect();
         }
+        ImageCache.empty();
 
         super.onDestroy();
     }

@@ -266,7 +266,7 @@ public class SearchActivity extends ActionBarActivity implements YouTubeListener
 
 
     @Override
-    public void notifyDatasetChanged() {
+    public void notifySearchResultChange() {
         progressBar.setVisibility(View.INVISIBLE);
         searchResultListAdapter.notifyDataSetChanged();
     }

@@ -1,6 +1,7 @@
 package no.lqasse.zoff.Adapters;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,11 +37,14 @@ public class ListAdapterWPlaying extends ListAdapter {
             View rowView = inflater.inflate(R.layout.now_playing_row_top, parent, false);
 
 
+
             TextView    title       = (TextView) rowView.findViewById(R.id.videoTitleView);
             TextView    views       = (TextView) rowView.findViewById(R.id.viewsLabel);
             TextView    skips       = (TextView) rowView.findViewById(R.id.skipsLabel);
-            ImageView   imageView   = (ImageView) rowView.findViewById(R.id.imageView);
+            ImageView   imageView   = ((ImageView) rowView.findViewById(R.id.imageView));
             ProgressBar progressBar = (ProgressBar) rowView.findViewById(R.id.progressBar);
+
+
 
 
             title.setText(currentVideo.getTitle());
@@ -64,7 +68,6 @@ public class ListAdapterWPlaying extends ListAdapter {
                 progressBar.setVisibility(View.GONE);
             } else {
                 ImageDownload.downloadAndSet(currentVideo.getThumbHuge(), currentVideo.getThumbMed(), currentVideo.getId(), viewHolder.imageView, ImageCache.ImageType.HUGE);
-
 
             }
 
