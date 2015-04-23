@@ -1,4 +1,4 @@
-package no.lqasse.zoff.Helpers;
+package no.lqasse.zoff.ImageTools;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -6,7 +6,6 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 
@@ -112,6 +111,8 @@ public class ImageDownload {
             } else {
                switch (viewHolder.type){
                    case downlaodAndSet:
+
+                       viewHolder.bitmap = ImageScaler.Scale(viewHolder.bitmap,viewHolder.imageType);
 
                        ImageCache.put(viewHolder.videoId, viewHolder.imageType, viewHolder.bitmap);
                        Animation a = new AlphaAnimation(0.00f, 1.00f);

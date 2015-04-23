@@ -1,9 +1,6 @@
 package no.lqasse.zoff;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,22 +8,16 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.GridLayout;
 import android.widget.GridView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 
-import no.lqasse.zoff.Adapters.SuggestionsAdapter;
+
 import no.lqasse.zoff.Adapters.SuggestionsGridAdapter;
 import no.lqasse.zoff.Models.ChanSuggestion;
-import no.lqasse.zoff.Remote.RemoteActivity;
-import no.lqasse.zoff.Server.JSONTranslator;
-//import no.lqasse.zoff.Server.Server;
 import no.lqasse.zoff.Server.SocketServer;
 
 
@@ -149,13 +140,6 @@ public class MainActivity extends ActionBarActivity  {
 
 
     public void setSuggestions(final ArrayList<ChanSuggestion> suggestions){
-
-        ArrayList<String> activeRooms = new ArrayList<>();
-        for (ChanSuggestion suggestion :suggestions){
-            activeRooms.add(suggestion.getName());
-        }
-
-
 
 
         GridView gridView = (GridView) findViewById(R.id.chanGrid);

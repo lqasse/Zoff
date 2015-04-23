@@ -6,11 +6,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import no.lqasse.zoff.Models.Video;
+import no.lqasse.zoff.Models.Zoff;
 
 /**
  * Created by lassedrevland on 16.04.15.
@@ -94,12 +94,12 @@ public  class SocketJSONTranslator {
     }
 
     public static HashMap<String,Boolean> toSettingsMap(JSONArray data){
-        String[] labels = {"addsongs","allvideos","frontpage","longsongs","removeplay","shuffle","skip","vote"};
+
         JSONObject object;
         try {
             object = data.getJSONObject(data.length()-1);
 
-        for (String label :labels){
+        for (String label : Zoff.SETTINGS_KEYS){
             if (!object.has(label)){
                 //a Setting is missing
                 return null;
@@ -109,7 +109,7 @@ public  class SocketJSONTranslator {
 
         HashMap<String,Boolean> settings = new HashMap<>();
 
-        for (String setting:labels){
+        for (String setting:Zoff.SETTINGS_KEYS){
             settings.put(setting,object.getBoolean(setting));
         }
 

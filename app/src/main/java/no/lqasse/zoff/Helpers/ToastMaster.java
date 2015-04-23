@@ -83,6 +83,7 @@ public class ToastMaster {
         v.setBackgroundResource(R.drawable.toast_background);
 
         t.setGravity(Gravity.CENTER_VERTICAL&Gravity.CENTER_HORIZONTAL,50,0);
+
         t.show();
 
 

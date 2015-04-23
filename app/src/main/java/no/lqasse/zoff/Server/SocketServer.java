@@ -1,9 +1,7 @@
 package no.lqasse.zoff.Server;
 
-import android.app.Activity;
 import android.os.Handler;
 import android.os.Looper;
-import android.provider.Settings;
 import android.util.Log;
 
 import com.github.nkzawa.emitter.Emitter;
@@ -16,26 +14,42 @@ import org.json.JSONException;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
-import no.lqasse.zoff.Helpers.ToastMaster;
 import no.lqasse.zoff.MainActivity;
 import no.lqasse.zoff.Models.ChanSuggestion;
 import no.lqasse.zoff.Models.Video;
-import no.lqasse.zoff.Zoff;
+import no.lqasse.zoff.Models.Zoff;
 
 /**
  * Created by lassedrevland on 15.04.15.
  */
 public class SocketServer  {
 
-    private static final String ZOFF_URL = "http://dev.zoff.no:3000";
-    private static String LOG_IDENTIFIER = "SocketServer";
+    private final static String ZOFF_URL            = "http://dev.zoff.no:3000";
+    private final String LOG_IDENTIFIER             = "SocketServer";
+    private final String SOCKET_KEY_EMIT_SKIP       = "skip";
+    private final String SOCKET_KEY_EMIT_SETTINGS   = "conf";
+    private final String SOCKET_KEY_EMIT_PASSWORD   = "password";
+    private final String SOCKET_KEY_EMIT_VOTE       = "vote";
+    private final String SOCKET_KEY_EMIT_SHUFFLE    = "shuffle";
+
+    private boolean pinging = false;
+
     Socket socket;
     Zoff zoff;
-    Activity context;
     String chan;
     String guid = "1337";
     Handler handler;
+    Runnable pingTimer = new Runnable() {
+        @Override
+        public void run() {
+
+            log("Trying to connect");
+            connect();
+            ping();
+        }
+    };
 
 
 
@@ -48,8 +62,28 @@ public class SocketServer  {
         this.chan = chan;
         this.guid = android_id;
         handler = new Handler(Looper.getMainLooper());
-        log("Started on: " + chan + " ID: " + guid);
 
+        connect();
+
+
+    }
+
+    public void ping(){
+        pinging = true;
+        log("ping..");
+        socket.emit("password", "");  //Returns wrong password toast
+        handler.postDelayed(pingTimer, TimeUnit.SECONDS.toMillis(5));
+    }
+
+
+
+    private void connect(){
+
+
+        if (socket != null){
+            socket.disconnect();
+            socket.close();
+        }
 
         try {
             socket = IO.socket(ZOFF_URL);
@@ -61,14 +95,13 @@ public class SocketServer  {
         socket.connect();
 
         socket.emit("list", chan + "," + guid);
-
         socket.on(chan              ,onChannelRefresh);
         socket.on(chan+",np"        ,onNewVideo);
         socket.on("skipping"        ,onSkip);
         socket.on(chan+",viewers"   ,onViewersChanged);
         socket.on("toast"           ,onToast);
-
-
+        socket.on("pw"              ,onPw);
+        socket.on(chan+"savedsettings",onSavedSettings);
     }
 
     ///////////Socket Listeners\\\\\\\\\\\\\\
@@ -78,9 +111,6 @@ public class SocketServer  {
     private Emitter.Listener onChannelRefresh = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
-
-
-
 
             handler.post(new Runnable() {
 
@@ -138,11 +168,23 @@ public class SocketServer  {
 
 
                     String toast = (String) args[0];
-                    zoff.showToast(toast);
+
+
+                    if (toast.equals("wrongpass") && pinging == true){ //IF true: this was a ping
+                        pinging = false;
+                        handler.removeCallbacks(pingTimer);
+                        log("ping OK");
+                    } else {
+
+                        log("onToast: " + toast);
+                        zoff.showToast(toast);
+
+                    }
 
 
 
-                    log("onToast: " + toast);
+
+
                 }
             });
         }
@@ -168,17 +210,43 @@ public class SocketServer  {
             });
         }
     };
+    private Emitter.Listener onPw = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            handler.post(new Runnable() {
+
+                @Override
+                public void run() {
+
+                    String data = args[0].toString();
+                    log("onPw: " + data);
+                    zoff.onCorrectPassword(data);
 
 
-    public void off()  {
-        log("disconnect");
-        socket.off(chan);
-        socket.off(chan+",np");
-        socket.off("skipping");
-        socket.off(chan+",viewers");
-        socket.disconnect();
+                }
+            });
+        }
+    };
+    private Emitter.Listener onSavedSettings = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            handler.post(new Runnable() {
 
-    }
+                @Override
+                public void run() {
+
+
+                    String data = args[0].toString();
+                    log("Settings saved" + data);
+
+
+
+                }
+            });
+        }
+    };
+
+
 
     public static void getSuggestions(final MainActivity main){
         final Socket tempSocket;
@@ -234,6 +302,9 @@ public class SocketServer  {
 
     ////////////Emitters
 
+    public void shuffle(String adminpass){
+        socket.emit(SOCKET_KEY_EMIT_SHUFFLE, adminpass);
+    }
 
     public void vote(Video video, String adminpass){
 
@@ -252,7 +323,7 @@ public class SocketServer  {
         log("vote, " + jsonmessage.toString());
 
 
-        socket.emit("vote", jsonmessage);
+        socket.emit(SOCKET_KEY_EMIT_VOTE, jsonmessage);
 
 
 
@@ -274,7 +345,7 @@ public class SocketServer  {
 
         log( "vote, " + jsonmessage.toString());
 
-        socket.emit("vote", jsonmessage);
+        socket.emit(SOCKET_KEY_EMIT_VOTE, jsonmessage);
 
 
 
@@ -312,15 +383,53 @@ public class SocketServer  {
                 Log.d("SocketServer", "ack: " + args[0].toString());
             }
         };
-        socket.emit("skip",jsonmessage,ack,"lol");
+        socket.emit(SOCKET_KEY_EMIT_SKIP,jsonmessage,ack,"lol");
 
 
 
 
     }
 
+    public void savePassword(String password){
+        socket.emit(SOCKET_KEY_EMIT_PASSWORD, password);
+    }
+
+    public void saveSettings(String adminpass, Boolean[] settings){
+
+        JSONArray data = new JSONArray();
+        data.put(settings[0]);  //Vote
+        data.put(settings[1]);  //Addsongs
+        data.put(settings[2]);  //LongSongs
+        data.put(settings[3]);  //frontpage
+        data.put(settings[4]);  //allvideos
+        data.put(settings[5]);  //removePLay
+        data.put(adminpass);   //admin Password
+        data.put(settings[6]);  //skipping
+        data.put(settings[7]); //shuffling
+
+        socket.emit(SOCKET_KEY_EMIT_SETTINGS, data);
+        log("Saving settings:" + data.toString());
+
+
+    }
+
     private void log(String data){
         Log.i(LOG_IDENTIFIER, data);
+
+    }
+
+    public void off()  {
+        log("disconnect");
+        socket.off(chan);
+        socket.off(chan+",np");
+        socket.off("skipping");
+        socket.off(chan+",viewers");
+        socket.off("toast");
+        socket.off("pw");
+        socket.off(chan+"savedsettings");
+
+        socket.disconnect();
+        socket.close();
 
     }
 

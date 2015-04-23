@@ -38,7 +38,7 @@
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/gray_rectangle"
+        android:background="@drawable/searchresult_item_background"
         android:layout_marginTop="3dp"
         android:layout_marginBottom="5dp"
         android:layout_below="@+id/youtube_player"
@@ -52,7 +52,7 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:id="@+id/videoTitleView"
-            android:textColor="@color/zoff_white"
+            android:textColor="@color/white"
             android:gravity="center"
             android:textSize="13dp"
       />
@@ -62,7 +62,7 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:id="@+id/video_current_time_view"
-            android:textColor="@color/zoff_white"
+            android:textColor="@color/white"
 
 
             android:textSize="13dp"
@@ -75,7 +75,7 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:id="@+id/video_length_view"
-            android:textColor="@color/zoff_white"
+            android:textColor="@color/white"
 
 
             android:textSize="13dp"

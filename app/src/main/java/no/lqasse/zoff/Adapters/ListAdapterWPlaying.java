@@ -1,9 +1,8 @@
 package no.lqasse.zoff.Adapters;
 
 import android.content.Context;
-import android.view.GestureDetector;
+import android.graphics.Bitmap;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -13,11 +12,11 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 
-import no.lqasse.zoff.Helpers.ImageCache;
-import no.lqasse.zoff.Helpers.ImageDownload;
+import no.lqasse.zoff.ImageTools.ImageCache;
+import no.lqasse.zoff.ImageTools.ImageDownload;
 import no.lqasse.zoff.Models.Video;
 import no.lqasse.zoff.R;
-import no.lqasse.zoff.Zoff;
+import no.lqasse.zoff.Models.Zoff;
 
 /**
  * Created by lassedrevland on 07.04.15.
@@ -38,15 +37,18 @@ public class ListAdapterWPlaying extends ListAdapter {
             View rowView = inflater.inflate(R.layout.now_playing_row_top, parent, false);
 
 
+
             TextView    title       = (TextView) rowView.findViewById(R.id.videoTitleView);
             TextView    views       = (TextView) rowView.findViewById(R.id.viewsLabel);
             TextView    skips       = (TextView) rowView.findViewById(R.id.skipsLabel);
-            ImageView   imageView   = (ImageView) rowView.findViewById(R.id.imageView);
+            ImageView   imageView   = ((ImageView) rowView.findViewById(R.id.imageView));
             ProgressBar progressBar = (ProgressBar) rowView.findViewById(R.id.progressBar);
 
 
+
+
             title.setText(currentVideo.getTitle());
-            views.setText(zoff.getViewers());
+            views.setText(zoff.getViewersCount());
             skips.setText(zoff.getSkips());
 
 
@@ -66,7 +68,6 @@ public class ListAdapterWPlaying extends ListAdapter {
                 progressBar.setVisibility(View.GONE);
             } else {
                 ImageDownload.downloadAndSet(currentVideo.getThumbHuge(), currentVideo.getThumbMed(), currentVideo.getId(), viewHolder.imageView, ImageCache.ImageType.HUGE);
-
 
             }
 

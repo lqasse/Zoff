@@ -4,25 +4,30 @@
 
     <item android:id="@+id/action_search"
         android:title="Search"
-        app:showAsAction="ifRoom|collapseActionView"
-        android:icon="@drawable/search"
-        android:actionLayout="@layout/actionbar_search_layout"
-        android:actionViewClass="android.widget.EditText"/>
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/search"/>
 
 
-    <item android:id="@+id/action_skip" android:title="Skip"
+    <item android:id="@+id/action_skip"
+        android:title="Skip"
         android:icon="@drawable/skip"
         app:showAsAction="ifRoom" />
 
-    <item android:id="@+id/action_play" android:title="Play here"
+    <item android:id="@+id/action_play"
+        android:title="Play here"
         android:icon="@android:drawable/ic_media_play"
         app:showAsAction="never"
         />
+    <item android:id="@+id/action_close_searchfield"
+        android:title="Close"
+        android:icon="@drawable/cross"
+        app:showAsAction="ifRoom"
+        android:visible="false"/>
 
-
-    <item android:id="@+id/action_zoff_settings" android:title="Settings" app:showAsAction="ifRoom"
-        android:icon="@drawable/settings"/>
-    <item android:id="@+id/action_shuffle" android:title="Shuffle" app:showAsAction="never"
+    <item android:id="@+id/action_shuffle"
+        android:title="Shuffle"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/shuffle"
      />
 
 

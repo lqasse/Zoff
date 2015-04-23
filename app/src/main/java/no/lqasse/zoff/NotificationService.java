@@ -16,23 +16,25 @@ import android.os.IBinder;
 import android.util.Log;
 import android.widget.RemoteViews;
 
-import no.lqasse.zoff.Helpers.ImageCache;
-import no.lqasse.zoff.Helpers.ImageDownload;
+import no.lqasse.zoff.ImageTools.ImageCache;
+import no.lqasse.zoff.ImageTools.ImageDownload;
 import no.lqasse.zoff.Interfaces.ImageListener;
 import no.lqasse.zoff.Interfaces.ZoffListener;
-import no.lqasse.zoff.Remote.RemoteActivity;
+import no.lqasse.zoff.Models.Zoff;
 
 /**
  * Created by lassedrevland on 04.02.15.
  */
 public class NotificationService extends Service implements ZoffListener,ImageListener {
     private String ROOM_NAME = "";
+
     private String TAG = "MediaSessionTAG1227";
     private static final String LOG_IDENTIFIER = "NotificationService";
     public static final String INTENT_KEY_SKIP = "SKIP";
     public static final String INTENT_KEY_CLOSE = "CLOSE";
     public static final String INTENT_KEY_OPEN_REMOTE = "OPEN";
     public static final String INTENT_KEY_START = "START";
+    public static final String INTENT_KEY_CHAN_NAME = "CHAN_NAME";
 
     private Zoff zoff;
 
@@ -65,17 +67,22 @@ public class NotificationService extends Service implements ZoffListener,ImageLi
                     zoff = null;
                 }
 
-
                 clearNotification();
 
                 stopSelf();
                 break;
             case INTENT_KEY_SKIP:
                 log("skip");
+                if (zoff == null){
+                    zoff = new Zoff(ROOM_NAME,this);
+                }
                 zoff.skip();
                 break;
             case INTENT_KEY_OPEN_REMOTE:
-                zoff.disconnect();
+                if (zoff != null){
+                    zoff.disconnect();
+                }
+
                 zoff = null;
 
                 intent = new Intent(this, RemoteActivity.class);
@@ -104,16 +111,6 @@ public class NotificationService extends Service implements ZoffListener,ImageLi
 
 
 
-        if (b!=null){
-
-
-
-
-        }
-
-
-
-
         return START_STICKY;
 
 
@@ -122,15 +119,23 @@ public class NotificationService extends Service implements ZoffListener,ImageLi
 
 
 
-    public void zoffRefreshed() {
+    //communication FROM Zof instance START
+    public void onZoffRefreshed() {
         showNotification();
     }
 
     @Override
-    public void viewersChanged() {
+    public void onViewersChanged() {
         showNotification();
 
     }
+
+    @Override
+    public void onCorrectPassword() {
+
+    }
+
+    //Communication FROM Zoff instance END
 
     private void showNotification() {
         log("Showing notification");
@@ -149,10 +154,10 @@ public class NotificationService extends Service implements ZoffListener,ImageLi
         }
 
         view.setTextViewText(R.id.titleTextView, zoff.getNowPlayingTitle());
-        view.setTextViewText(R.id.viewersTextView, zoff.getViewers());
+        view.setTextViewText(R.id.viewersTextView, zoff.getViewersCount());
         bigView.setTextViewText(R.id.titleTextView, zoff.getNowPlayingTitle());
-        bigView.setTextViewText(R.id.viewersTextView, zoff.getViewers());
-        bigView.setTextViewText(R.id.channelTextView, zoff.getROOM_NAME());
+        bigView.setTextViewText(R.id.viewersTextView, zoff.getViewersCount());
+        bigView.setTextViewText(R.id.channelTextView, zoff.getChannelName());
 
         //Closes notification
         Intent stopIntent = new Intent(this,NotificationService.class);
@@ -249,7 +254,7 @@ public class NotificationService extends Service implements ZoffListener,ImageLi
 
 
             metadataBuilder.putString(MediaMetadata.METADATA_KEY_TITLE, zoff.getNowPlayingTitle());
-            metadataBuilder.putString(MediaMetadata.METADATA_KEY_ARTIST,zoff.getROOM_NAME());
+            metadataBuilder.putString(MediaMetadata.METADATA_KEY_ARTIST,zoff.getChannelName());
 
 
             if (ImageCache.has(zoff.getNowPlayingID(), ImageCache.ImageType.HUGE)){

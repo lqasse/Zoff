@@ -1,4 +1,4 @@
-package no.lqasse.zoff.Player;
+package no.lqasse.zoff;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -16,12 +16,13 @@ import com.google.android.youtube.player.YouTubePlayer;
 import java.util.ArrayList;
 
 import no.lqasse.zoff.Adapters.ListAdapter;
-import no.lqasse.zoff.Helpers.ImageBlur;
-import no.lqasse.zoff.Helpers.ImageCache;
-import no.lqasse.zoff.Helpers.ImageDownload;
+import no.lqasse.zoff.ImageTools.ImageBlur;
+import no.lqasse.zoff.ImageTools.ImageCache;
+import no.lqasse.zoff.ImageTools.ImageDownload;
 import no.lqasse.zoff.Interfaces.ImageListener;
 import no.lqasse.zoff.Models.Video;
-import no.lqasse.zoff.Zoff;
+import no.lqasse.zoff.Models.Zoff;
+import no.lqasse.zoff.Player.YouTube_Player;
 import no.lqasse.zoff.ZoffActivity;
 import no.lqasse.zoff.Interfaces.ZoffListener;
 import no.lqasse.zoff.Helpers.ToastMaster;
@@ -54,7 +55,7 @@ public class PlayerActivity extends ZoffActivity implements ZoffListener,ImageLi
 
 
         getSupportActionBar().setDisplayShowTitleEnabled(true);
-        getSupportActionBar().setTitle(zoff.getROOM_NAME());
+        getSupportActionBar().setTitle(zoff.getChannelName());
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
 
@@ -179,18 +180,23 @@ public class PlayerActivity extends ZoffActivity implements ZoffListener,ImageLi
     }
 
     @Override
-    public void viewersChanged() {
+    public void onCorrectPassword() {
 
     }
 
-    public void zoffRefreshed() {
+    @Override
+    public void onViewersChanged() {
+
+    }
+
+    public void onZoffRefreshed() {
 
 
 
         listAdapter.notifyDataSetChanged();
 
         titleLabel.setText(zoff.getNowPlayingTitle());
-        currentTimeLabel.setText(zoff.getViewers());
+        currentTimeLabel.setText(zoff.getViewersCount());
 
         if (!ImageCache.has(zoff.getNowPlayingID() + "_blur") && ImageCache.has(zoff.getNowPlayingID())){
             ImageBlur.createAndSetBlurBG(ImageCache.get(zoff.getNowPlayingID()), this, zoff.getNowPlayingID());

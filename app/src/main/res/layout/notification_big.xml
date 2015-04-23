@@ -4,8 +4,8 @@
     android:background="@color/notification_background">
 
     <ImageView
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
         android:id="@+id/imageView"
         android:layout_alignParentTop="false"
         android:layout_alignParentLeft="true"
@@ -15,26 +15,29 @@
         android:layout_marginRight="5dp" />
 
     <TextView
-        android:layout_width="fill_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/titleTextView"
         android:layout_alignParentTop="true"
         android:layout_toRightOf="@+id/imageView"
-        android:layout_toEndOf="@+id/imageView"
-        android:textColor="@color/zoff_white"
+        android:textColor="@color/white"
         android:text="Title"
+        android:lines="1"
         android:layout_marginTop="3dp"
         android:layout_toLeftOf="@+id/closeImageView"
-        android:lines="1" />
+        android:layout_toStartOf="@+id/closeImageView"
+        android:scrollHorizontally="false"
+        android:layout_toEndOf="@+id/imageView" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/viewersTextView"
-        android:textColor="@color/zoff_gray"
+        android:textColor="@color/gray"
         android:text="Viewers"
-        android:layout_toRightOf="@+id/textView4"
-        android:layout_alignBottom="@+id/textView4" />
+        android:layout_below="@+id/channelTextView"
+        android:layout_toRightOf="@+id/imageView"
+        android:layout_toEndOf="@+id/imageView" />
 
     <ImageView
         android:layout_width="wrap_content"
@@ -62,21 +65,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/channelTextView"
-        android:textColor="@color/zoff_gray"
+        android:textColor="@color/gray"
         android:text="Channel"
         android:layout_below="@+id/titleTextView"
-        android:layout_alignLeft="@+id/titleTextView"
-        android:layout_alignStart="@+id/titleTextView" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/textView4"
-        android:textColor="@color/zoff_gray"
-        android:text="-"
-        android:layout_toRightOf="@+id/channelTextView"
-        android:layout_marginRight="5dp"
-        android:layout_marginLeft="5dp"
-        android:layout_alignBottom="@+id/channelTextView" />
+        android:layout_toRightOf="@+id/imageView" />
 
 </RelativeLayout>

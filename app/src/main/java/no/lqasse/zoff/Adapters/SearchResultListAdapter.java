@@ -1,4 +1,4 @@
-package no.lqasse.zoff.Search;
+package no.lqasse.zoff.Adapters;
 
 import android.content.Context;
 import android.graphics.Bitmap;

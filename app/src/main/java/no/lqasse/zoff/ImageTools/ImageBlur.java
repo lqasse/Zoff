@@ -1,13 +1,9 @@
-package no.lqasse.zoff.Helpers;
+package no.lqasse.zoff.ImageTools;
 
-import android.app.Activity;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.widget.ImageView;
 
-import no.lqasse.zoff.MainActivity;
-import no.lqasse.zoff.Player.PlayerActivity;
-import no.lqasse.zoff.Remote.RemoteActivity;
 import no.lqasse.zoff.ZoffActivity;
 
 /**

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:background="@color/dark_gray_solid"
+    android:elevation="4dp"
+    android:theme="@style/ThemeOverlay.AppCompat.Dark"
+    >
+
+    <EditText
+
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/white"
+        android:hint="Search YouTube..."
+        android:visibility="invisible"
+        android:drawableLeft="@drawable/search"
+        android:id="@+id/tool_bar_search_edittext"
+        android:textCursorDrawable="@null"
+        android:background="#00000000"
+        />
+
+
+</android.support.v7.widget.Toolbar>

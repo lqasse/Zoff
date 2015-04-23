@@ -1,7 +1,5 @@
 package no.lqasse.zoff.Models;
 
-import no.lqasse.zoff.Zoff;
-
 /**
  * Created by lassedrevland on 23.03.15.
  */

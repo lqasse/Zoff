@@ -2,6 +2,7 @@ package no.lqasse.zoff;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.View;
@@ -9,8 +10,10 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
 import no.lqasse.zoff.Helpers.ToastMaster;
+import no.lqasse.zoff.Models.Zoff;
 
 /**
  * Created by lassedrevland on 04.04.15.
@@ -70,7 +73,7 @@ public abstract class ZoffActivity extends ActionBarActivity {
                 break;
             case shuffle:
                 if (zoff.allowShuffle()) {
-                    if (zoff.hasROOM_PASS()) {
+                    if (zoff.hasPassword()) {
                         ToastMaster.showToast(this, ToastMaster.TYPE.SHUFFLED);
                         zoff.shuffle();
                     } else {
@@ -95,6 +98,15 @@ public abstract class ZoffActivity extends ActionBarActivity {
     }
 
     public void setBackgroundImage(Bitmap bitmap) {
+/*
+
+
+         int averageColor = (bitmap.getPixel(bitmap.getWidth()/2,bitmap.getHeight()/2));
+        RelativeLayout layout = (RelativeLayout) findViewById(R.id.layout);
+
+        layout.setBackgroundColor(averageColor);
+
+        */
 
 
         if (currentBackground != bitmap) {
@@ -127,7 +139,10 @@ public abstract class ZoffActivity extends ActionBarActivity {
             currentBackground = bitmap;
 
 
+
         }
+
+
     }
 
     private void log(String log){
