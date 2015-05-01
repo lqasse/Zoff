@@ -143,7 +143,11 @@ public class ImageCache {
 
         mMemoryCache.put(id + appendix,bitmap);
         notifyListeners(id + appendix,bitmap);
-        log();
+
+        int FILL_PERCENTAGE =  (int) (((float)mMemoryCache.size()/(float)mMemoryCache.maxSize()*100));
+        if (FILL_PERCENTAGE > 70){
+            log();
+        }
 
 
 

@@ -1,10 +1,18 @@
 package no.lqasse.zoff.Helpers;
 
 import android.app.Activity;
+import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.text.Layout;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import org.xml.sax.DTDHandler;
 
 import no.lqasse.zoff.R;
 
@@ -46,7 +54,16 @@ public class ToastMaster {
     public static void showToast(Object context, String type){
         String toastText = "";
 
+        if (type.contains("more are needed to skip")){
+            toastText = type;
+        }
+
+        Drawable toastIcon = null;
+
         switch (type){
+            case "addedsong":
+                toastText = "Video added";
+                break;
             case "savedsettings":
                 toastText="Saved settings";
                 break;
@@ -55,9 +72,11 @@ public class ToastMaster {
                 break;
             case "shuffled":
                 toastText="Shuffled playlist";
+                toastIcon = ((Activity) context).getResources().getDrawable(R.drawable.shuffle);
                 break;
             case "deletesong":
                 toastText="Deleted song";
+                toastIcon = ((Activity) context).getResources().getDrawable(R.drawable.cross);
                 break;
             case "voted":
                 toastText="Voted on video";
@@ -72,19 +91,18 @@ public class ToastMaster {
                 toastText="Only admin can skip songs on this channel";
                 break;
             case "alreadyskip":
-                toastText="You've already voted to skip!";
+                toastText="You've already voted to skip";
                 break;
+            case "skip":
+                toastText = "Skipped";
+                toastIcon = ((Activity) context).getResources().getDrawable(R.drawable.skip);
+
         }
 
 
 
-        Toast t = Toast.makeText((Activity) context, toastText, Toast.LENGTH_SHORT);
-        View v = t.getView();
-        v.setBackgroundResource(R.drawable.toast_background);
+        show((Activity) context, toastText, toastIcon);
 
-        t.setGravity(Gravity.CENTER_VERTICAL&Gravity.CENTER_HORIZONTAL,50,0);
-
-        t.show();
 
 
 
@@ -163,15 +181,28 @@ public class ToastMaster {
 
         if (context instanceof Activity) {
 
-            t = Toast.makeText((Activity) context, toastText, Toast.LENGTH_SHORT);
-            View v = t.getView();
-            v.setBackgroundResource(R.drawable.toast_background);
-
-            t.setGravity(Gravity.CENTER_VERTICAL&Gravity.CENTER_HORIZONTAL,50,0);
-            t.show();
+            show((Activity) context,toastText,null);
         } else {
             Log.d("TOAST", "No COntext");
         }
+
+
+    }
+
+
+    private static void show(Context context, String text, Drawable icon){
+        Toast t = new Toast((Activity)context);
+
+
+        t.setGravity(Gravity.TOP|Gravity.LEFT, 60, 210);
+
+        View toast  =((Activity) context).getLayoutInflater().inflate(R.layout.toast, null);
+
+        t.setView(toast);
+        ((TextView) toast.findViewById(R.id.toastTitle)).setText(text);
+        ((ImageView) toast.findViewById(R.id.toastIcon)).setImageDrawable(icon);
+
+        t.show();
 
 
     }

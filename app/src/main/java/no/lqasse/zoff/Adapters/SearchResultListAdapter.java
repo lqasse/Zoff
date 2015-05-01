@@ -90,12 +90,6 @@ public class SearchResultListAdapter extends ArrayAdapter<SearchResult> {
 
 
 
-       if (position == 0){
-           RelativeLayout layout = (RelativeLayout) rowView.findViewById(R.id.search_row_layout);
-           layout.setPadding(0,10,0,0);
-
-       }
-
 
         if (searchResults.get(position).getImgSmall() == null){
             downloadViewHolder = new downloadViewHolder();

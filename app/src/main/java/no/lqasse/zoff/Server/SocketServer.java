@@ -71,8 +71,8 @@ public class SocketServer  {
     public void ping(){
         pinging = true;
         log("ping..");
-        socket.emit("password", "");  //Returns wrong password toast
-        handler.postDelayed(pingTimer, TimeUnit.SECONDS.toMillis(5));
+        socket.emit("password", "§");  //Returns wrong password toast
+        handler.postDelayed(pingTimer, TimeUnit.SECONDS.toMillis(10));
     }
 
 
@@ -108,6 +108,7 @@ public class SocketServer  {
 
 
 
+
     private Emitter.Listener onChannelRefresh = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
@@ -121,6 +122,7 @@ public class SocketServer  {
                      array = (JSONArray) args[0];
                      zoff.socketRefreshed(array);
 
+                    connectionOK();
 
 
                 }
@@ -143,7 +145,9 @@ public class SocketServer  {
 
                 @Override
                 public void run() {
-                    log( "onNewVideo");
+                    log("onNewVideo");
+
+
                 }
             });
 
@@ -153,7 +157,9 @@ public class SocketServer  {
     private Emitter.Listener onSkip = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
-            log( "onSkip");
+            log("onSkip");
+
+
 
         }
     };
@@ -166,14 +172,14 @@ public class SocketServer  {
                 @Override
                 public void run() {
 
-
                     String toast = (String) args[0];
+                    connectionOK();
+
 
 
                     if (toast.equals("wrongpass") && pinging == true){ //IF true: this was a ping
                         pinging = false;
-                        handler.removeCallbacks(pingTimer);
-                        log("ping OK");
+
                     } else {
 
                         log("onToast: " + toast);
@@ -204,6 +210,8 @@ public class SocketServer  {
 
 
                     log("onViewesChanged: " + viewers);
+                    connectionOK();
+
 
 
                 }
@@ -221,6 +229,8 @@ public class SocketServer  {
                     String data = args[0].toString();
                     log("onPw: " + data);
                     zoff.onCorrectPassword(data);
+                    connectionOK();
+
 
 
                 }
@@ -259,7 +269,7 @@ public class SocketServer  {
 
         tempSocket.connect();
         tempSocket.emit("frontpage_lists");
-        tempSocket.on("playlists",new Emitter.Listener() {
+        tempSocket.on("playlists", new Emitter.Listener() {
             @Override
             public void call(final Object... args) {
 
@@ -270,12 +280,12 @@ public class SocketServer  {
                             ArrayList<ChanSuggestion> suggestions = new ArrayList<>();
                             JSONArray array = (JSONArray) args[0];
 
-                            for (int i = 0;i<array.length();i++){
+                            for (int i = 0; i < array.length(); i++) {
 
                                 JSONArray item = array.getJSONArray(i);
                                 // [viewers,nowPlayingId,nowPLayingTitle,chanName,noOfSongs]
                                 //[0,"6Cp6mKbRTQY","Avicii - Hey Brother","lqasse",4]
-                                suggestions.add(new ChanSuggestion(item.getInt(0),item.getString(1),item.getString(2),item.getString(3),item.getInt(4)));
+                                suggestions.add(new ChanSuggestion(item.getInt(0), item.getString(1), item.getString(2), item.getString(3), item.getInt(4)));
 
                             }
 
@@ -284,10 +294,7 @@ public class SocketServer  {
                             tempSocket.disconnect();
 
 
-
-
-
-                        } catch (JSONException e){
+                        } catch (JSONException e) {
                             e.printStackTrace();
                             Log.d("SocketServer", "Suggestions failed");
                         }
@@ -432,6 +439,12 @@ public class SocketServer  {
         socket.close();
 
     }
+
+    private void connectionOK(){
+        log("connection OK");
+        handler.removeCallbacks(pingTimer);
+    }
+
 
 
 

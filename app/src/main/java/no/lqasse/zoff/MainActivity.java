@@ -14,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 
 import no.lqasse.zoff.Adapters.SuggestionsGridAdapter;
@@ -76,7 +77,9 @@ public class MainActivity extends ActionBarActivity  {
 
                     if (isValidRoom()) {
 
-                        initialize(chanTextView.getText().toString());
+                        initializeNew(chanTextView.getText().toString());
+
+
                     } else {
                         t.show();
 
@@ -104,6 +107,14 @@ public class MainActivity extends ActionBarActivity  {
     protected void onPostResume() {
 
         super.onPostResume();
+    }
+
+    private void initializeNew(String chan){
+        Intent i = new Intent(this, RemoteActivity.class);
+        i.putExtra("ROOM_NAME", chan);
+        i.putExtra("NEW",true);
+
+        startActivity(i);
     }
 
     private void initialize(String chan){
@@ -145,7 +156,10 @@ public class MainActivity extends ActionBarActivity  {
         GridView gridView = (GridView) findViewById(R.id.chanGrid);
         SuggestionsGridAdapter suggestionArrayAdapter = new SuggestionsGridAdapter(this,suggestions);
 
+        Collections.sort(suggestions);
         gridView.setAdapter(suggestionArrayAdapter);
+
+
 
 
 

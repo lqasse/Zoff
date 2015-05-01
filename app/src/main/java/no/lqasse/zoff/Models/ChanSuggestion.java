@@ -3,7 +3,7 @@ package no.lqasse.zoff.Models;
 /**
  * Created by lassedrevland on 16.04.15.
  */
-public class ChanSuggestion {
+public class ChanSuggestion implements Comparable<ChanSuggestion>{
     private int viewers;
     private String nowPlayingId;
     private String nowPlayingTitle;
@@ -36,5 +36,21 @@ public class ChanSuggestion {
 
     public int getSongs() {
         return songs;
+    }
+
+    @Override
+    public int compareTo(ChanSuggestion another) {
+
+        if (this.getViewers() == another.getViewers()){
+            if (this.getSongs() < another.getSongs()){return 1;}
+            if (this.getSongs() > another.getSongs()){return -1;};
+
+            return 0;
+        } else {
+            if (this.getViewers() < another.getViewers()){return 1;}
+            if (this.getViewers() > another.getViewers()){return -1;}
+        }
+
+        return 0;
     }
 }

@@ -54,33 +54,49 @@ public  class SocketJSONTranslator {
         try{
 
 
-            String[] lables = {"_id","id","title","title","votes","added","now_playing"};
+            String[] labels = {"_id","id","title","votes","duration","added","now_playing","guids"};
+            Boolean[] hasLabel = {true,true,true,true,true,true,true,true};
+            int index = 0;
 
-            for (String label :lables){
-                if (!object.has(label)){
-                    //The Video is broken
-                    return new Video();
+            for (String label : labels){
+                hasLabel[index] = object.has(label);
+                index++;
+            }
+
+
+
+
+
+            String _id      = "";
+            String id       = "";
+            String title    = "";
+            int votes       = -1;
+            int duration    = 0;
+            int added       = 0;
+            boolean now_playing = false;
+
+            if (hasLabel[0]){_id        = object.getString("_id"); }
+            if (hasLabel[1]){id         = object.getString("id");}
+            if (hasLabel[2]){title      = object.getString("title");}
+            if (hasLabel[3]){votes      = object.getInt("votes");}
+            if (hasLabel[4]){duration   = object.getInt("duration");}
+            if (hasLabel[5]){added      = object.getInt("added");}
+            if (hasLabel[6]){now_playing= object.getBoolean("now_playing");}
+
+            JSONArray guidsJSON;
+            String[] guids = {};
+            if (hasLabel[7]){
+                guidsJSON = object.getJSONArray("guids");
+                guids = new String[guidsJSON.length()];
+
+                for (int i = 0;i<guidsJSON.length();i++){
+                    guids[i] = guidsJSON.getString(i);
+
                 }
             }
 
-            String _id      = object.getString("_id");
-            String id       = object.getString("id");
-            String title    = object.getString("title");
-            int votes       = object.getInt("votes");
-            int duration    = object.getInt("duration");
-            int added       = object.getInt("added");
-            boolean now_playing = object.getBoolean("now_playing");
 
 
-
-            JSONArray guidsJSON = object.getJSONArray("guids");
-
-            String[] guids = new String[guidsJSON.length()];
-
-            for (int i = 0;i<guidsJSON.length();i++){
-                guids[i] = guidsJSON.getString(i);
-
-            }
 
             return new Video(_id,id,title,votes,duration,added,guids,now_playing);
 

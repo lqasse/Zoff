@@ -4,19 +4,24 @@
 
     <item android:id="@+id/action_search"
         android:title="Search"
-        app:showAsAction="ifRoom"
+        app:showAsAction="always"
+
+
         android:icon="@drawable/search"/>
 
 
     <item android:id="@+id/action_skip"
         android:title="Skip"
         android:icon="@drawable/skip"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="always"
+
+/>
 
     <item android:id="@+id/action_play"
         android:title="Play here"
         android:icon="@android:drawable/ic_media_play"
-        app:showAsAction="never"
+        android:visible="true"
+
         />
     <item android:id="@+id/action_close_searchfield"
         android:title="Close"
@@ -26,7 +31,8 @@
 
     <item android:id="@+id/action_shuffle"
         android:title="Shuffle"
-        app:showAsAction="ifRoom"
+        app:showAsAction="never"
+
         android:icon="@drawable/shuffle"
      />
 

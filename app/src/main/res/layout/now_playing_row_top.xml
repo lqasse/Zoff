@@ -7,7 +7,8 @@
     android:id="@+id/nowPlayingLayout"
     android:background="@drawable/videolist_item_background"
     android:elevation="5dp"
-    android:translationY="0dp">
+    android:translationY="0dp"
+    android:clipToPadding="false">
 
 
     <ImageView
@@ -15,7 +16,8 @@
         android:layout_height="wrap_content"
         android:id="@+id/imageView"
         android:scaleType="fitCenter"
-        android:adjustViewBounds="true"/>
+        android:adjustViewBounds="true"
+        android:elevation="5dp"/>
 
     <TextView
         android:layout_width="fill_parent"
@@ -26,7 +28,8 @@
         android:gravity="center"
         android:textSize="13dp"
         android:layout_below="@+id/imageView"
-        android:layout_marginTop="3dp" />
+        android:layout_marginTop="3dp"
+        android:text="Videotitle" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -53,7 +56,8 @@
         android:layout_below="@+id/videoTitleView"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginRight="3dp" />
+        android:layout_marginRight="3dp"
+        android:text="0 viewers" />
 
 
 
