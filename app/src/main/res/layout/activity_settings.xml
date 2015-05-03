@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/zoff_gray"
+    android:background="@color/gray"
     android:id="@+id/settingsLayout"
     android:padding="10dp">
 
@@ -24,11 +24,11 @@
         android:inputType="textPassword"
         android:ems="10"
         android:id="@+id/pwEditText"
-        android:textColor="@color/zoff_white"
-        android:textColorHint="@color/zoff_gray"
+        android:textColor="@color/white"
+        android:textColorHint="@color/gray"
         android:hint="Password"
         android:textCursorDrawable="@null"
-        android:background="@drawable/gray_rectangle"
+        android:background="@drawable/searchresult_item_background"
         android:password="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
@@ -46,7 +46,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:textColor="@color/zoff_gray"
+        android:textColor="@color/gray"
         android:background="@drawable/button_selector"
         android:layout_alignTop="@+id/pwEditText" />
 
@@ -65,7 +65,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/scrollView"
         android:layout_alignParentTop="true"
-        android:background="@drawable/gray_rectangle"
+        android:background="@drawable/searchresult_item_background"
         android:layout_marginBottom="45dp">
 
         <LinearLayout
@@ -79,9 +79,9 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="Anyone can vote"
-                android:id="@+id/vote"
+
                 android:layout_gravity="center_horizontal"
-                android:textColor="@color/zoff_gray"
+                android:textColor="@color/gray"
                 android:checked="false"
                 android:layout_marginBottom="3dp"
                 android:button="@drawable/checkbox_selector"/>
@@ -89,9 +89,9 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="Allow long songs"
-                android:id="@+id/longsongs"
+
                 android:layout_gravity="center_horizontal"
-                android:textColor="@color/zoff_gray"
+                android:textColor="@color/gray"
                 android:checked="false"
 
                 android:layout_marginBottom="3dp"
@@ -102,9 +102,9 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="Allow all video categories"
-                android:id="@+id/allvideos"
+
                 android:layout_gravity="center_horizontal"
-                android:textColor="@color/zoff_gray"
+                android:textColor="@color/gray"
                 android:checked="false"
 
                 android:layout_marginBottom="3dp"
@@ -114,9 +114,9 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="Anyone can add songs"
-                android:id="@+id/addsongs"
+
                 android:layout_gravity="center_horizontal"
-                android:textColor="@color/zoff_gray"
+                android:textColor="@color/gray"
                 android:checked="false"
 
                 android:layout_marginBottom="3dp"
@@ -126,9 +126,9 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="Show playlist on frontpage"
-                android:id="@+id/frontpage"
+
                 android:layout_gravity="right"
-                android:textColor="@color/zoff_gray"
+                android:textColor="@color/gray"
                 android:checked="false"
 
                 android:layout_marginBottom="3dp"
@@ -138,8 +138,8 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="Remove songs after playing"
-                android:id="@+id/removeplay"
-                android:textColor="@color/zoff_gray"
+
+                android:textColor="@color/gray"
                 android:checked="false"
 
                 android:layout_marginBottom="3dp"
@@ -149,8 +149,8 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="Allow skipping"
-                android:id="@+id/skip"
-                android:textColor="@color/zoff_gray"
+
+                android:textColor="@color/gray"
                 android:checked="false"
 
                 android:layout_marginBottom="3dp"
@@ -160,8 +160,8 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="Allow shuffling"
-                android:id="@+id/shuffle"
-                android:textColor="@color/zoff_gray"
+
+                android:textColor="@color/gray"
                 android:checked="false"
 
                 android:layout_marginBottom="3dp"

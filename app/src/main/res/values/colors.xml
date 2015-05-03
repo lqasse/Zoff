@@ -1,21 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="zoff_black">#000</color>
-    <color name="zoff_pink">#ed207f</color>
-    <color name="zoff_white">#FFF</color>
-    <color name="zoff_gray">#ffbdbdbd</color>
-    <color name="zoff_black_transparent">#99000000</color>
+    <color name="white">#FFF</color>
+    <color name="gray">#ffbdbdbd</color>
+    <color name="black_transparent">#99000000</color>
     <color name="zoff_black_transparent_list">#33000000</color>
-    <color name="zoff_white_transparent">#33FFFFFF</color>
+    <color name="white_transparent">#33FFFFFF</color>
     <color name="zoff_transparent">#00000000</color>
+    <color name="dark_gray_solid">#1a1a1a</color>
 
 
     <color name="zoff_bg_general">#ffbdbdbd</color>
     <color name="zoff_white_text">#FFF</color>
     <color name="zoff_black_text">#000</color>
 
-    <color name="toast_background_color">#BB000000</color>
-    <color name="notification_background">#EE000000</color>
+
+
+
+    <!--Colors to use-->
+    <color name="text_important_dark">      @color/dark_gray_solid</color>
+    <color name="text_subtitle_dark">       @color/gray</color>
+    <color name="text_subtitle_less_dark">  @color/black_transparent</color>
+    <color name="text_important_light">     @color/white</color>
+    <color name="text_subtitle_light">      @color/gray</color>
+    <color name="text_subtitle_less_light"> @color/white_transparent</color>
+    <color name="background_dark">          @color/dark_gray_solid</color>
+    <color name="background_light">         @color/white</color>
+    <!--END-->
+
+
+
+    <color name="toast_background_color">@color/background_dark</color>
+
+
+    <!--MainActivity-->
+    <color name="main_channel_field_hint">  @color/text_subtitle_dark</color>
+    <color name="main_channel_field_text">  @color/text_important_dark</color>
+    <color name="main_background">          @color/background_light</color>
+
+    <!--RemoteActivity-->
+    <color name="search_field_hint">        @color/text_subtitle_light</color>
+    <color name="search_field_text">        @color/text_important_light</color>
+    <color name="settings_drawer_labels">   @color/text_important_light</color>
+    <color name="settings_drawer_description">@color/text_subtitle_less_light</color>
+    <color name="settings_drawer_background">@color/background_dark</color>
+    <color name="settings_adminpass_text">  @color/text_important_light</color>
+    <color name="settings_adminpass_hint">  @color/text_subtitle_light</color>
+
+    <!--Videolist-->
+    <color name="videolist_item_background">@color/background_dark</color>
+    <color name="videolist_item_title">     @color/text_important_light</color>
+    <color name="videolist_item_votes">     @color/text_subtitle_light</color>
+    <color name="videolist_item_top_skip">  @color/text_subtitle_light</color>
+    <color name="videolist_item_top_viewers">@color/text_subtitle_light</color>
+    <color name="videolist_item_delete_button">#99ff0000</color>
+
+    <!--SearchResults-->
+    <color name="searchresult_list_item_background">@color/background_dark</color>
+    <color name="searchresult_list_item_title">@color/text_important_light</color>
+    <color name="searchresult_list_item_channel_title">@color/text_subtitle_light</color>
+    <color name="searchresult_list_item_views">@color/text_subtitle_light</color>
+    <color name="searchresult_list_item_playtime">@color/text_important_light</color>
+    <color name="searchresult_list_item_playtime_background">@color/background_dark</color>
+    <color name="searchresult_list_item_playtime_shadow">@color/text_important_light</color>
+
+    <!--Notification-->
+    <color name="notification_background">@color/background_dark</color>
+    <color name="notification_video_title">@color/text_important_light</color>
+    <color name="notification_viewers">@color/text_subtitle_light</color>
+    <color name="notification_channel_title">@color/text_subtitle_light</color>
+
 
 
 

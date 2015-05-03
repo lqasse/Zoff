@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    >
+   <EditTextPreference
+       android:theme="@style/PrefsStyle"
+       android:title="Password"
+       android:textColorHint="@color/settings_adminpass_hint"
+       android:textColor="@color/settings_adminpass_text">
+
+   </EditTextPreference>
+    <SwitchPreference
+        android:id="@+id/addsongs"
+        android:title="@string/switch_addsongs"
+        android:summaryOn="@string/switch_addsongs_description_enabled"
+        android:summaryOff="@string/switch_addsongs_description_disabled"
+        android:textColor="@color/settings_drawer_labels"
+
+        >
+
+
+    </SwitchPreference>
+</PreferenceScreen>

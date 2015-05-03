@@ -1,46 +1,57 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin" tools:context=".Main"
-    android:background="@color/zoff_white"
-    android:id="@+id/layout">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="fill_parent"
+    android:orientation="vertical"
+    android:layout_height="fill_parent"
+    tools:context=".Main"
+    android:background="@color/main_background"
+    android:id="@+id/layout"
+    android:descendantFocusability="beforeDescendants"
+    android:focusableInTouchMode="true">
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/imageView2"
-        android:src="@drawable/logo_big"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="30dp" />
 
 
     <AutoCompleteTextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_height="40dp"
         android:id="@+id/acEditText"
 
         android:textCursorDrawable="@null"
-        android:selectAllOnFocus="false"
-        android:hint="Type Channel Name"
+        android:selectAllOnFocus="true"
+        android:hint="Find or create channel"
         android:imeOptions="actionGo"
         android:singleLine="true"
-        android:background="@drawable/gray_rectangle"
 
         android:textSize="20dp"
-        android:layout_centerHorizontal="true"
-        android:paddingLeft="30dp"
         android:paddingTop="8dp"
-        android:paddingRight="30dp"
         android:paddingBottom="8dp"
-        android:textColorHint="@color/zoff_white_transparent"
-        android:textColor="@color/zoff_white"
+        android:textColorHint="@color/main_channel_field_hint"
+        android:textColor="@color/main_channel_field_text"
         android:gravity="center"
-        android:layout_marginTop="50dp"
 
         android:enabled="true"
         android:inputType="text|textNoSuggestions"
-        android:layout_below="@+id/imageView2" />
-</RelativeLayout>
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignRight="@+id/chanGrid"
+        android:layout_alignEnd="@+id/chanGrid"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp" />
+
+    <GridView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/chanGrid"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/acEditText"
+        android:numColumns="2"
+        android:clipToPadding="false"
+        android:verticalSpacing="10dp"
+        android:horizontalSpacing="10dp"
+        android:layout_alignParentBottom="true"
+        android:paddingBottom="10dp"
+        android:paddingRight="10dp"
+        android:paddingTop="5dp"
+        android:paddingLeft="10dp" />
+
+</LinearLayout>

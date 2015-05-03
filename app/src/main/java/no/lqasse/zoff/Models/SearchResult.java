@@ -1,7 +1,10 @@
 package no.lqasse.zoff.Models;
 
 import android.graphics.Bitmap;
+import android.util.Log;
 
+import java.text.SimpleDateFormat;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,6 +23,7 @@ public class SearchResult {
     private String publishedAt;
     private String views = "";
     private String duration = "";
+    private String durationLocalized;
     private Bitmap imgSmall;
     private String viewCountLocalized = "";
 
@@ -84,6 +88,10 @@ public class SearchResult {
         createNiceViewcount(views);
     }
 
+    public String getDurationLocalized() {
+        return durationLocalized;
+    }
+
     public String getDuration() {
         return duration;
     }
@@ -125,20 +133,37 @@ public class SearchResult {
             S =  "0" + S;
         }
 
+
+        int hoursSecs = 0;
+        int minutesSecs = 0;
+        int secondsSecs = 0;
+
+
+
         if (!H.equals("")){
+            hoursSecs =  (int) TimeUnit.HOURS.toSeconds(Long.valueOf((H)));
             H = H + ":";
         }
         if (!M.equals("")){
+            minutesSecs =  (int) TimeUnit.MINUTES.toSeconds(Long.valueOf((M)));
             M = M + ":";
         }
 
         if (S.equals("")){
+
             S = "00";
+        } else{
+            secondsSecs =  (int) TimeUnit.SECONDS.toSeconds(Long.valueOf((S)));
         }
 
+        int durationSecss =  hoursSecs + minutesSecs + secondsSecs;
 
 
-        this.duration = H + M + S;
+
+
+        this.durationLocalized = H + M + S;
+        this.duration = Integer.toString(durationSecss);
+
 
     }
 

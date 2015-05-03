@@ -1,4 +1,4 @@
-package no.lqasse.zoff.Search;
+package no.lqasse.zoff.Adapters;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -90,12 +90,6 @@ public class SearchResultListAdapter extends ArrayAdapter<SearchResult> {
 
 
 
-       if (position == 0){
-           RelativeLayout layout = (RelativeLayout) rowView.findViewById(R.id.search_row_layout);
-           layout.setPadding(0,10,0,0);
-
-       }
-
 
         if (searchResults.get(position).getImgSmall() == null){
             downloadViewHolder = new downloadViewHolder();
@@ -115,7 +109,7 @@ public class SearchResultListAdapter extends ArrayAdapter<SearchResult> {
         holder.title.setText(searchResults.get(position).getTitle());
         holder.channelTitle.setText(searchResults.get(position).getChannelTitle());
         holder.viewCount.setText(searchResults.get(position).getViewCountLocalized());
-        holder.duration.setText(searchResults.get(position).getDuration());
+        holder.duration.setText(searchResults.get(position).getDurationLocalized());
 
 
         return rowView;

@@ -1,105 +1,130 @@
 package no.lqasse.zoff.Models;
 
-import no.lqasse.zoff.Zoff;
+import java.util.concurrent.TimeUnit;
+
+import javax.xml.datatype.Duration;
 
 /**
  * Created by lassedrevland on 23.03.15.
  */
 public class Video implements Comparable<Video>{
-        private String title;
-        private String id;
-        private String votes;
-        private String added;
+    private String _id = "Error";
+    private String id = "Error";
+    private String title = "Error";
+    private int votes = 999;
+    private int durationSecs = 0;
+    private int added = 0;
+    private String[] guids;
+    private Boolean now_playing = false;
 
-
-        public Video(String title, String id, String votes, String added){
-            this.title = title;
-            this.id = id;
-            this.votes = votes;
-            this.added = added;
-
-
-        }
-
-        public Video(String title, String id, String votes, String added, Zoff zoff){
-        //TODO REMOVE
+    public Video(String title, String id, String votes, String added){
         this.title = title;
         this.id = id;
-        this.votes = votes;
-        this.added = added;
+        this.votes = Integer.valueOf(votes);
+        this.added = Integer.valueOf(added);
 
 
     }
 
-        @Override
-        public int compareTo(Video another) {
+    public Video(){
 
-            if (this.getVotesInt() != another.getVotesInt()){
-                return another.getVotesInt() - this.getVotesInt(); //Descending on votes 1, 2 ,3 etc
+    }
 
-            } else {
-                return (int) (this.getAddedLong()- another.getAddedLong()); //Ascending on time, ie added earliger gives higher position
-            }
+    public Video(String _id, String id, String title, int votes, int added, int duration, String[] guids,Boolean now_playing) {
+        this._id = _id;
+        this.id = id;
+        this.title = title;
+        this.votes = votes;
+        this.added = added;
+        this.durationSecs = duration;
+        this.guids = guids;
+        this.now_playing = now_playing;
+    }
 
+    @Override
+    public int compareTo(Video another) {
+
+        if (this.getVotesInt() != another.getVotesInt()){
+            return another.getVotesInt() - this.getVotesInt(); //Descending on votes 1, 2 ,3 etc
+
+        } else {
+            return (int) (this.getAddedLong()- another.getAddedLong()); //Ascending on time, ie added earliger gives higher position
         }
 
+    }
 
-        public String getTitle() {
-            if (title.equals("null")){
-                return "There are no videos here yet!";
-            }
-            return title;
-        }
 
-        public String getId() {
-            return id;
-        }
+    public String getVotesString() {
+        return Integer.toString(this.votes);
+    }
 
-        public String getAdded(){
-            return this.added;
-        }
 
-        public String getVotes() {
-            return votes;
-        }
+    public static String getThumbMed(String id){
+        return "https://i.ytimg.com/vi/" + id +"/mqdefault.jpg";
+    }
 
-        public static String getThumbMed(String id){
-            return "https://i.ytimg.com/vi/" + id +"/mqdefault.jpg";
-        }
+    public String getThumbMed() {
 
-        public String getThumbMed() {
+        return "https://i.ytimg.com/vi/" + id +"/mqdefault.jpg";
+    }
 
-            return "https://i.ytimg.com/vi/" + id +"/mqdefault.jpg";
-        }
+    public String getThumbSmall() {
+        return "https://i.ytimg.com/vi/" + id +"/default.jpg";
+    }
 
-        public String getThumbSmall() {
-            return "https://i.ytimg.com/vi/" + id +"/default.jpg";
-        }
-
-        public String getImageBig() {
-            return "https://i.ytimg.com/vi/" + id +"/hqdefault.jpg";
-        }
+    public String getImageBig() {
+        return "https://i.ytimg.com/vi/" + id +"/hqdefault.jpg";
+    }
 
     public  String getThumbHuge() {
         return "https://i.ytimg.com/vi/" + id +"/maxresdefault.jpg";
     }
 
-        public static String getThumbHuge(String id) {
-            return "https://i.ytimg.com/vi/" + id +"/maxresdefault.jpg";
-        }
+    public static String getThumbHuge(String id) {
+        return "https://i.ytimg.com/vi/" + id +"/maxresdefault.jpg";
+    }
 
-        public int getVotesInt(){
-            return Integer.valueOf(votes);
-        }
+    public int getVotesInt(){
+        return Integer.valueOf(votes);
+    }
 
-        public long getAddedLong(){
-            return Long.valueOf(added);
-        }
+    public long getAddedLong(){
+        return Long.valueOf(added);
+    }
 
+    public String get_id() {
+        return _id;
+    }
 
+    public String getId() {
+        return id;
+    }
 
+    public String getTitle() {
+        return title;
+    }
 
+    public int getVotes() {
+        return votes;
+    }
 
+    public int getDurationSecs() {
+        return durationSecs;
+    }
 
+    public long getDurationMillis(){
+        return TimeUnit.SECONDS.toMillis(durationSecs);
+    }
 
+    public int getAdded() {
+        return added;
+    }
+
+    public String[] getGuids() {
+        return guids;
+    }
+
+    public Boolean getNow_playing() {
+        return now_playing;
+    }
 }
