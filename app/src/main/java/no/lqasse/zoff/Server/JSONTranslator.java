@@ -1,211 +1,180 @@
 package no.lqasse.zoff.Server;
 
-import android.text.Html;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 
+import no.lqasse.zoff.Models.ZoffSettings;
 import no.lqasse.zoff.Models.Video;
 
 /**
- * Created by lassedrevland on 19.03.15.
+ * Created by lassedrevland on 16.04.15.
  */
 public  class JSONTranslator {
 
-    public static ArrayList<Video> toZoffVideos(String JSONString){
-        JSONObject json;
-        JSONObject videoObject;
-        JSONObject songs;
-        JSONArray songsArray;
+    public static ZoffSettings getSettings(JSONArray data){
 
-        ArrayList<Video> videos = new ArrayList<>();
-
-
+        JSONObject object;
         try {
-            json = new JSONObject(JSONString);
-            try {
+            object = data.getJSONObject(data.length()-1);
 
+            ZoffSettings settings = new ZoffSettings(
+                    object.getString("_id"),
+                    object.getJSONArray("skips").length(),
+                    object.getJSONArray("views").length(),
+                    object.getInt("startTime"),
+                    object.getBoolean(ZoffSettings.KEY_ADD_SONGS),
+                    object.getBoolean(ZoffSettings.KEY_ALL_VIDEOS),
+                    object.getBoolean(ZoffSettings.KEY_LONG_SONGS),
+                    object.getBoolean(ZoffSettings.KEY_FRONTPAGE),
+                    object.getBoolean(ZoffSettings.KEY_REMOVE_PLAY),
+                    object.getBoolean(ZoffSettings.KEY_SHUFFLE),
+                    object.getBoolean(ZoffSettings.KEY_SKIP),
+                    object.getBoolean(ZoffSettings.KEY_VOTE)
 
+            );
 
-                //Array is not empty
-                songs = json.getJSONObject("songs");
-
-                songsArray = songs.names();
-                for (int i = 0;i<songsArray.length();i++){
-                    videoObject = songs.getJSONObject(songsArray.get(i).toString());
-                    videos.add(toZoffVideo(videoObject));
-
-                }
-            } catch (JSONException e){
-                //Array is probably empty
-            }
-
-
-
-
-
-
-
-
-            Collections.sort(videos);
-
-            //Get currently playing video from now playing object
-            videoObject = json.getJSONObject("nowPlaying");
-            JSONArray items = videoObject.names();
-            videoObject = videoObject.getJSONObject(items.get(0).toString());
-
-            videos.add(0,toZoffVideo(videoObject));
-
-
-        }catch (JSONException e){
-            e.printStackTrace();
-        }
-
-
-        return videos;
-    };
-
-    private static Video toZoffVideo(JSONObject videoObject) throws JSONException{
-        String title;
-        String id;
-        String added = "0";
-        String votes = "0";
-
-        id = videoObject.getString("id");
-        title = videoObject.getString("title");
-        if (videoObject.has("votes"))
-            votes = videoObject.getString("votes");
-        if (videoObject.has("added"))
-            added = videoObject.getString("added");
-
-        //Decode string from html #magic
-        title = Html.fromHtml(title).toString();
-
-        return new Video(title,id,votes,added);
-
-    };
-
-    public static HashMap<String,Boolean> toSettingsMap(String JSONString){
-        JSONObject conf;
-        JSONObject json;
-        HashMap<String,Boolean> settings = new HashMap<>();
-        try {
-            json = new JSONObject(JSONString);
-            conf = json.getJSONObject("conf");
-            String[] confLabels = {"vote","addsongs","longsongs","frontpage","allvideos","removeplay","skip","shuffle"};
-
-            for (String label:confLabels){
-                settings.put(label,conf.getBoolean(label));
-            }
-
-            if (conf.has("views")){
-                JSONArray views = conf.getJSONArray("views");
-            }
-        } catch (JSONException e){
-            e.printStackTrace();
-        }
-
-        return settings;
-
-    }
-
-    public static int toViews(String JSONString){
-        try {
-            JSONObject json = new JSONObject(JSONString);
-            JSONObject conf = json.getJSONObject("conf");
-            JSONArray views;
-
-            if (conf.has("views")){
-                return conf.getJSONArray("views").length();
-
-            }
-
-        } catch (JSONException e){
-            e.printStackTrace();
-        }
-     return -1;
-    }
-
-    public static int toSkips(String JSONString){
-        try {
-            JSONObject json = new JSONObject(JSONString);
-            JSONObject conf = json.getJSONObject("conf");
-            JSONArray skips;
-
-            if (conf.has("skips")){
-                return conf.getJSONArray("skips").length();
-
-            }
-
-        } catch (JSONException e){
-            e.printStackTrace();
-        }
-        return -1;
-    }
-
-
-
-
-
-    public static Boolean hasAdminPass(String JSONString){
-        try {
-            JSONObject json = new JSONObject(JSONString);
-            JSONObject conf = json.getJSONObject("conf");
-            String adminpass = conf.getString("adminpass");
-
-            return !adminpass.equals("");
-        }catch (JSONException e){
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    public static ArrayList<String> toRoomSuggestions(String JSONString){
-        JSONArray json;
-        ArrayList<String> activeRooms = new ArrayList<>();
-        try {
-            json =new JSONArray(JSONString);
-            for (int i = 0;i<json.length();i++){
-                activeRooms.add(json.get(i).toString());
-            }
-
-
-        }catch (JSONException e){
-            e.printStackTrace();
-        }
-
-        return activeRooms;
-    }
-
-
-    public static HashMap<String,String> toSettingsMap(JSONArray array){
-        try {
-            HashMap<String,String> settings = new HashMap<>();
-            JSONObject object = (JSONObject) array.get(0);
-           JSONArray names =  object.names();
-
-            for (int i = 0;i<names.length();i++){
-                String currentSetting = names.getString(i).toString();
-                settings.put(currentSetting,object.getString(currentSetting));
-
-
-            }
             return settings;
 
 
-        } catch (JSONException e){
-            e.printStackTrace();
 
+        }catch (JSONException e){
+            e.printStackTrace();
+            return null;
 
         }
 
-        return new HashMap<>();
 
-    };
+
+    }
+
+
+    public static ArrayList<Video> toVideos(JSONArray array){
+        ArrayList<Video> videos = new ArrayList<>();
+
+        try {
+            for (int i = 0;i<array.length()-1;i++){
+                Video current = toVideo(array.getJSONObject(i));
+
+
+                    if (current.getNow_playing()){
+                        videos.add(0,current);
+                    } else {
+                        videos.add(current);
+                    }
+
+
+
+
+            }
+
+            return videos;
+
+        } catch (JSONException e){
+            e.printStackTrace();
+
+            Log.d("SocketJSONTranslator", "ERROR COnverting from JSON");
+            return null;
+        }
+
+
+
+    }
+
+    public static Video toVideo(JSONObject object){
+        try{
+
+
+            String[] labels = {"_id","id","title","votes","duration","added","now_playing","guids"};
+            Boolean[] hasLabel = {true,true,true,true,true,true,true,true};
+            int index = 0;
+
+            for (String label : labels){
+                hasLabel[index] = object.has(label);
+                index++;
+            }
+
+
+
+
+
+            String _id      = "";
+            String id       = "";
+            String title    = "";
+            int votes       = -1;
+            int duration    = 0;
+            int added       = 0;
+            boolean now_playing = false;
+
+            if (hasLabel[0]){_id        = object.getString("_id"); }
+            if (hasLabel[1]){id         = object.getString("id");}
+            if (hasLabel[2]){title      = object.getString("title");}
+            if (hasLabel[3]){votes      = object.getInt("votes");}
+            if (hasLabel[4]){duration   = object.getInt("duration");}
+            if (hasLabel[5]){added      = object.getInt("added");}
+            if (hasLabel[6]){now_playing= object.getBoolean("now_playing");}
+
+            JSONArray guidsJSON;
+            String[] guids = {};
+            if (hasLabel[7]){
+                guidsJSON = object.getJSONArray("guids");
+                guids = new String[guidsJSON.length()];
+
+                for (int i = 0;i<guidsJSON.length();i++){
+                    guids[i] = guidsJSON.getString(i);
+
+                }
+            }
+
+
+
+
+            return new Video(_id,id,title,votes,added,duration,guids,now_playing);
+
+
+        } catch (JSONException e){
+            e.printStackTrace();
+            return new Video();
+        }
+
+
+    }
+
+    public static HashMap<String,Boolean> toSettingsMap(JSONArray data){
+
+        JSONObject object;
+        try {
+            object = data.getJSONObject(data.length()-1);
+
+        for (String label : ZoffSettings.KEYS){
+            if (!object.has(label)){
+                //a Setting is missing
+                return null;
+            }
+        }
+
+
+        HashMap<String,Boolean> settings = new HashMap<>();
+
+        for (String setting: ZoffSettings.KEYS){
+            settings.put(setting,object.getBoolean(setting));
+        }
+
+            return settings;
+
+        }catch (JSONException e){
+            e.printStackTrace();
+            return null;
+
+        }
+
+
+    }
+
 
 }

@@ -20,6 +20,9 @@ public class ImageBlur {
         holder.videoID = id;
         holder.action = Action.CREATE;
 
+        create create = new create();
+        create.execute(holder);
+
     }
 
     public  static void blurAndSet(Bitmap bitmap,ImageView imageView){
@@ -44,7 +47,7 @@ public class ImageBlur {
         create create = new create();
         create.execute(viewHolder);
 
-    };
+    }
 
     private static class ViewHolder{
         Bitmap bitmap;

@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.util.Log;
 import android.util.LruCache;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import no.lqasse.zoff.Interfaces.ImageListener;
@@ -22,14 +23,12 @@ public class ImageCache {
 
 
 
+    private static ArrayList<String> hugeImagesInCache = new ArrayList<>();
     private static LruCache<String, Bitmap> mMemoryCache = new LruCache<String,Bitmap>(cacheSize){
         @Override
         protected int sizeOf(String key, Bitmap value) {
             return value.getByteCount() /1024;
         }
-
-
-
 
     };
 
@@ -63,16 +62,8 @@ public class ImageCache {
 
     public static boolean has(String id,ImageType type){
 
-        String appendix = "";
-        switch (type){
-            case HUGE:
-                appendix = HUGE_APPENDIX;
-                break;
-            case BLUR:
-                appendix = BLUR_APPENDIX;
-                break;
-        }
-        return mMemoryCache.get(id+ appendix) != null;
+
+        return mMemoryCache.get(id + getSuffix(type)) != null;
 
 
 
@@ -80,18 +71,10 @@ public class ImageCache {
     }
 
     public static Bitmap get(String id,ImageType type){
-        String appendix = "";
-        switch (type){
-            case HUGE:
-                appendix = HUGE_APPENDIX;
-                break;
-            case BLUR:
-                appendix = BLUR_APPENDIX;
-                break;
-        }
+
 
         if (has(id,type)){
-            return mMemoryCache.get(id + appendix);
+            return mMemoryCache.get(id + getSuffix(type));
         } else{
             return null;
         }
@@ -124,25 +107,29 @@ public class ImageCache {
 
             ImageScaler.setAggressiveScaling(0.75f);
         }
-        String appendix = "";
+
+
+
         switch (type){
-            case HUGE:
-                appendix = HUGE_APPENDIX;
-                break;
+
             case BLUR:
-                appendix = BLUR_APPENDIX;
+
                 if (currentBlurBG!=bitmap){
                     currentBlurBG = bitmap;
                 }
                 break;
+            case HUGE:
+                hugeImagesInCache.add(id);
+                break;
         }
 
-        bitmap = ImageScaler.Scale(bitmap,type); //Scale to preserve memory
 
 
 
-        mMemoryCache.put(id + appendix,bitmap);
-        notifyListeners(id + appendix,bitmap);
+
+
+        mMemoryCache.put(id + getSuffix(type),bitmap);
+        notifyListeners(id + getSuffix(type), bitmap);
 
         int FILL_PERCENTAGE =  (int) (((float)mMemoryCache.size()/(float)mMemoryCache.maxSize()*100));
         if (FILL_PERCENTAGE > 70){
@@ -160,6 +147,24 @@ public class ImageCache {
             listener = null;
 
         }
+    }
+
+    public static void cleanHugeImages(String... keep){
+        log();
+        for(int i = 0;i<keep.length;i++){
+            hugeImagesInCache.remove(keep[i]);
+        }
+
+        for(String id:hugeImagesInCache){
+            mMemoryCache.remove(getIDWithTypeSuffix(id,ImageType.HUGE));
+            log(id);
+        }
+
+        for(int i = 0;i<keep.length;i++){
+           hugeImagesInCache.add(keep[i]);
+        }
+        log("Cleaned");
+        log();
     }
 
     public static Bitmap get(String id){
@@ -185,18 +190,9 @@ public class ImageCache {
         ImageCache.listener = listener;
         listenID = idToListenFor;
 
-        String appendix = "";
-        switch (type){
-            case HUGE:
-                appendix = HUGE_APPENDIX;
-                break;
-            case BLUR:
-                appendix = BLUR_APPENDIX;
-                break;
-        }
 
 
-        listenersMap.put(idToListenFor + appendix,listener );
+        listenersMap.put(idToListenFor + getSuffix(type),listener );
 
 
     }
@@ -210,6 +206,8 @@ public class ImageCache {
 
     }
 
+
+
     @Override
     public String toString() {
         return LOG_IDENTIFIER + " " + mMemoryCache.size() + "/" + mMemoryCache.maxSize();
@@ -220,9 +218,27 @@ public class ImageCache {
 
 
         int FILL_PERCENTAGE =  (int) (((float)mMemoryCache.size()/(float)mMemoryCache.maxSize()*100));
-        Log.i(LOG_IDENTIFIER,  FILL_PERCENTAGE +"%: " + mMemoryCache.size() + "/" + mMemoryCache.maxSize());
+        Log.i(LOG_IDENTIFIER,  FILL_PERCENTAGE +"%: " + mMemoryCache.size() + "/" + mMemoryCache.maxSize() +" Size: " + mMemoryCache.putCount());
     }
     private static void log(String data){
         Log.i(LOG_IDENTIFIER, data);
+    }
+
+    public static String getIDWithTypeSuffix(String id, ImageCache.ImageType type){
+        return id + getSuffix(type);
+    }
+
+    private static String getSuffix(ImageCache.ImageType type){
+        switch (type){
+            case HUGE:
+                return HUGE_APPENDIX;
+
+            case BLUR:
+                return BLUR_APPENDIX;
+
+
+
+        }
+        return "";
     }
 }

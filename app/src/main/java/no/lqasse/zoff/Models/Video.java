@@ -1,5 +1,9 @@
 package no.lqasse.zoff.Models;
 
+import java.util.concurrent.TimeUnit;
+
+import javax.xml.datatype.Duration;
+
 /**
  * Created by lassedrevland on 23.03.15.
  */
@@ -8,7 +12,7 @@ public class Video implements Comparable<Video>{
     private String id = "Error";
     private String title = "Error";
     private int votes = 999;
-    private int duration = 0;
+    private int durationSecs = 0;
     private int added = 0;
     private String[] guids;
     private Boolean now_playing = false;
@@ -32,7 +36,7 @@ public class Video implements Comparable<Video>{
         this.title = title;
         this.votes = votes;
         this.added = added;
-        this.duration = duration;
+        this.durationSecs = duration;
         this.guids = guids;
         this.now_playing = now_playing;
     }
@@ -104,8 +108,12 @@ public class Video implements Comparable<Video>{
         return votes;
     }
 
-    public int getDuration() {
-        return duration;
+    public int getDurationSecs() {
+        return durationSecs;
+    }
+
+    public long getDurationMillis(){
+        return TimeUnit.SECONDS.toMillis(durationSecs);
     }
 
     public int getAdded() {

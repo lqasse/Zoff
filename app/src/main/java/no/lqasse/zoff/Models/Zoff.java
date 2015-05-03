@@ -2,23 +2,20 @@ package no.lqasse.zoff.Models;
 
 import android.app.Activity;
 import android.app.Service;
-import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 
 import org.json.JSONArray;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Calendar;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
-import no.lqasse.zoff.ImageTools.ImageCache;
 import no.lqasse.zoff.Helpers.ToastMaster;
 import no.lqasse.zoff.Interfaces.ZoffListener;
-import no.lqasse.zoff.Models.Video;
-import no.lqasse.zoff.Server.SocketJSONTranslator;
-import no.lqasse.zoff.Server.SocketServer;
+import no.lqasse.zoff.Server.JSONTranslator;
+import no.lqasse.zoff.Server.Server;
 
 /**
  * Created by lassedrevland on 11.01.15.
@@ -26,37 +23,18 @@ import no.lqasse.zoff.Server.SocketServer;
 public class Zoff {
 
     private static final String LOG_IDENTIFIER         = "Zoff_LOG";
+    private ZoffSettings settings;
 
-    public static final String SETTINGS_KEY_ADD_SONGS  = "addsongs";
-    public static final String SETTINGS_KEY_ALL_VIDEOS = "allvideos";
-    public static final String SETTINGS_KEY_FRONTPAGE  = "frontpage";
-    public static final String SETTINGS_KEY_LONG_SONGS = "longsongs";
-    public static final String SETTINGS_KEY_SHUFFLE    = "shuffle";
-    public static final String SETTINGS_KEY_SKIP       = "skip";
-    public static final String SETTINGS_KEY_VOTE       = "vote";
-    public static final String SETTINGS_KEY_REMOVE_PLAY= "removeplay";
-
-    public static final String[] SETTINGS_KEYS =
-            {       SETTINGS_KEY_ADD_SONGS,
-                    SETTINGS_KEY_ALL_VIDEOS,
-                    SETTINGS_KEY_FRONTPAGE,
-                    SETTINGS_KEY_LONG_SONGS,
-                    SETTINGS_KEY_SHUFFLE,
-                    SETTINGS_KEY_SKIP,
-                    SETTINGS_KEY_VOTE,
-                    SETTINGS_KEY_REMOVE_PLAY
-            };
 
 
     private String channelName;
     private String adminpass = "";
     private int viewersCount = 0;
     private int skipsCount = 0;
-    private SocketServer server;
+    private Server server;
 
     private ArrayList<Video> videoList = new ArrayList<>();
     private ArrayList<Video> nextVideosList = new ArrayList<>();
-    private Map<String, Boolean> settings = new HashMap<>();
 
     private ZoffListener listener;
     private String android_id;
@@ -78,7 +56,7 @@ public class Zoff {
                     Settings.Secure.ANDROID_ID);
         }
 
-        server = new SocketServer(channelName,this,android_id);
+        server = new Server(channelName,this,android_id);
 
         this.listener = listener;
 
@@ -93,7 +71,7 @@ public class Zoff {
 
     public void showToast(String toastKeyword){
         if (listener instanceof Activity && listener!=null){
-            ToastMaster.showToast(listener,toastKeyword);
+            ToastMaster.showToast(listener, toastKeyword);
         }
 
     }
@@ -101,9 +79,10 @@ public class Zoff {
     public void socketRefreshed(JSONArray data){
 
         videoList.clear();
-        videoList.addAll(SocketJSONTranslator.toVideos(data));
-        settings.clear();
-        settings.putAll(SocketJSONTranslator.toSettingsMap(data));
+        videoList.addAll(JSONTranslator.toVideos(data));
+
+
+        settings = JSONTranslator.getSettings(data);
 
         if (!isEmpty() && listener != null ){
             (listener).onZoffRefreshed();
@@ -145,7 +124,6 @@ public class Zoff {
 
     public void vote(Video video) {
         server.vote(video, adminpass);
-
     }
 
     public void shuffle(){
@@ -153,7 +131,7 @@ public class Zoff {
     }
 
     public void add(String id, String title, String duration){
-        server.add(id,title,adminpass, duration);
+        server.add(id, title, adminpass, duration);
     }
 
     public void skip() {
@@ -162,18 +140,16 @@ public class Zoff {
     }
 
     public void delete(Video video){
-        server.delete(video,adminpass);
+        server.delete(video, adminpass);
     }
 
     public void savePassword(String password){
         server.savePassword(password);
     }
 
-    public void saveSettings(Boolean[] settings){
 
-        //Settings should be = [voting, addsongs, longsongs, frontpage, allvideos, removeplay, skipping, shuffling];
+    public void saveSettings(ZoffSettings settings){
         server.saveSettings(adminpass,settings);
-
 
     }
 
@@ -186,38 +162,12 @@ public class Zoff {
 
     }
 
-    public Boolean allVideosAllowed(){
-
-        return settings.get("allvideos");
-    }
-
-    public Boolean LONG_SONGS(){
-        return settings.get("longsongs");
-    }
 
     public boolean hasVideos() {
         return !videoList.isEmpty();
     }
 
-    public Bundle getSettingsBundle(){
-        Bundle b = new Bundle();
 
-        try {
-
-            for (String key : settings.keySet()){
-                b.putBoolean(key, settings.get(key));
-            }
-
-            b.putString("adminpass", adminpass);
-            b.putString("channelName", channelName);
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-
-        return b;
-
-
-    }
 
     public String getViewersCount(){
 
@@ -230,6 +180,77 @@ public class Zoff {
 
     }
 
+    public float getPlayProgress(){
+        long startTime = settings.getNowPlayingStartTimeMillis();
+
+
+        long duration = getNowPlayingVideo().getDurationMillis();
+        long elapsed = Calendar.getInstance().getTimeInMillis() - startTime;
+
+
+        if (elapsed > duration) return 1;
+
+        return (float)elapsed/(float)duration;
+
+    }
+
+
+
+    public String getCurrentPlaytime(){
+
+        long startTime = settings.getNowPlayingStartTimeMillis();
+        long duration = getNowPlayingVideo().getDurationMillis();
+
+        long elapsed = Calendar.getInstance().getTimeInMillis() - startTime;
+
+
+
+        long millis = elapsed;
+
+        long hoursS = TimeUnit.MILLISECONDS.toHours(millis);
+        millis -= TimeUnit.HOURS.toMillis(hoursS);
+        long minutesS = TimeUnit.MILLISECONDS.toMinutes(millis);
+        millis -= TimeUnit.MINUTES.toMillis(minutesS);
+        long secondsS = TimeUnit.MILLISECONDS.toSeconds(millis) ;
+
+
+        String elapsedString = "";
+
+        if (hoursS > 0) {
+            elapsedString += String.format("%02d",hoursS)+ ":";
+        }
+
+        elapsedString += String.format("%02d",minutesS) +":" + String.format("%02d",secondsS);
+
+
+        millis = duration;
+        long hoursD = TimeUnit.MILLISECONDS.toHours(millis);
+        millis -= TimeUnit.HOURS.toMillis(hoursD);
+        long minutesD = TimeUnit.MILLISECONDS.toMinutes(millis);
+        millis -= TimeUnit.MINUTES.toMillis(minutesD);
+        long secondsD = TimeUnit.MILLISECONDS.toSeconds(millis) - 1;
+
+
+        String durationString = "";
+
+        if (hoursD > 0) {
+            durationString += String.format("%02d",hoursD)+ ":";
+        }
+
+        durationString += String.format("%02d",minutesD) +":" + String.format("%02d",secondsD);
+
+
+
+        if (elapsed>duration) return durationString + " / " + durationString;
+
+        return  elapsedString + " / " + durationString;
+
+
+
+
+
+    }
+
     public String getSkips(){
         if (skipsCount > 0){
             return skipsCount +"/"+ viewersCount + " skipped";
@@ -239,26 +260,7 @@ public class Zoff {
 
     }
 
-    public boolean allowSkip(){
 
-        if (settings.containsKey("skip")){
-            return (settings.get("skip"));
-
-
-        }
-
-        return false;
-
-
-
-    }
-
-    public boolean allowShuffle(){
-        if (settings.containsKey("shuffle")){
-            return settings.get("shuffle");
-        }
-        return false;
-    }
 
     public String getNextId() {
 
@@ -331,22 +333,26 @@ public class Zoff {
     public void disconnect(){
 
        server.off();
-       listener = null;
 
 
 
     }
 
     private void log(String data){
-        Log.i(LOG_IDENTIFIER,data);
+        Log.i(LOG_IDENTIFIER, data);
     }
 
     public boolean isEmpty(){
         return videoList.isEmpty();
     }
 
-    public Map<String,Boolean> getSettings(){
-        return this.settings;
+
+    public String getListener(){
+        return listener.toString();
+    }
+
+    public ZoffSettings getSettings(){
+        return settings;
     }
 
 

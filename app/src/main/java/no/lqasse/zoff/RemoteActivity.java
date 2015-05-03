@@ -1,5 +1,6 @@
 package no.lqasse.zoff;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -20,21 +21,21 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.Switch;
 import android.widget.TextView;
 
 
 import java.util.ArrayList;
-import java.util.Map;
 
 import no.lqasse.zoff.Adapters.ListAdapter;
 import no.lqasse.zoff.Adapters.ListAdapterWPlaying;
+import no.lqasse.zoff.Helpers.ScreenReceiver;
 import no.lqasse.zoff.ImageTools.ImageBlur;
 import no.lqasse.zoff.ImageTools.ImageCache;
 import no.lqasse.zoff.ImageTools.ImageDownload;
 import no.lqasse.zoff.Interfaces.ImageListener;
 import no.lqasse.zoff.Models.Video;
 import no.lqasse.zoff.Adapters.SearchResultListAdapter;
+import no.lqasse.zoff.Models.ZoffSettings;
 import no.lqasse.zoff.Search.YouTube;
 import no.lqasse.zoff.Interfaces.YouTubeListener;
 import no.lqasse.zoff.Helpers.SpotifyServer;
@@ -82,10 +83,20 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
     private Runnable delaySearch = new Runnable() {
         @Override
         public void run() {
-            YouTube.search(RemoteActivity.this, toolBarSearchField.getText().toString(), zoff.allVideosAllowed(), zoff.LONG_SONGS());
+            YouTube.search(RemoteActivity.this, toolBarSearchField.getText().toString(), zoff.getSettings().isAllvideos(), zoff.getSettings().isLongsongs());
             loadingProgressbar.setVisibility(View.VISIBLE);
         }
     };
+
+    private Runnable listUpdater = new Runnable() {
+        @Override
+        public void run() {
+            listAdapter.notifyDataSetChanged();
+            handler.postDelayed(this,250);
+        }
+    };
+
+
 
     private boolean BIG_SCREEN = false;
 
@@ -105,9 +116,12 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
 
 
         super.onCreate(savedInstanceState);
+        ImageCache.empty();
+
         setContentView(R.layout.activity_remote);
         toolBar = (android.support.v7.widget.Toolbar) findViewById(R.id.tool_bar);
         setSupportActionBar(toolBar);
+        handler.post(listUpdater);
 
         log("onCreate");
 
@@ -237,7 +251,7 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
                             handleEvent(event_type.settings);
                             break;
                         case R.id.shuffleButton:
-                            handleEvent(event_type.shuffle);
+                            zoff.shuffle();
                             break;
                         case R.id.searchButton:
                             toggleSearchLayout();
@@ -277,9 +291,12 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
 
                     zoff.add(videoID, videoTitle, duration);
 
+                    ToastMaster.showToast(RemoteActivity.this, ToastMaster.TYPE.VIDEO_ADDED, videoTitle);
+
                 } else if (position != 0) { //Cant vote for current video duh
                     Video selectedVideo = listAdapter.getItem(position);
                     zoff.vote(selectedVideo);
+                    ToastMaster.showToast(RemoteActivity.this, ToastMaster.TYPE.VIDEO_VOTED, selectedVideo.getTitle());
 
                 }
 
@@ -307,6 +324,8 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
 
 
 
+
+
         videoList.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
@@ -316,38 +335,53 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 
-                if (videoList.getLastVisiblePosition() == YouTube.getSearchResults().size()-10){
+                if (videoList.getLastVisiblePosition() == YouTube.getSearchResults().size() - 10) {
 
                     YouTube.getNextPage(RemoteActivity.this);
                     Log.d("Scroll", "Loading next page");
 
                 }
+
+
             }
         });
 
 
+
+
     }
+
+
 
     @Override
     protected void onResume() {
+        super.onResume();
         stopNotificationService();
         if (!isNewChannel){
             zoff.ping(this);
         }
 
-        super.onResume();
+
     }
 
     @Override
     protected void onPause() {
+        super.onPause();
 
         if (appInBackGround) {
             appInBackGround = false;
 
         }
 
+        if ((ScreenReceiver.wasScreenOn || homePressed)&& !backPressed){
+            startNotificationService();
+            zoff.disconnect();
+            backPressed = false;
 
-        super.onPause();
+        }
+
+
+
 
 
     }
@@ -466,11 +500,17 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
                 ImageCache.registerImageListener(this, currentVideo.getId());
             }
 
+        //Preload next headerimage
+
         if (!ImageCache.has(zoff.getNextId(), ImageCache.ImageType.HUGE)){
             ImageDownload.downloadToCache(zoff.getNextId(), ImageCache.ImageType.HUGE);
-
-
         }
+
+        //Clean cache of old images
+        //ImageCache.cleanHugeImages(zoff.getNextId(),zoff.getNowPlayingID());
+
+
+
 
 
 
@@ -481,10 +521,11 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
 
     public void onCorrectPassword() {
 
-        InputMethodManager imm = (InputMethodManager) getSystemService(RemoteActivity.this.INPUT_METHOD_SERVICE);
+        InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
         imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
 
-        settingsFragment.enableSettings(zoff.getSettings());
+        settingsFragment.enableSettings();
+        videoList.setAdapter(listAdapter);
     }
 
 
@@ -519,7 +560,7 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
 
 
                 //Close softkeyboard
-                InputMethodManager imm = (InputMethodManager) getSystemService(RemoteActivity.this.INPUT_METHOD_SERVICE);
+                InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
                 imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
             } else {
                 //Searchbar is opened
@@ -532,7 +573,7 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
 
                 //Open softkeyboard
                 toolBarSearchField.requestFocus();
-                InputMethodManager imm = (InputMethodManager) getSystemService(RemoteActivity.this.INPUT_METHOD_SERVICE);
+                InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
                 imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
 
 
@@ -550,6 +591,8 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
     @Override
     public void onBackPressed() {
         homePressed = false;
+        backPressed = true;
+
 
         searchViewOpen = toolBarSearchField.getVisibility() == View.VISIBLE;
 
@@ -557,6 +600,7 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
             toggleSearchLayout();
         } else {
             zoff.disconnect();
+            finish();
             super.onBackPressed();
 
         }
@@ -565,7 +609,7 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
     }
 
     @Override
-    public void saveSettings(Boolean[] settings) {
+    public void saveSettings(ZoffSettings settings) {
         zoff.saveSettings(settings);
     }
 
@@ -579,13 +623,11 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
         zoff.savePassword(password);
     }
 
+
+
     @Override
     protected void onUserLeaveHint() {
-        if (homePressed){
-            startNotificationService();
-            zoff.disconnect();
 
-        }
         homePressed = true;
         super.onUserLeaveHint();
     }
@@ -610,7 +652,10 @@ public class RemoteActivity extends ZoffActivity implements ZoffListener,YouTube
         Log.i(LOG_IDENTIFIER,log);
     }
 
-
+    @Override
+    public String toString() {
+        return "RemoteActivity";
+    }
 }
 
 

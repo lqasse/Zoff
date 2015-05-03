@@ -23,11 +23,8 @@ import no.lqasse.zoff.Interfaces.ImageListener;
 import no.lqasse.zoff.Models.Video;
 import no.lqasse.zoff.Models.Zoff;
 import no.lqasse.zoff.Player.YouTube_Player;
-import no.lqasse.zoff.ZoffActivity;
 import no.lqasse.zoff.Interfaces.ZoffListener;
 import no.lqasse.zoff.Helpers.ToastMaster;
-import no.lqasse.zoff.R;
-import no.lqasse.zoff.SettingsActivity;
 
 public class PlayerActivity extends ZoffActivity implements ZoffListener,ImageListener {
     private String NOW_PLAYING_ID = "";
@@ -117,18 +114,9 @@ public class PlayerActivity extends ZoffActivity implements ZoffListener,ImageLi
         switch (id) {
             case (R.id.action_settings):
                 homePressed = false;
-                Intent settingsIntent = new Intent(this, SettingsActivity.class);
-                settingsIntent.putExtra("ROOM_NAME", ROOM_NAME);
-                startActivity(settingsIntent);
                 break;
             case (R.id.action_skip):
-                if (zoff.allowSkip()){
-                    zoff.skip();
-                } else {
-                    ToastMaster.showToast(this, ToastMaster.TYPE.SKIP_DISABLED);
-                }
-
-
+                zoff.skip();
 
                 break;
             case (R.id.action_togglePlay):
@@ -136,13 +124,7 @@ public class PlayerActivity extends ZoffActivity implements ZoffListener,ImageLi
                 break;
             case (R.id.action_shuffle):
 
-                if (zoff.allowShuffle()){
-                    ToastMaster.showToast(this, ToastMaster.TYPE.SHUFFLED);
-                    zoff.shuffle();
-
-                }else {
-                    ToastMaster.showToast(this, ToastMaster.TYPE.SHUFFLING_DISABLED);
-                }
+          zoff.shuffle();
                 break;
 
 

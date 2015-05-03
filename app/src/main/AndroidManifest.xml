@@ -50,6 +50,7 @@
             </intent-filter>
         </activity>
         <activity
+            android:launchMode="singleTask"
             android:name=".RemoteActivity"
             android:label="@string/app_name"
             android:windowSoftInputMode="adjustResize"
@@ -58,17 +59,13 @@
            >
 
         </activity>
-        <activity
-            android:name=".SettingsActivity"
-            android:label="@string/app_name"
-            android:windowSoftInputMode="adjustResize"
-            android:icon="@drawable/settings">
-        </activity>
+
         <service
             android:name=".NotificationService"
             android:enabled="true"
             android:label="@string/app_name">
         </service>
+        <receiver android:name=".Helpers.ScreenReceiver"></receiver>
 
 
 

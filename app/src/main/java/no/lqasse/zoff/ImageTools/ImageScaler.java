@@ -12,7 +12,7 @@ public class ImageScaler {
     private static  float AGGRESSIVE_DOWNSCALE_RATIO = 1.0f;
     private static int TARGET_IMAGE_WIDTH_BIG   = 640;
     private static int TARGET_IMAGE_HEIGHT_BIG  = (int)( TARGET_IMAGE_WIDTH_BIG / IMAGE_RATIO);
-    private static int TARGET_IMAGE_WIDTH       = 200;
+    private static int TARGET_IMAGE_WIDTH       = 150;
     private static int TARGET_IMAGE_HEIGHT      = (int)( TARGET_IMAGE_WIDTH / IMAGE_RATIO);
 
     public static Bitmap Scale(Bitmap bitmap, ImageCache.ImageType type){

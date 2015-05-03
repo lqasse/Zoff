@@ -1,6 +1,7 @@
 package no.lqasse.zoff.Adapters;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,37 +35,62 @@ public class SuggestionsGridAdapter extends ArrayAdapter<ChanSuggestion> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        LayoutInflater inflater = (LayoutInflater) context.getSystemService(context.LAYOUT_INFLATER_SERVICE);
-        View gridView = inflater.inflate(R.layout.channel_gridtile, parent, false);
-
-        ImageView headerImage = (ImageView)gridView.findViewById(R.id.headerImage);
-        TextView title = (TextView) gridView.findViewById(R.id.title);
-        TextView viewers = (TextView) gridView.findViewById(R.id.viewersLabel);
-        TextView songs = (TextView) gridView.findViewById(R.id.songsLabel);
-
-        title.setText(suggestions.get(position).getName());
-        viewers.setText(Integer.toString(suggestions.get(position).getViewers()));
-        songs.setText(Integer.toString(suggestions.get(position).getSongs()));
 
 
-        String videoId = suggestions.get(position).getNowPlayingId();
+        class Viewholder{
+            ImageView headerImage;
+            TextView title;
+            TextView viewers;
+            TextView songs;
+        }
 
-        String imageUrl = Video.getThumbMed(videoId);
-        String imageUrlAlt = imageUrl;
+        View gridTile;
+        Viewholder viewholder;
+        if (convertView == null){
 
-        if (ImageCache.has(videoId)){
-            headerImage.setImageBitmap(ImageCache.get(videoId));
-        }else {
-            ImageDownload.downloadAndSet(imageUrl,imageUrlAlt,videoId,headerImage, ImageCache.ImageType.REG);
+            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            gridTile = inflater.inflate(R.layout.channel_gridtile, parent, false);
 
+            viewholder = new Viewholder();
+            viewholder.headerImage =     (ImageView) gridTile.findViewById(R.id.headerImage);
+            viewholder.title =            (TextView) gridTile.findViewById(R.id.title);
+            viewholder.viewers =          (TextView) gridTile.findViewById(R.id.viewersLabel);
+            viewholder.songs =            (TextView) gridTile.findViewById(R.id.songsLabel);
+
+            gridTile.setTag(viewholder);
+
+        } else {
+            gridTile = convertView;
+            viewholder = (Viewholder) convertView.getTag();
+            viewholder.headerImage.setImageDrawable(null);
         }
 
 
 
 
 
+        viewholder.title.setText(suggestions.get(position).getName());
+        viewholder.viewers.setText(Integer.toString(suggestions.get(position).getViewers()));
+        viewholder.songs.setText(Integer.toString(suggestions.get(position).getSongs()));
 
 
-        return gridView;
+        String videoId = suggestions.get(position).getNowPlayingId();
+
+        viewholder.headerImage.setTag(videoId);
+
+        String imageUrl = Video.getThumbMed(videoId);
+        String imageUrlAlt = imageUrl;
+
+        if (ImageCache.has(videoId, ImageCache.ImageType.HUGE)){
+            viewholder.headerImage.setImageBitmap(ImageCache.get(videoId, ImageCache.ImageType.HUGE));
+        }else {
+            ImageDownload.downloadAndSet(imageUrl, imageUrlAlt, videoId, viewholder.headerImage, ImageCache.ImageType.HUGE);
+
+        }
+
+
+
+
+        return gridTile;
     }
 }

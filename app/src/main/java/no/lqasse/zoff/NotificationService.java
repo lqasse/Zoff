@@ -87,9 +87,14 @@ public class NotificationService extends Service implements ZoffListener,ImageLi
 
                 intent = new Intent(this, RemoteActivity.class);
                 intent.putExtra("ROOM_NAME",ROOM_NAME);
+
+
+                intent.addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
+                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+
                 startActivity(intent);
 
                 stopSelf();
@@ -146,7 +151,7 @@ public class NotificationService extends Service implements ZoffListener,ImageLi
 
         if (ImageCache.has(zoff.getNowPlayingID())){
             view.setImageViewBitmap(R.id.imageView, ImageCache.get(zoff.getNowPlayingID()));
-            bigView.setImageViewBitmap(R.id.imageView, ImageCache.get(zoff.getNowPlayingID()));
+            bigView.setImageViewBitmap(R.id.imageView, ImageCache.get(zoff.getNowPlayingID(), ImageCache.ImageType.HUGE));
 
         } else{
             ImageDownload.downloadToCache(zoff.getNowPlayingID());
@@ -228,7 +233,9 @@ public class NotificationService extends Service implements ZoffListener,ImageLi
 
     @Override
     public void imageInCache(Bitmap bitmap) {
+
         showNotification();
+
         log("Image in cache");
 
     }
@@ -261,14 +268,17 @@ public class NotificationService extends Service implements ZoffListener,ImageLi
                 metadataBuilder.putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, ImageCache.get(zoff.getNowPlayingID(), ImageCache.ImageType.HUGE));
 
             } else{
-                ImageDownload.downloadToCache(zoff.getNowPlayingID(), ImageCache.ImageType.HUGE);
+
+                ImageDownload.downloadToCache(zoff.getNowPlayingID(), ImageCache.ImageType.HUGE, false);
                 ImageCache.registerImageListener(this, zoff.getNowPlayingID(), ImageCache.ImageType.HUGE);
+
 
 
             }
 
             if (!ImageCache.has(zoff.getNextId(), ImageCache.ImageType.HUGE)){
-                ImageDownload.downloadToCache(zoff.getNextId(), ImageCache.ImageType.HUGE);
+                ImageDownload.downloadToCache(zoff.getNextId(), ImageCache.ImageType.HUGE, false);
+
             }
 
             mediaSession.setFlags(MediaSession.FLAG_HANDLES_MEDIA_BUTTONS|MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS);
@@ -299,5 +309,10 @@ public class NotificationService extends Service implements ZoffListener,ImageLi
                 mediaSession.release();
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        return "NotificationService";
     }
 }

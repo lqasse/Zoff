@@ -24,6 +24,7 @@ public abstract class ZoffActivity extends ActionBarActivity {
     protected String ROOM_PASS;
     protected Zoff zoff;
     protected Boolean homePressed = true;
+    protected Boolean backPressed = false;
 
     private Bitmap currentBackground;
 
@@ -72,26 +73,13 @@ public abstract class ZoffActivity extends ActionBarActivity {
 
                 break;
             case shuffle:
-                if (zoff.allowShuffle()) {
-                    if (zoff.hasPassword()) {
-                        ToastMaster.showToast(this, ToastMaster.TYPE.SHUFFLED);
-                        zoff.shuffle();
-                    } else {
-                        ToastMaster.showToast(this, ToastMaster.TYPE.NEEDS_PASS_TO_SHUFFLE);
-                    }
-                } else {
-                    ToastMaster.showToast(this, ToastMaster.TYPE.SHUFFLING_DISABLED);
-                }
+                zoff.shuffle();
+
                 break;
             case play_here:
                 break;
             case settings:
-                homePressed = false;
-                Intent i = new Intent(this, SettingsActivity.class);
-                i.putExtras(zoff.getSettingsBundle());
 
-
-                startActivity(i);
                 break;
 
         }

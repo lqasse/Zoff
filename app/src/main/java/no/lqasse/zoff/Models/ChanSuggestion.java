@@ -43,7 +43,7 @@ public class ChanSuggestion implements Comparable<ChanSuggestion>{
 
         if (this.getViewers() == another.getViewers()){
             if (this.getSongs() < another.getSongs()){return 1;}
-            if (this.getSongs() > another.getSongs()){return -1;};
+            if (this.getSongs() > another.getSongs()){return -1;}
 
             return 0;
         } else {

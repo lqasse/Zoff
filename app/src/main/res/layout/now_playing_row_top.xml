@@ -11,6 +11,16 @@
     android:clipToPadding="false">
 
 
+    <FrameLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/progressbar"
+        android:layout_alignParentStart="true"
+        android:id="@+id/playProgress"
+        android:layout_below="@+id/imageView"
+     ></FrameLayout>
+
     <ImageView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -60,17 +70,15 @@
         android:text="0 viewers" />
 
 
-
-    <ProgressBar
-        style="?android:attr/progressBarStyleSmall"
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/progressBar"
-        android:layout_marginLeft="51dp"
-        android:layout_marginStart="51dp"
-        android:layout_centerVertical="true"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:id="@+id/playtimeCurrent"
+        android:textColor="@color/videolist_item_top_viewers"
+        android:textSize="13dp"
+        android:layout_below="@+id/videoTitleView"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:visibility="gone" />
+        android:layout_alignParentStart="true" />
 
 </RelativeLayout>

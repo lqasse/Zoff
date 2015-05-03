@@ -17,6 +17,7 @@ import android.widget.TextView;
 import java.util.Map;
 
 import no.lqasse.zoff.Models.Zoff;
+import no.lqasse.zoff.Models.ZoffSettings;
 
 /**
  * Created by lassedrevland on 01.05.15.
@@ -156,7 +157,7 @@ public class SettingsFragment extends Fragment {
         super.onAttach(activity);
     }
 
-    public void enableSettings(Map settings){
+    public void enableSettings(){
         //Close softkeyboard
 
 
@@ -189,7 +190,20 @@ public class SettingsFragment extends Fragment {
                 Boolean skip         = (!skipSwitch.isChecked());
                 Boolean shuffle      = (!shuffleSwitch.isChecked());
 
-                Boolean[] settings = {vote, addsongs, longsongs, frontpage, allvideos, removeplay, skip, shuffle};
+               // Boolean[] settings = {vote, addsongs, longsongs, frontpage, allvideos, removeplay, skip, shuffle};
+
+                ZoffSettings settings = new ZoffSettings(
+                        !addsongsSwitch.isChecked(),
+                        !allvideosSwitch.isChecked(),
+                        frontpageSwitch.isChecked(),
+                        !longsongsSwitch.isChecked(),
+                        removeplaySwitch.isChecked(),
+                        !shuffleSwitch.isChecked(),
+                        !skipSwitch.isChecked(),
+                        voteSwitch.isChecked()
+
+
+                );
 
                 activity.saveSettings(settings);
 
@@ -213,23 +227,22 @@ public class SettingsFragment extends Fragment {
 
     }
 
-    public void setSettings(Map settings){
-        voteSwitch.setChecked(      !(boolean) settings.get(Zoff.SETTINGS_KEY_VOTE));
-        addsongsSwitch.setChecked(  !(boolean) settings.get(Zoff.SETTINGS_KEY_ADD_SONGS));
-        allvideosSwitch.setChecked( !(boolean) settings.get(Zoff.SETTINGS_KEY_ALL_VIDEOS));
-        longsongsSwitch.setChecked( !(boolean) settings.get(Zoff.SETTINGS_KEY_LONG_SONGS));
-        frontpageSwitch.setChecked( (boolean) settings.get(Zoff.SETTINGS_KEY_FRONTPAGE));
-        skipSwitch.setChecked(      !(boolean) settings.get(Zoff.SETTINGS_KEY_SKIP));
-        shuffleSwitch.setChecked(   !(boolean) settings.get(Zoff.SETTINGS_KEY_SHUFFLE));
+    public void setSettings(ZoffSettings settings){
 
-        //Does not need inverting
-        removeplaySwitch.setChecked((boolean) settings.get(Zoff.SETTINGS_KEY_REMOVE_PLAY));
+        voteSwitch.setChecked(          !settings.isVote());
+        addsongsSwitch.setChecked(      !settings.isAddsongs());
+        allvideosSwitch.setChecked(     !settings.isAllvideos());
+        longsongsSwitch.setChecked(     !settings.isLongsongs());
+        frontpageSwitch.setChecked(      settings.isFrontpage());
+        skipSwitch.setChecked(          !settings.isSkip());
+        shuffleSwitch.setChecked(       !settings.isShuffle());
+        removeplaySwitch.setChecked(     settings.isRemoveplay());
+
 
         toggleSettingsLabels();
     }
 
     private void toggleSettingsLabels(){
-       // Map settings = zoff.getSettings();
 
         if (addsongsSwitch.isChecked()){
             addsongsDescription.setText(addsongsEnabled);
@@ -284,7 +297,7 @@ public class SettingsFragment extends Fragment {
     public interface Listener {
         void savePassword(String password);
         void setFragment(SettingsFragment fragment);
-        void saveSettings(Boolean[] settings);
+        void saveSettings(ZoffSettings settings);
 
     }
 }

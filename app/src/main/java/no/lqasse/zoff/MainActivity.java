@@ -18,8 +18,9 @@ import java.util.Collections;
 
 
 import no.lqasse.zoff.Adapters.SuggestionsGridAdapter;
+import no.lqasse.zoff.ImageTools.ImageCache;
 import no.lqasse.zoff.Models.ChanSuggestion;
-import no.lqasse.zoff.Server.SocketServer;
+import no.lqasse.zoff.Server.Server;
 
 
 public class MainActivity extends ActionBarActivity  {
@@ -29,9 +30,14 @@ public class MainActivity extends ActionBarActivity  {
 
 
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        ImageCache.empty();
+
 
         setContentView(R.layout.activity_main);
         chanTextView = (AutoCompleteTextView) findViewById(R.id.acEditText);
@@ -179,7 +185,7 @@ public class MainActivity extends ActionBarActivity  {
 
     @Override
     protected void onResume() {
-        SocketServer.getSuggestions(this);
+        Server.getSuggestions(this);
         log("Getting suggestions");
         super.onResume();
     }
