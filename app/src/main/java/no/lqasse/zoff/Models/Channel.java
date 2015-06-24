@@ -3,14 +3,14 @@ package no.lqasse.zoff.Models;
 /**
  * Created by lassedrevland on 16.04.15.
  */
-public class ChanSuggestion implements Comparable<ChanSuggestion>{
+public class Channel implements Comparable<Channel>{
     private int viewers;
     private String nowPlayingId;
     private String nowPlayingTitle;
     private String name;
     private int songs;
 
-    public ChanSuggestion(int viewers, String nowPlayingId, String nowPlayingTitle, String name, int songs) {
+    public Channel(int viewers, String nowPlayingId, String nowPlayingTitle, String name, int songs) {
         this.viewers = viewers;
         this.nowPlayingId = nowPlayingId;
         this.nowPlayingTitle = nowPlayingTitle;
@@ -39,7 +39,7 @@ public class ChanSuggestion implements Comparable<ChanSuggestion>{
     }
 
     @Override
-    public int compareTo(ChanSuggestion another) {
+    public int compareTo(Channel another) {
 
         if (this.getViewers() == another.getViewers()){
             if (this.getSongs() < another.getSongs()){return 1;}

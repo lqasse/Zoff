@@ -4,7 +4,7 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:id="@+id/layout"
+    android:id="@+id/listContainer"
     android:background="@drawable/videolist_item_background"
     android:elevation="2dp"
     android:translationY="0dp">

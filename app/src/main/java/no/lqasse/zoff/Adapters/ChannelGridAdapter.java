@@ -1,7 +1,6 @@
 package no.lqasse.zoff.Adapters;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,20 +11,20 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import no.lqasse.zoff.ImageTools.ImageCache;
-import no.lqasse.zoff.ImageTools.ImageDownload;
-import no.lqasse.zoff.Models.ChanSuggestion;
+import no.lqasse.zoff.ImageTools.BitmapDownloader;
+import no.lqasse.zoff.Models.Channel;
 import no.lqasse.zoff.Models.Video;
 import no.lqasse.zoff.R;
 
 /**
  * Created by lassedrevland on 18.04.15.
  */
-public class SuggestionsGridAdapter extends ArrayAdapter<ChanSuggestion> {
+public class ChannelGridAdapter extends ArrayAdapter<Channel> {
 
 
     private Context context;
-    private  ArrayList<ChanSuggestion> suggestions;
-    public SuggestionsGridAdapter(Context context,ArrayList<ChanSuggestion> suggestions){
+    private  ArrayList<Channel> suggestions;
+    public ChannelGridAdapter(Context context, ArrayList<Channel> suggestions){
         super(context, R.layout.channel_gridtile,suggestions);
         this.suggestions = suggestions;
         this.context = context;
@@ -81,10 +80,10 @@ public class SuggestionsGridAdapter extends ArrayAdapter<ChanSuggestion> {
         String imageUrl = Video.getThumbMed(videoId);
         String imageUrlAlt = imageUrl;
 
-        if (ImageCache.has(videoId, ImageCache.ImageType.HUGE)){
-            viewholder.headerImage.setImageBitmap(ImageCache.get(videoId, ImageCache.ImageType.HUGE));
+        if (ImageCache.has(videoId, ImageCache.ImageSize.HUGE)){
+            viewholder.headerImage.setImageBitmap(ImageCache.get(videoId, ImageCache.ImageSize.HUGE));
         }else {
-            ImageDownload.downloadAndSet(imageUrl, imageUrlAlt, videoId, viewholder.headerImage, ImageCache.ImageType.HUGE);
+            BitmapDownloader.downloadAndSet(imageUrl, imageUrlAlt, videoId, viewholder.headerImage, ImageCache.ImageSize.HUGE, false);
 
         }
 

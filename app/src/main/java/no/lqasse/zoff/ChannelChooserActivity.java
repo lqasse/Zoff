@@ -17,18 +17,18 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 
-import no.lqasse.zoff.Adapters.SuggestionsGridAdapter;
+import no.lqasse.zoff.Adapters.ChannelGridAdapter;
 import no.lqasse.zoff.ImageTools.ImageCache;
-import no.lqasse.zoff.Models.ChanSuggestion;
+import no.lqasse.zoff.Models.Channel;
+import no.lqasse.zoff.Models.ZoffController;
+import no.lqasse.zoff.Remote.RemoteActivity;
 import no.lqasse.zoff.Server.Server;
 
 
-public class MainActivity extends ActionBarActivity  {
+public class ChannelChooserActivity extends ActionBarActivity  {
 
-    private AutoCompleteTextView chanTextView;
+    private AutoCompleteTextView channelTextView;
     private static final String LOG_IDENTIFIER = "MainActivity";
-
-
 
 
 
@@ -40,35 +40,14 @@ public class MainActivity extends ActionBarActivity  {
 
 
         setContentView(R.layout.activity_main);
-        chanTextView = (AutoCompleteTextView) findViewById(R.id.acEditText);
+        channelTextView = (AutoCompleteTextView) findViewById(R.id.acEditText);
 
 
 
-        //Handles link clicks
         Intent i = getIntent();
         if (i.getAction().equals(Intent.ACTION_VIEW)){
-            String url = i.getData().toString();
-            url = url.replace("http://www.zoff.no/","");
-            url = url.replace("/","");
 
-            char urlChars[] = url.toCharArray();
-            Boolean containsIllegalChar = false;
-
-            for (char c: urlChars){
-                if (!Character.isLetterOrDigit(c)){
-                    containsIllegalChar = true;
-
-                }
-
-            }
-            if (!containsIllegalChar){
-
-                chanTextView.setText(url);
-                initialize(url);
-            }
-
-
-
+            handleLinkClickIntent(i.getData().toString());
         }
 
 
@@ -76,14 +55,14 @@ public class MainActivity extends ActionBarActivity  {
 
 
 
-        chanTextView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        channelTextView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 
                 if (actionId == EditorInfo.IME_ACTION_GO) {
 
                     if (isValidRoom()) {
 
-                        initializeNew(chanTextView.getText().toString());
+                        initializeNew(channelTextView.getText().toString());
 
 
                     } else {
@@ -98,10 +77,10 @@ public class MainActivity extends ActionBarActivity  {
 
         });
 
-        chanTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        channelTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                initialize(chanTextView.getText().toString());
+                initializeRemote(channelTextView.getText().toString());
             }
         });
 
@@ -109,24 +88,18 @@ public class MainActivity extends ActionBarActivity  {
     }
 
 
-    @Override
-    protected void onPostResume() {
-
-        super.onPostResume();
-    }
-
     private void initializeNew(String chan){
         Intent i = new Intent(this, RemoteActivity.class);
-        i.putExtra("ROOM_NAME", chan);
-        i.putExtra("NEW",true);
+        i.putExtra(ZoffController.BUNDLEKEY_CHANNEL, chan);
+        i.putExtra(ZoffController.BUNDLEKEY_IS_NEW_CHANNEL, true);
 
         startActivity(i);
     }
 
-    private void initialize(String chan){
+    private void initializeRemote(String chan){
 
         Intent i = new Intent(this, RemoteActivity.class);
-        i.putExtra("ROOM_NAME", chan);
+        i.putExtra(ZoffController.BUNDLEKEY_CHANNEL, chan);
         startActivity(i);
 
     }
@@ -135,10 +108,10 @@ public class MainActivity extends ActionBarActivity  {
 
     private boolean isValidRoom(){
 
-        String room = chanTextView.getText().toString();
+        String room = channelTextView.getText().toString();
         String r = room.replace(" ","");
 
-        chanTextView.setText(r);
+        channelTextView.setText(r);
         if (r.equals("")) {
             Toast.makeText(this,"Enter name",Toast.LENGTH_SHORT).show();
             return false;
@@ -156,26 +129,28 @@ public class MainActivity extends ActionBarActivity  {
 
 
 
-    public void setSuggestions(final ArrayList<ChanSuggestion> suggestions){
 
 
-        GridView gridView = (GridView) findViewById(R.id.chanGrid);
-        SuggestionsGridAdapter suggestionArrayAdapter = new SuggestionsGridAdapter(this,suggestions);
+    private void handleLinkClickIntent(String url){
 
-        Collections.sort(suggestions);
-        gridView.setAdapter(suggestionArrayAdapter);
+        url = url.replace("http://www.zoff.no/","");
+        url = url.replace("/","");
 
+        char urlChars[] = url.toCharArray();
+        Boolean containsIllegalChar = false;
 
-
-
-
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                initialize(suggestions.get(position).getName());
+        for (char c: urlChars){
+            if (!Character.isLetterOrDigit(c)){
+                containsIllegalChar = true;
 
             }
-        });
+
+        }
+        if (!containsIllegalChar){
+
+            channelTextView.setText(url);
+            initializeRemote(url);
+        }
 
     }
 
@@ -185,8 +160,36 @@ public class MainActivity extends ActionBarActivity  {
 
     @Override
     protected void onResume() {
-        Server.getSuggestions(this);
+
+        Server.getChannelSuggestions(this, new Server.SuggestionsCallback() {
+            @Override
+            public void onResponse(final ArrayList<Channel> suggestions) {
+                setChannelSuggestions(suggestions);
+            }
+        });
+
+
         log("Getting suggestions");
         super.onResume();
+    }
+
+    public void setChannelSuggestions(final ArrayList<Channel> suggestions){
+
+
+        GridView gridView = (GridView) findViewById(R.id.chanGrid);
+        ChannelGridAdapter suggestionArrayAdapter = new ChannelGridAdapter(this,suggestions);
+
+        Collections.sort(suggestions);
+        gridView.setAdapter(suggestionArrayAdapter);
+
+
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                initializeRemote(suggestions.get(position).getName());
+
+            }
+        });
+
     }
 }

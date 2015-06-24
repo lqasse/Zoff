@@ -7,7 +7,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import no.lqasse.zoff.Models.ZoffSettings;
 import no.lqasse.zoff.Models.Video;
@@ -17,29 +16,56 @@ import no.lqasse.zoff.Models.Video;
  */
 public  class JSONTranslator {
 
-    public static ZoffSettings getSettings(JSONArray data){
+    private static final int JSON_SETTINGS_INDEX_OFFSET = -1;
+    private static final int JSON_SETTINGS_INDEX = 0;
+
+
+    public static int getTimeAdded(JSONArray data){
+
+        try {
+            return data.getInt(1);
+        }catch (JSONException e){
+            e.printStackTrace();
+        }
+
+        return 0;
+    }
+    public static String getContentID(JSONArray data){
+        try {
+            return data.getString(1);
+        } catch (JSONException e){
+            e.printStackTrace();
+            return "";
+        }
+
+    }
+
+    public static ZoffSettings createSettingsFromJSON(JSONArray data){
+
 
         JSONObject object;
+
         try {
-            object = data.getJSONObject(data.length()-1);
+            object = data.getJSONArray(1).getJSONObject(JSON_SETTINGS_INDEX);
 
-            ZoffSettings settings = new ZoffSettings(
-                    object.getString("_id"),
-                    object.getJSONArray("skips").length(),
-                    object.getJSONArray("views").length(),
-                    object.getInt("startTime"),
-                    object.getBoolean(ZoffSettings.KEY_ADD_SONGS),
-                    object.getBoolean(ZoffSettings.KEY_ALL_VIDEOS),
-                    object.getBoolean(ZoffSettings.KEY_LONG_SONGS),
-                    object.getBoolean(ZoffSettings.KEY_FRONTPAGE),
-                    object.getBoolean(ZoffSettings.KEY_REMOVE_PLAY),
-                    object.getBoolean(ZoffSettings.KEY_SHUFFLE),
-                    object.getBoolean(ZoffSettings.KEY_SKIP),
-                    object.getBoolean(ZoffSettings.KEY_VOTE)
 
-            );
 
-            return settings;
+            return new ZoffSettings.Builder()
+                    ._id                (object.getString("_id"))
+                    .numberOfSkips(object.getJSONArray("skips").length())
+                    .numberOfViewers(object.getJSONArray("views").length())
+                    .startTimeSeconds(object.getInt("startTime"))
+                    .allowsAddsongs(object.getBoolean(ZoffSettings.KEY_ADD_SONGS))
+                    .allvideos(object.getBoolean(ZoffSettings.KEY_ALL_VIDEOS))
+                    .longsongs(object.getBoolean(ZoffSettings.KEY_LONG_SONGS))
+                    .frontpage(object.getBoolean(ZoffSettings.KEY_FRONTPAGE))
+                    .removeplay(object.getBoolean(ZoffSettings.KEY_REMOVE_PLAY))
+                    .shuffle(object.getBoolean(ZoffSettings.KEY_SHUFFLE))
+                    .skip(object.getBoolean(ZoffSettings.KEY_SKIP))
+                    .vote(object.getBoolean(ZoffSettings.KEY_VOTE))
+                    .build();
+
+
 
 
 
@@ -53,16 +79,15 @@ public  class JSONTranslator {
 
     }
 
-
-    public static ArrayList<Video> toVideos(JSONArray array){
+    public static ArrayList<Video> createVideoListFromJSON(JSONArray array){
         ArrayList<Video> videos = new ArrayList<>();
 
         try {
-            for (int i = 0;i<array.length()-1;i++){
-                Video current = toVideo(array.getJSONObject(i));
 
-
-                    if (current.getNow_playing()){
+            JSONArray videosJSONArray = array.getJSONArray(1);
+            for (int i = 1;i<videosJSONArray.length();i++){
+                Video current = createVideoFromJSON(videosJSONArray.getJSONObject(i));
+                    if (current.isNowPlaying()){
                         videos.add(0,current);
                     } else {
                         videos.add(current);
@@ -86,7 +111,17 @@ public  class JSONTranslator {
 
     }
 
-    public static Video toVideo(JSONObject object){
+    public static Video createVideoFromJSON(JSONArray array){
+        try {
+            JSONObject o = array.getJSONObject(1);
+            return createVideoFromJSON(o);
+        }catch (JSONException e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static Video createVideoFromJSON(JSONObject object){
         try{
 
 
@@ -100,9 +135,6 @@ public  class JSONTranslator {
             }
 
 
-
-
-
             String _id      = "";
             String id       = "";
             String title    = "";
@@ -110,6 +142,8 @@ public  class JSONTranslator {
             int duration    = 0;
             int added       = 0;
             boolean now_playing = false;
+
+
 
             if (hasLabel[0]){_id        = object.getString("_id"); }
             if (hasLabel[1]){id         = object.getString("id");}
@@ -134,7 +168,15 @@ public  class JSONTranslator {
 
 
 
-            return new Video(_id,id,title,votes,added,duration,guids,now_playing);
+            return new Video.Builder()
+                    ._id(_id)
+                    .id(id)
+                    .title(title)
+                    .votesCount(votes)
+                    .durationSecs(duration)
+                    .addedMillis(added)
+                    .isNowPlaying(now_playing)
+                    .build();
 
 
         } catch (JSONException e){
@@ -145,36 +187,7 @@ public  class JSONTranslator {
 
     }
 
-    public static HashMap<String,Boolean> toSettingsMap(JSONArray data){
 
-        JSONObject object;
-        try {
-            object = data.getJSONObject(data.length()-1);
-
-        for (String label : ZoffSettings.KEYS){
-            if (!object.has(label)){
-                //a Setting is missing
-                return null;
-            }
-        }
-
-
-        HashMap<String,Boolean> settings = new HashMap<>();
-
-        for (String setting: ZoffSettings.KEYS){
-            settings.put(setting,object.getBoolean(setting));
-        }
-
-            return settings;
-
-        }catch (JSONException e){
-            e.printStackTrace();
-            return null;
-
-        }
-
-
-    }
 
 
 }

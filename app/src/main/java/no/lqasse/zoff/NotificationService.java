@@ -17,27 +17,27 @@ import android.util.Log;
 import android.widget.RemoteViews;
 
 import no.lqasse.zoff.ImageTools.ImageCache;
-import no.lqasse.zoff.ImageTools.ImageDownload;
-import no.lqasse.zoff.Interfaces.ImageListener;
-import no.lqasse.zoff.Interfaces.ZoffListener;
-import no.lqasse.zoff.Models.Zoff;
+import no.lqasse.zoff.ImageTools.BitmapDownloader;
+import no.lqasse.zoff.Models.Video;
+import no.lqasse.zoff.Models.ZoffController;
+import no.lqasse.zoff.Models.ZoffModel;
+import no.lqasse.zoff.Remote.RemoteActivity;
 
 /**
  * Created by lassedrevland on 04.02.15.
  */
-public class NotificationService extends Service implements ZoffListener,ImageListener {
-    private String ROOM_NAME = "";
-
-    private String TAG = "MediaSessionTAG1227";
+public class NotificationService extends Service {
     private static final String LOG_IDENTIFIER = "NotificationService";
     public static final String INTENT_KEY_SKIP = "SKIP";
     public static final String INTENT_KEY_CLOSE = "CLOSE";
     public static final String INTENT_KEY_OPEN_REMOTE = "OPEN";
     public static final String INTENT_KEY_START = "START";
     public static final String INTENT_KEY_CHAN_NAME = "CHAN_NAME";
+    private String TAG = "MediaSessionTAG1227";
 
-    private Zoff zoff;
-
+    private ZoffController zoffController;
+    private ZoffModel zoff;
+    private String channel = "";
     private MediaSession mediaSession;
 
     private void log(String data){
@@ -61,52 +61,26 @@ public class NotificationService extends Service implements ZoffListener,ImageLi
 
         switch (intent.getAction()){
             case INTENT_KEY_CLOSE:
-                log("Closing");
-                if (zoff!=null){
-                    zoff.disconnect();
-                    zoff = null;
-                }
+                closeNotification();
 
-                clearNotification();
-
-                stopSelf();
                 break;
             case INTENT_KEY_SKIP:
-                log("skip");
-                if (zoff == null){
-                    zoff = new Zoff(ROOM_NAME,this);
-                }
-                zoff.skip();
+
+                skipCurrentVideo();
+
                 break;
             case INTENT_KEY_OPEN_REMOTE:
-                if (zoff != null){
-                    zoff.disconnect();
-                }
+                openRemoteActivity();
 
-                zoff = null;
-
-                intent = new Intent(this, RemoteActivity.class);
-                intent.putExtra("ROOM_NAME",ROOM_NAME);
-
-
-                intent.addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
-                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
-
-                startActivity(intent);
-
-                stopSelf();
 
 
 
                 break;
             case INTENT_KEY_START:
-                if (b.containsKey("ROOM_NAME")) {
-                    log("Starting");
-                    ROOM_NAME = b.getString("ROOM_NAME");
-                    zoff = new Zoff(ROOM_NAME, this);
+
+                if (b.containsKey(ZoffController.BUNDLEKEY_CHANNEL)) {
+                    startService(b.getString(ZoffController.BUNDLEKEY_CHANNEL));
+
                 } else {
                     stopSelf();
                 }
@@ -122,25 +96,63 @@ public class NotificationService extends Service implements ZoffListener,ImageLi
 
     }
 
+    private void skipCurrentVideo(){
+        log("skip");
+        if (zoffController == null){
+            zoffController = new ZoffController(channel,this);
+        }
 
+        zoffController.skip();
+    }
 
-    //communication FROM Zof instance START
-    public void onZoffRefreshed() {
+    private void closeNotification(){
+        log("Closing");
+        if (zoffController !=null){
+            //zoffController.removeCallbacks();
+            //zoffController.disconnect();
+            zoffController = null;
+        }
+
+        clearNotification();
+        stopSelf();
+    }
+
+    private void startService(String channel){
+        this.channel = channel;
+        zoffController = ZoffController.getInstance(channel,this);
+
         showNotification();
-    }
+        zoffController.setOnRefreshListener(new ZoffController.RefreshCallback() {
+            @Override
+            public void onZoffRefreshed(ZoffModel zoff) {
+                showNotification();
+            }
+        });
 
-    @Override
-    public void onViewersChanged() {
-        showNotification();
 
-    }
-
-    @Override
-    public void onCorrectPassword() {
 
     }
 
-    //Communication FROM Zoff instance END
+    private void openRemoteActivity(){
+        closeNotification();
+
+        zoffController = null;
+
+        Intent startRemoteIntent = new Intent(this, RemoteActivity.class);
+        startRemoteIntent.putExtra(zoffController.BUNDLEKEY_CHANNEL, channel);
+
+
+        startRemoteIntent.addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
+        startRemoteIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startRemoteIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startRemoteIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+
+        startActivity(startRemoteIntent);
+
+        stopSelf();
+    }
+
 
     private void showNotification() {
         log("Showing notification");
@@ -149,20 +161,37 @@ public class NotificationService extends Service implements ZoffListener,ImageLi
         RemoteViews bigView = new RemoteViews(getApplicationContext().getPackageName(),R.layout.notification_big);
 
 
-        if (ImageCache.has(zoff.getNowPlayingID())){
-            view.setImageViewBitmap(R.id.imageView, ImageCache.get(zoff.getNowPlayingID()));
-            bigView.setImageViewBitmap(R.id.imageView, ImageCache.get(zoff.getNowPlayingID(), ImageCache.ImageType.HUGE));
+        String currentlyPlayingVideoID = zoffController.getZoff().getPlayingVideo().getId();
+        String nextVideoID = zoffController.getZoff().getNextVideo().getId();
 
-        } else{
-            ImageDownload.downloadToCache(zoff.getNowPlayingID());
-            ImageCache.registerImageListener(this,zoff.getNowPlayingID());
+        if (ImageCache.has(currentlyPlayingVideoID)){
+            view.setImageViewBitmap(R.id.imageView, ImageCache.get(currentlyPlayingVideoID));
+            bigView.setImageViewBitmap(R.id.imageView, ImageCache.get(currentlyPlayingVideoID));
+
+        } else {
+            BitmapDownloader.download(nextVideoID, ImageCache.ImageSize.REG, true, new BitmapDownloader.Callback() {
+                @Override
+                public void onImageDownloaded(Bitmap image, ImageCache.ImageSize type) {
+                    showNotification();
+                }
+            });
         }
 
-        view.setTextViewText(R.id.titleTextView, zoff.getNowPlayingTitle());
-        view.setTextViewText(R.id.viewersTextView, zoff.getViewersCount());
-        bigView.setTextViewText(R.id.titleTextView, zoff.getNowPlayingTitle());
-        bigView.setTextViewText(R.id.viewersTextView, zoff.getViewersCount());
-        bigView.setTextViewText(R.id.channelTextView, zoff.getChannelName());
+
+        if (nextVideoID != null){
+
+            BitmapDownloader.download(nextVideoID, ImageCache.ImageSize.REG, true, null);
+
+        }
+
+        ZoffModel zoffmodel = zoffController.getZoff();
+
+
+        view.setTextViewText(R.id.titleTextView, zoffmodel.getPlayingVideo().getTitle());
+        view.setTextViewText(R.id.viewersTextView, zoffmodel.getCurrentViewers());
+        bigView.setTextViewText(R.id.titleTextView, zoffmodel.getPlayingVideo().getTitle());
+        bigView.setTextViewText(R.id.viewersTextView, zoffmodel.getCurrentViewers());
+        bigView.setTextViewText(R.id.channelTextView, zoffmodel.getChannel());
 
         //Closes notification
         Intent stopIntent = new Intent(this,NotificationService.class);
@@ -216,8 +245,8 @@ public class NotificationService extends Service implements ZoffListener,ImageLi
 
     @Override
     public void onDestroy() {
-        if (zoff!=null){
-            zoff.disconnect();
+        if (zoffController !=null){
+            //zoffController.disconnect();
         }
         clearNotification();
         releaseMediaSession();
@@ -231,14 +260,6 @@ public class NotificationService extends Service implements ZoffListener,ImageLi
         log("Notification cleared");
     }
 
-    @Override
-    public void imageInCache(Bitmap bitmap) {
-
-        showNotification();
-
-        log("Image in cache");
-
-    }
 
     private void startMediaSession(){
         if (Build.VERSION.SDK_INT >= 21){
@@ -248,7 +269,7 @@ public class NotificationService extends Service implements ZoffListener,ImageLi
 
                     @Override
                     public void onSkipToNext() {
-                        zoff.skip();
+                        zoffController.skip();
                         super.onSkipToNext();
                     }
 
@@ -257,27 +278,40 @@ public class NotificationService extends Service implements ZoffListener,ImageLi
 
             }
 
+
+
             MediaMetadata.Builder metadataBuilder = new MediaMetadata.Builder();
 
-
-            metadataBuilder.putString(MediaMetadata.METADATA_KEY_TITLE, zoff.getNowPlayingTitle());
-            metadataBuilder.putString(MediaMetadata.METADATA_KEY_ARTIST,zoff.getChannelName());
+            Video currentlyPlayingVideo = zoffController.getZoff().getPlayingVideo();
 
 
-            if (ImageCache.has(zoff.getNowPlayingID(), ImageCache.ImageType.HUGE)){
-                metadataBuilder.putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, ImageCache.get(zoff.getNowPlayingID(), ImageCache.ImageType.HUGE));
+            metadataBuilder.putString(MediaMetadata.METADATA_KEY_TITLE, currentlyPlayingVideo.getTitle());
+            metadataBuilder.putString(MediaMetadata.METADATA_KEY_ARTIST, zoffController.getZoff().getChannel());
+
+
+            if (ImageCache.has(currentlyPlayingVideo.getId(), ImageCache.ImageSize.HUGE)){
+                metadataBuilder.putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, ImageCache.get(currentlyPlayingVideo.getId(), ImageCache.ImageSize.HUGE));
 
             } else{
 
-                ImageDownload.downloadToCache(zoff.getNowPlayingID(), ImageCache.ImageType.HUGE, false);
-                ImageCache.registerImageListener(this, zoff.getNowPlayingID(), ImageCache.ImageType.HUGE);
+                BitmapDownloader.download(currentlyPlayingVideo.getId(), ImageCache.ImageSize.HUGE, false, new BitmapDownloader.Callback() {
+                    @Override
+                    public void onImageDownloaded(Bitmap image, ImageCache.ImageSize type) {
+                        showNotification();
+                    }
+                });
+
+
 
 
 
             }
 
-            if (!ImageCache.has(zoff.getNextId(), ImageCache.ImageType.HUGE)){
-                ImageDownload.downloadToCache(zoff.getNextId(), ImageCache.ImageType.HUGE, false);
+            Video nextVideo = zoffController.getZoff().getNextVideo();
+
+
+            if (!ImageCache.has(nextVideo.getId(), ImageCache.ImageSize.HUGE)){
+                BitmapDownloader.download(nextVideo.getId(), ImageCache.ImageSize.HUGE, false, null);
 
             }
 

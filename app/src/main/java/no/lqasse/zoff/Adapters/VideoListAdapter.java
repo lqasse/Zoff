@@ -8,32 +8,33 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 
 import no.lqasse.zoff.ImageTools.ImageCache;
-import no.lqasse.zoff.ImageTools.ImageDownload;
+import no.lqasse.zoff.ImageTools.BitmapDownloader;
 import no.lqasse.zoff.Helpers.ToastMaster;
 import no.lqasse.zoff.Models.Video;
+import no.lqasse.zoff.Models.ZoffController;
+import no.lqasse.zoff.Models.ZoffModel;
 import no.lqasse.zoff.R;
-import no.lqasse.zoff.Models.Zoff;
+
 /**
  * Created by lassedrevland on 04.04.15.
  */
-public class ListAdapter extends ArrayAdapter<Video> {
+public class VideoListAdapter extends ArrayAdapter<Video> {
         //private final String[] values;
-        protected final ArrayList<Video> videoList;
+        protected ArrayList<Video> videoList;
         protected Context context;
-        protected Zoff zoff;
+        protected ZoffController controller;
 
-    public ListAdapter(Context context, ArrayList<Video> videoList, Zoff zoff) {
-        super(context, R.layout.now_playing_row, videoList);
+    public VideoListAdapter(Context context,  ZoffController controller) {
+        super(context, R.layout.now_playing_row, controller.getZoff().getVideos());
         this.context = context;
-        this.videoList = videoList;
-        this.zoff = zoff;
+        this.controller = controller;
+        videoList = controller.getZoff().getVideos();
 
     }
 
@@ -55,19 +56,19 @@ public class ListAdapter extends ArrayAdapter<Video> {
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
 
-        ViewHolder holder;
+        final ViewHolder holder;
 
 
 
         View rowView = convertView;
 
-        Boolean recycledTopView = false;
+        Boolean isRecycledTopView = false;
         if (rowView!=null){
-            recycledTopView = rowView.getId()== R.id.nowPlayingLayout;
+            isRecycledTopView = rowView.getId()== R.id.nowPlayingLayout;
         }
 
 
-        if (rowView == null || recycledTopView){
+        if (rowView == null || isRecycledTopView){
 
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             rowView = inflater.inflate(R.layout.now_playing_row, parent, false);
@@ -78,11 +79,7 @@ public class ListAdapter extends ArrayAdapter<Video> {
             holder.title          = (TextView)     rowView.findViewById(R.id.videoTitleView);
             holder.votes          = (TextView)     rowView.findViewById(R.id.votesView);
 
-            if (zoff.hasPassword()){
-                holder.deleteButton.setVisibility(View.VISIBLE);
-            } else {
-                holder.deleteButton.setVisibility(View.INVISIBLE);
-            }
+
 
 
 
@@ -99,7 +96,8 @@ public class ListAdapter extends ArrayAdapter<Video> {
                 @Override
                 public boolean onLongClick(View v) {
                     final int index = (int) v.getTag();
-                    zoff.delete(videoList.get(index));
+
+                    controller.delete(videoList.get(index));
                     videoList.remove(index);
 
                     RelativeLayout row = (RelativeLayout) v.getParent();
@@ -150,6 +148,12 @@ public class ListAdapter extends ArrayAdapter<Video> {
 
         Video currentVideo = videoList.get(position);
 
+        if (controller.getZoff().isUnlocked()){
+            holder.deleteButton.setVisibility(View.VISIBLE);
+        } else {
+            holder.deleteButton.setVisibility(View.INVISIBLE);
+        }
+
 
 
 
@@ -159,6 +163,8 @@ public class ListAdapter extends ArrayAdapter<Video> {
         holder.position = position;
         holder.video = currentVideo;
         holder.deleteButton.setTag(position);
+
+
         holder.imageView.setTag(currentVideo.getId());
 
 
@@ -171,8 +177,9 @@ public class ListAdapter extends ArrayAdapter<Video> {
             Bitmap videoImage = ImageCache.get(currentVideo.getId());
             holder.imageView.setImageBitmap(videoImage);
         } else {
-            ImageDownload.downloadAndSet(currentVideo.getThumbMed(), currentVideo.getThumbSmall(), currentVideo.getId(), holder.imageView, ImageCache.ImageType.REG);
-        }
+
+            BitmapDownloader.downloadAndSet(currentVideo.getThumbMed(), currentVideo.getThumbSmall(), currentVideo.getId(), holder.imageView, ImageCache.ImageSize.REG, true);
+        };
 
         return rowView;
     }

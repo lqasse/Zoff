@@ -1,39 +1,38 @@
 package no.lqasse.zoff.Adapters;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 
 
 import no.lqasse.zoff.ImageTools.ImageCache;
-import no.lqasse.zoff.ImageTools.ImageDownload;
+import no.lqasse.zoff.ImageTools.BitmapDownloader;
 import no.lqasse.zoff.Models.Video;
+import no.lqasse.zoff.Models.ZoffController;
+import no.lqasse.zoff.Models.ZoffModel;
 import no.lqasse.zoff.R;
-import no.lqasse.zoff.Models.Zoff;
 
 /**
  * Created by lassedrevland on 07.04.15.
  */
-public class ListAdapterWPlaying extends ListAdapter {
-    public ListAdapterWPlaying(Context context, ArrayList<Video> videoList, Zoff zoff) {
-        super(context, videoList, zoff);
+public class VideoListAdapterHeader extends VideoListAdapter {
+    public VideoListAdapterHeader(Context context, ZoffController controller) {
+        super(context, controller);
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+
+        ZoffModel zoff = controller.getZoff();
         if (position == 0){
 
-            Video currentVideo = videoList.get(position);
+            Video currentVideo = controller.getZoff().getVideos().get(position);
             ViewHolder viewHolder = new ViewHolder();
 
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -52,8 +51,8 @@ public class ListAdapterWPlaying extends ListAdapter {
 
 
             title.setText(currentVideo.getTitle());
-            views.setText(zoff.getViewersCount());
-            skips.setText(zoff.getSkips());
+            views.setText(zoff.getCurrentViewers());
+            skips.setText(zoff.getCurrentSkips());
             //playtime.setText(zoff.getCurrentPlaytime());
 
             playProgress.setPivotX(0);
@@ -68,16 +67,18 @@ public class ListAdapterWPlaying extends ListAdapter {
             viewHolder.video        = currentVideo;
             viewHolder.huge         = true;
 
+            viewHolder.imageView.setTag(currentVideo.getId());
 
 
 
 
 
 
-            if (ImageCache.has(currentVideo.getId(), ImageCache.ImageType.HUGE)) {
-                imageView.setImageBitmap(ImageCache.get(currentVideo.getId(), ImageCache.ImageType.HUGE));
+
+            if (ImageCache.has(currentVideo.getId(), ImageCache.ImageSize.HUGE)) {
+                imageView.setImageBitmap(ImageCache.get(currentVideo.getId(), ImageCache.ImageSize.HUGE));
             } else {
-                ImageDownload.downloadAndSet(currentVideo.getThumbHuge(), currentVideo.getThumbMed(), currentVideo.getId(), viewHolder.imageView, ImageCache.ImageType.HUGE);
+                BitmapDownloader.downloadAndSet(currentVideo.getThumbHuge(), currentVideo.getThumbMed(), currentVideo.getId(), viewHolder.imageView, ImageCache.ImageSize.HUGE, false);
 
             }
 

@@ -4,7 +4,7 @@
     android:layout_height="fill_parent"
     tools:context=".Main"
     android:background="@color/main_background"
-    android:id="@+id/layout"
+    android:id="@+id/listContainer"
     android:descendantFocusability="beforeDescendants"
     android:focusableInTouchMode="true">
 

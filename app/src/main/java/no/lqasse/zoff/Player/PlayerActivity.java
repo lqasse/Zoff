@@ -1,32 +1,7 @@
-package no.lqasse.zoff;
+package no.lqasse.zoff.Player;
 
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.os.Bundle;
-import android.os.Handler;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.TextView;
-
-import com.google.android.youtube.player.YouTubePlayer;
-
-import java.util.ArrayList;
-
-import no.lqasse.zoff.Adapters.ListAdapter;
-import no.lqasse.zoff.ImageTools.ImageBlur;
-import no.lqasse.zoff.ImageTools.ImageCache;
-import no.lqasse.zoff.ImageTools.ImageDownload;
-import no.lqasse.zoff.Interfaces.ImageListener;
-import no.lqasse.zoff.Models.Video;
-import no.lqasse.zoff.Models.Zoff;
-import no.lqasse.zoff.Player.YouTube_Player;
-import no.lqasse.zoff.Interfaces.ZoffListener;
-import no.lqasse.zoff.Helpers.ToastMaster;
-
-public class PlayerActivity extends ZoffActivity implements ZoffListener,ImageListener {
+/*
+public class PlayerActivity extends ZoffActivity implements ImageListener {
     private String NOW_PLAYING_ID = "";
     private YouTube_Player player;
     private final Handler handler = new Handler();
@@ -47,8 +22,8 @@ public class PlayerActivity extends ZoffActivity implements ZoffListener,ImageLi
 
         Intent i = getIntent();
         Bundle b = i.getExtras();
-        ROOM_NAME = b.getString("ROOM_NAME");
-        zoff = new Zoff(ROOM_NAME, this);
+        channel = b.getString(Zoff.BUNDLEKEY_CHANNEL);
+        zoff = new Zoff(channel, this);
 
 
         getSupportActionBar().setDisplayShowTitleEnabled(true);
@@ -62,7 +37,7 @@ public class PlayerActivity extends ZoffActivity implements ZoffListener,ImageLi
         videoListView = (ListView) findViewById(R.id.videoList);
 
 
-        listAdapter = new ListAdapter(this, zoff.getNextVideos(), zoff);
+        listAdapter = new ListAdapter(this, zoff.getNextVideos(), zoff.getZoff());
 
 
         videoListView.setAdapter(listAdapter);
@@ -161,15 +136,6 @@ public class PlayerActivity extends ZoffActivity implements ZoffListener,ImageLi
 
     }
 
-    @Override
-    public void onCorrectPassword() {
-
-    }
-
-    @Override
-    public void onViewersChanged() {
-
-    }
 
     public void onZoffRefreshed() {
 
@@ -178,25 +144,29 @@ public class PlayerActivity extends ZoffActivity implements ZoffListener,ImageLi
         listAdapter.notifyDataSetChanged();
 
         titleLabel.setText(zoff.getNowPlayingTitle());
-        currentTimeLabel.setText(zoff.getViewersCount());
+        //currentTimeLabel.setText(zoff.getViewersCount());
 
-        if (!ImageCache.has(zoff.getNowPlayingID() + "_blur") && ImageCache.has(zoff.getNowPlayingID())){
-            ImageBlur.createAndSetBlurBG(ImageCache.get(zoff.getNowPlayingID()), this, zoff.getNowPlayingID());
-        } else if (ImageCache.has(zoff.getNowPlayingID()+"_blur")){
+
+        setBackgroundImage(zoff.getNowPlayingVideoID());
+        /*
+        if (!ImageCache.has(zoff.getNowPlayingVideoID() + "_blur") && ImageCache.has(zoff.getNowPlayingVideoID())){
+            ImageBlur.createAndSetBlurBG(ImageCache.get(zoff.getNowPlayingVideoID()), this, zoff.getNowPlayingVideoID());
+        } else if (ImageCache.has(zoff.getNowPlayingVideoID()+"_blur")){
             setBackgroundImage(ImageCache.getCurrentBlurBG());
         } else {
-            ImageCache.registerImageListener(this,zoff.getNowPlayingID());
-            ImageDownload.downloadToCache(zoff.getNowPlayingID());
+            ImageCache.registerImageListener(this,zoff.getNowPlayingVideoID());
+            ImageDownload.downloadToCache(zoff.getNowPlayingVideoID());
 
         }
 
+
         //play next video if current playing != zoff-currentplaying
-        if (!NOW_PLAYING_ID.equals(zoff.getNowPlayingID()) && !NOW_PLAYING_ID.equals("")) {
+        if (!NOW_PLAYING_ID.equals(zoff.getNowPlayingVideoID()) && !NOW_PLAYING_ID.equals("")) {
             //videoEnded();
             player.loadVideos(zoff.getVideoIDs());
 
             player.next();
-            NOW_PLAYING_ID = zoff.getNowPlayingID();
+            NOW_PLAYING_ID = zoff.getNowPlayingVideoID();
         }
 
 
@@ -214,7 +184,7 @@ public class PlayerActivity extends ZoffActivity implements ZoffListener,ImageLi
 
         if (zoff.hasVideos() && (player.isInitialized())) {
             player.loadVideos(zoff.getVideoIDs());
-            NOW_PLAYING_ID = zoff.getNowPlayingID();
+            NOW_PLAYING_ID = zoff.getNowPlayingVideoID();
             handler.removeCallbacks(r, this);
         } else {
 
@@ -282,6 +252,11 @@ public class PlayerActivity extends ZoffActivity implements ZoffListener,ImageLi
 
     @Override
     public void imageInCache(Bitmap bitmap) {
-        ImageBlur.createAndSetBlurBG(bitmap,this,zoff.getNowPlayingID());
+        ImageBlur.createAndSetBlurBG(bitmap,this,zoff.getNowPlayingVideoID());
     }
+
+
+
+
 }
+*/

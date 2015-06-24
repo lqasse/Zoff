@@ -2,59 +2,29 @@ package no.lqasse.zoff.ImageTools;
 
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
-import android.widget.ImageView;
-
-import no.lqasse.zoff.ZoffActivity;
+import android.support.annotation.Nullable;
 
 /**
  * Created by lassedrevland on 23.03.15.
  */
-public class ImageBlur {
+public class BitmapBlurer {
 
-    private enum Action {SET_BG,SET,CREATE}
-
-    public static void create(Bitmap bitmap,String id){
-
+    public static void blurBitmap(Bitmap bitmap, String videoID, @Nullable Callback callback){
         ViewHolder holder = new ViewHolder();
         holder.bitmap = bitmap;
-        holder.videoID = id;
-        holder.action = Action.CREATE;
-
-        create create = new create();
-        create.execute(holder);
-
-    }
-
-    public  static void blurAndSet(Bitmap bitmap,ImageView imageView){
-
-        ViewHolder holder = new ViewHolder();
-        holder.bitmap = bitmap;
-        holder.imageView = imageView;
-        holder.action = Action.SET;
+        holder.videoID = videoID;
+        holder.callback = callback;
 
 
-       create create = new create();
-        create.execute(holder);
 
-    }
-    public static void createAndSetBlurBG(Bitmap bitmap, ZoffActivity activity,String id){
-
-        ViewHolder viewHolder = new ViewHolder();
-        viewHolder.bitmap = bitmap;
-        viewHolder.activity = activity;
-        viewHolder.videoID = id;
-        viewHolder.action = Action.SET_BG;
-        create create = new create();
-        create.execute(viewHolder);
-
+        blurTask blurTask = new blurTask();
+        blurTask.execute(holder);
     }
 
     private static class ViewHolder{
         Bitmap bitmap;
-        ZoffActivity activity;
         String videoID;
-        ImageView imageView;
-        Action action;
+        Callback callback;
 
         public Bitmap getBitmap() {
             return bitmap;
@@ -67,7 +37,7 @@ public class ImageBlur {
 
     }
 
-    private  static class create extends AsyncTask<ViewHolder,Void,ViewHolder> {
+    private  static class blurTask extends AsyncTask<ViewHolder,Void,ViewHolder> {
 
 
         @Override
@@ -286,21 +256,18 @@ public class ImageBlur {
         @Override
         protected void onPostExecute(ViewHolder viewHolder) {
 
-            switch (viewHolder.action){
-                case SET_BG:
-                    ImageCache.put(viewHolder.videoID, ImageCache.ImageType.BLUR, viewHolder.bitmap);
-                    viewHolder.activity.setBackgroundImage(viewHolder.bitmap);
-                    break;
-                case SET:
-                    break;
-                case CREATE:
-                    ImageCache.put(viewHolder.videoID, ImageCache.ImageType.BLUR,viewHolder.bitmap);
+
+            if (viewHolder.callback != null){
+                viewHolder.callback.onBlurFinished(viewHolder.bitmap);
             }
 
-
-
+            ImageCache.put(viewHolder.videoID, ImageCache.ImageSize.BLUR,viewHolder.bitmap,false);
             super.onPostExecute(viewHolder);
         }
+    }
+
+    public interface Callback{
+        void onBlurFinished(Bitmap bitmap);
     }
 
 

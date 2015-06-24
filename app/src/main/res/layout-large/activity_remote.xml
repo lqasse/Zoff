@@ -3,7 +3,7 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:weightSum="1"
-    android:id="@+id/layout"
+    android:id="@+id/listContainer"
     android:tag="big_screen" >
 
 
@@ -33,7 +33,7 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:orientation="vertical"
-            android:layout_toLeftOf="@+id/videoList"
+            android:layout_toLeftOf="@+id/videoPlaylist"
             android:layout_weight="0.5"
             android:layout_margin="10dp">
 
@@ -163,7 +163,7 @@
             <ListView
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:id="@+id/videoList"
+                android:id="@+id/videoPlaylist"
                 android:fastScrollEnabled="false"
                 android:scrollbars="none"
                 android:overScrollMode="ifContentScrolls"

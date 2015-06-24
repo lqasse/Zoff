@@ -71,7 +71,6 @@ public class ToastMaster {
                 showToast(context, TYPE.SAVED_SETTINGS);
                 break;
             case "wrongpass":
-
                 showToast(context, TYPE.WRONG_PASSWORD);
                 break;
             case "shuffled":

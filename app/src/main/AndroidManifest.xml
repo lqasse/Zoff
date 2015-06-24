@@ -9,11 +9,11 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/logo"
+        android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".MainActivity"
+            android:name=".ChannelChooserActivity"
             android:label="@string/app_name"
             >
             <intent-filter>
@@ -34,7 +34,7 @@
             android:name=".PlayerActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
-            android:parentActivityName=".MainActivity">
+            android:parentActivityName=".ChannelChooserActivity">
         </activity>
         <activity
             android:name=".SearchActivity"
@@ -51,7 +51,7 @@
         </activity>
         <activity
             android:launchMode="singleTask"
-            android:name=".RemoteActivity"
+            android:name=".Remote.RemoteActivity"
             android:label="@string/app_name"
             android:windowSoftInputMode="adjustResize"
 
@@ -65,7 +65,7 @@
             android:enabled="true"
             android:label="@string/app_name">
         </service>
-        <receiver android:name=".Helpers.ScreenReceiver"></receiver>
+        <receiver android:name=".Helpers.ScreenStateReceiver"></receiver>
 
 
 

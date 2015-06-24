@@ -3,8 +3,6 @@ package no.lqasse.zoff;
 import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
-import android.preference.PreferenceFragment;
-import android.support.annotation.Nullable;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,9 +12,6 @@ import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import java.util.Map;
-
-import no.lqasse.zoff.Models.Zoff;
 import no.lqasse.zoff.Models.ZoffSettings;
 
 /**
@@ -119,6 +114,7 @@ public class SettingsFragment extends Fragment {
         removeplayEnabled   = getResources().getString(R.string.switch_removeplay_description_enabled);
         skipEnabled         = getResources().getString(R.string.switch_skip_description_enabled);
         shuffleEnabled      = getResources().getString(R.string.switch_shuffle_description_enabled);
+
         voteDisabled        = getResources().getString(R.string.switch_vote_description_disabled);
         addsongsDisabled    = getResources().getString(R.string.switch_addsongs_description_disabled);
         longsongsDisabled   = getResources().getString(R.string.switch_longsongs_description_disabled);
@@ -158,10 +154,6 @@ public class SettingsFragment extends Fragment {
     }
 
     public void enableSettings(){
-        //Close softkeyboard
-
-
-
         voteSwitch.setEnabled(true);
         addsongsSwitch.setEnabled(true);
         allvideosSwitch.setEnabled(true);
@@ -180,31 +172,18 @@ public class SettingsFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
-                //Revert switchvalues to reflect server values
-                Boolean vote         = (!voteSwitch.isChecked());
-                Boolean addsongs     = (!addsongsSwitch.isChecked());
-                Boolean longsongs    = (!longsongsSwitch.isChecked());
-                Boolean frontpage    = (frontpageSwitch.isChecked());
-                Boolean allvideos    = (!allvideosSwitch.isChecked());
-                Boolean removeplay   = (removeplaySwitch.isChecked());
-                Boolean skip         = (!skipSwitch.isChecked());
-                Boolean shuffle      = (!shuffleSwitch.isChecked());
-
-               // Boolean[] settings = {vote, addsongs, longsongs, frontpage, allvideos, removeplay, skip, shuffle};
-
-                ZoffSettings settings = new ZoffSettings(
-                        !addsongsSwitch.isChecked(),
-                        !allvideosSwitch.isChecked(),
-                        frontpageSwitch.isChecked(),
-                        !longsongsSwitch.isChecked(),
-                        removeplaySwitch.isChecked(),
-                        !shuffleSwitch.isChecked(),
-                        !skipSwitch.isChecked(),
-                        voteSwitch.isChecked()
 
 
-                );
-
+                ZoffSettings settings = new ZoffSettings.Builder()
+                        .allowsAddsongs(addsongsSwitch.isChecked())
+                        .allvideos(allvideosSwitch.isChecked())
+                        .frontpage(frontpageSwitch.isChecked())
+                        .longsongs(longsongsSwitch.isChecked())
+                        .removeplay(removeplaySwitch.isChecked())
+                        .shuffle(shuffleSwitch.isChecked())
+                        .skip(skipSwitch.isChecked())
+                        .vote(voteSwitch.isChecked())
+                        .build();
                 activity.saveSettings(settings);
 
                 toggleSettingsLabels();
@@ -229,14 +208,14 @@ public class SettingsFragment extends Fragment {
 
     public void setSettings(ZoffSettings settings){
 
-        voteSwitch.setChecked(          !settings.isVote());
-        addsongsSwitch.setChecked(      !settings.isAddsongs());
-        allvideosSwitch.setChecked(     !settings.isAllvideos());
-        longsongsSwitch.setChecked(     !settings.isLongsongs());
-        frontpageSwitch.setChecked(      settings.isFrontpage());
-        skipSwitch.setChecked(          !settings.isSkip());
-        shuffleSwitch.setChecked(       !settings.isShuffle());
-        removeplaySwitch.setChecked(     settings.isRemoveplay());
+        voteSwitch.setChecked(          settings.isVote());
+        addsongsSwitch.setChecked(      settings.isAddsongs());
+        allvideosSwitch.setChecked(     settings.isAllvideos());
+        longsongsSwitch.setChecked(     settings.isLongsongs());
+        frontpageSwitch.setChecked(     settings.isFrontpage());
+        skipSwitch.setChecked(          settings.isSkip());
+        shuffleSwitch.setChecked(       settings.isShuffle());
+        removeplaySwitch.setChecked(    settings.isRemoveplay());
 
 
         toggleSettingsLabels();
