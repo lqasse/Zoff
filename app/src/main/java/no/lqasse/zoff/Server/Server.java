@@ -383,7 +383,7 @@ public class Server {
         socket.connect();
         socket.emit("list", chan);
 
-        socket.on(chan, onChannelRefresh);
+        socket.on("channel", onChannelRefresh);
         socket.on(chan+",np"        , onNewVideo);
         socket.on("skipping"        ,onSkip);
         socket.on("viewers"         ,onViewersChanged);
