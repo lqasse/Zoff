@@ -154,17 +154,12 @@ public class VideoListAdapter extends ArrayAdapter<Video> {
             holder.deleteButton.setVisibility(View.INVISIBLE);
         }
 
-
-
-
         holder.title.setText(videoList.get(position).getTitle());
         holder.votes.setText(videoList.get(position).getVotesString());
         holder.imageURL = videoList.get(position).getThumbMed();
         holder.position = position;
         holder.video = currentVideo;
         holder.deleteButton.setTag(position);
-
-
         holder.imageView.setTag(currentVideo.getId());
 
 
