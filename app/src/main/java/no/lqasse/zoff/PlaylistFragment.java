@@ -52,8 +52,6 @@ public class PlaylistFragment extends Fragment {
 
         View v = inflater.inflate(R.layout.playlist_fragment,container,false);
         videoList = (RecyclerView) v.findViewById(R.id.videoPlaylist);
-        //videoList.setAdapter(listAdapter);
-
         recyclerAdapter = new VideoListRecyclerAdapter(zoffController);
         final LinearLayoutManager layoutManager = new LinearLayoutManager(activity);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);

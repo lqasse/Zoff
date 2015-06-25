@@ -106,11 +106,14 @@ public class RemoteActivity extends ZoffActivity implements SettingsFragment.Lis
         }
 
 
+
         zoffController = ZoffController.getInstance(channel,this);
 
 
         zoff = zoffController.getZoff();
         setControllerCallbacks(zoffController);
+
+
 
 
 
@@ -123,11 +126,13 @@ public class RemoteActivity extends ZoffActivity implements SettingsFragment.Lis
         isBigScreen = checkIsBigScreen();
 
 
+        /*
         getSupportActionBar().setDisplayShowTitleEnabled(true);
         getSupportActionBar().setTitle(zoff.getChannel());
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        */
 
-        toolBarTitle.setText(zoff.getChannel());
+
 
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolBar, R.string.remote_drawer_open, R.string.remote_drawer_closed) {
             @Override
@@ -192,6 +197,7 @@ public class RemoteActivity extends ZoffActivity implements SettingsFragment.Lis
 
     private void refreshViewData(ZoffModel zoff) {
 
+
         playlistFragment.onZoffRefresh(zoff);
         loadingProgressbar.setVisibility(View.INVISIBLE);
         settingsFragment.setSettings(zoff.getSettings());
@@ -219,6 +225,7 @@ public class RemoteActivity extends ZoffActivity implements SettingsFragment.Lis
         zoffController = ZoffController.getInstance(channel,this);
         zoff = zoffController.getZoff();
         refreshViewData(zoff);
+        toolBarTitle.setText(zoff.getChannel());
 
         setControllerCallbacks(zoffController);
 

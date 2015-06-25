@@ -24,7 +24,6 @@ import javax.net.ssl.X509TrustManager;
 
 import no.lqasse.zoff.ChannelChooserActivity;
 import no.lqasse.zoff.Models.Channel;
-import no.lqasse.zoff.Models.SearchResult;
 import no.lqasse.zoff.Models.Video;
 import no.lqasse.zoff.Models.ZoffController;
 import no.lqasse.zoff.Models.ZoffSettings;
@@ -34,17 +33,29 @@ import no.lqasse.zoff.Models.ZoffSettings;
  */
 public class Server {
 
-    private final static String ZOFF_URL            = "https://zoff.no:3000";
-    private final String LOG_IDENTIFIER             = "SocketServer";
-    private final String SOCKET_KEY_EMIT_SKIP       = "skip";
-    private final String SOCKET_KEY_EMIT_SETTINGS   = "conf";
-    private final String SOCKET_KEY_EMIT_PASSWORD   = "password";
-    private final String SOCKET_KEY_EMIT_VOTE       = "vote";
-    private final String SOCKET_KEY_EMIT_SHUFFLE    = "shuffle";
+    private static final String ZOFF_URL            = "https://zoff.no:3000";
+    private static final String LOG_IDENTIFIER             = "SocketServer";
+
+    private static final String SOCKET_KEY_EMIT_SKIP       = "skip";
+    private static final String SOCKET_KEY_EMIT_SETTINGS   = "conf";
+    private static final String SOCKET_KEY_EMIT_PASSWORD   = "password";
+    private static final String SOCKET_KEY_EMIT_VOTE       = "vote";
+    private static final String SOCKET_KEY_EMIT_SHUFFLE    = "shuffle";
+
+    private static final String SOCKET_KEY_ON_SKIPPED           = "skipping";
+    private static final String SOCKET_KEY_ON_CHANNEL_REFRESH   = "channel";
+    private static final String SOCKET_KEY_ON_VIEWCOUNT_CHANGED = "viewers";
+    private static final String SOCKET_KEY_ON_TOAST             = "toast";
+    private static final String SOCKET_KEY_ON_CORRECT_PASSWORD  = "pw";
+    private static final String SOCKET_KEY_ON_PING_CALLBACK     = "ok";
+    private static final String SOCKET_KEY_ON_SETTINGS_SAVED    = "savedsettings";
+    private static final String SOCKET_KEY_ON_NOW_PLAYING_CHANGED = "np";
+
     Socket socket;
     ZoffController zoffController;
     String chan;
     Handler handler;
+
 
 
 
@@ -150,7 +161,7 @@ public class Server {
             });
         }
     };
-    private Emitter.Listener onViewersChanged = new Emitter.Listener() {
+    private Emitter.Listener onViewCountChanged = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
             handler.post(new Runnable() {
@@ -164,7 +175,7 @@ public class Server {
                     zoffController.viewersChanged(viewers);
 
 
-                    log("onViewesChanged: " + viewers);
+                    log("onViewsChanged: " + viewers);
                     connectionOK();
 
 
@@ -344,14 +355,7 @@ public class Server {
 
     private void connect(){
         if (socket != null){
-            socket.off(chan);
-            socket.off(chan+",np");
-            socket.off("skipping");
-            socket.off(chan+",numberOfViewers");
-            socket.off("toast");
-            socket.off("pw");
-            socket.off(chan+"savedsettings");
-            socket.off("ok");
+            socket = removeSocketListeners(socket);
             socket.disconnect();
             socket.close();
         }
@@ -381,14 +385,9 @@ public class Server {
         socket.connect();
         socket.emit("list", chan);
 
-        socket.on("channel", onChannelRefresh);
-        socket.on(chan+",np"        , onNewVideo);
-        socket.on("skipping"        ,onSkip);
-        socket.on("viewers"         ,onViewersChanged);
-        socket.on("toast"           ,onToast);
-        socket.on("pw", onPw);
-        socket.on(chan + "savedsettings", onSavedSettings);
-        socket.on("ok"              ,onPingOK);
+        socket = setSocketListeners(socket);
+
+
 
 
     }
@@ -512,13 +511,8 @@ public class Server {
 
     public void off()  {
         log("disconnect");
-        socket.off(chan);
-        socket.off(chan+",np");
-        socket.off("skipping");
-        socket.off(chan+",numberOfViewers");
-        socket.off("toast");
-        socket.off("pw");
-        socket.off(chan+"savedsettings");
+
+        socket = removeSocketListeners(socket);
 
         socket.disconnect();
         socket.close();
@@ -537,6 +531,33 @@ public class Server {
 
     public interface SuggestionsCallback {
         void onResponse(ArrayList<Channel> response);
+    }
+
+    private Socket setSocketListeners(Socket socket){
+        socket.on(SOCKET_KEY_ON_CHANNEL_REFRESH,        onChannelRefresh);
+        socket.on(chan+SOCKET_KEY_ON_NOW_PLAYING_CHANGED        ,onNewVideo);
+        socket.on(SOCKET_KEY_ON_SKIPPED        ,onSkip);
+        socket.on(SOCKET_KEY_ON_VIEWCOUNT_CHANGED         , onViewCountChanged);
+        socket.on(SOCKET_KEY_ON_TOAST           ,onToast);
+        socket.on(SOCKET_KEY_ON_CORRECT_PASSWORD, onPw);
+        socket.on(chan + SOCKET_KEY_ON_SETTINGS_SAVED, onSavedSettings);
+        socket.on(SOCKET_KEY_ON_PING_CALLBACK              ,onPingOK);
+
+        return socket;
+    }
+
+    private Socket removeSocketListeners(Socket socket){
+        socket.off(SOCKET_KEY_ON_CHANNEL_REFRESH);
+        socket.off(chan+SOCKET_KEY_ON_NOW_PLAYING_CHANGED);
+        socket.off(SOCKET_KEY_ON_SKIPPED );
+        socket.off(SOCKET_KEY_ON_VIEWCOUNT_CHANGED);
+        socket.off(SOCKET_KEY_ON_TOAST);
+        socket.off(SOCKET_KEY_ON_CORRECT_PASSWORD);
+        socket.off(chan+SOCKET_KEY_ON_SETTINGS_SAVED);
+        socket.off(SOCKET_KEY_ON_PING_CALLBACK);
+
+
+        return socket;
     }
 
 
