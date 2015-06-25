@@ -488,7 +488,6 @@ public class Server {
         JSONArray data = new JSONArray();
         data.put(password);
         data.put(chan);
-        data.put(guid);
         socket.emit(SOCKET_KEY_EMIT_PASSWORD, data);
     }
 
