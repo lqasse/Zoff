@@ -44,7 +44,6 @@ public class Server {
     Socket socket;
     ZoffController zoffController;
     String chan;
-    String guid = "1337";
     Handler handler;
 
 
@@ -246,7 +245,6 @@ public class Server {
     public Server(String chan, ZoffController zoffController, String android_id){
         this.zoffController = zoffController;
         this.chan = chan;
-        this.guid = android_id;
         handler = new Handler(Looper.getMainLooper());
         connect();
     }
@@ -410,7 +408,6 @@ public class Server {
         jsonmessage.put(chan);
         jsonmessage.put(video.getId());
         jsonmessage.put("pos");
-        jsonmessage.put(guid);
         jsonmessage.put(adminpass);
 
 
@@ -433,7 +430,6 @@ public class Server {
         jsonmessage.put(chan);
         jsonmessage.put(video.getId());
         jsonmessage.put("del");
-        jsonmessage.put(guid);
         jsonmessage.put(adminpass);
 
 
@@ -464,7 +460,6 @@ public class Server {
 
         JSONArray jsonmessage = new JSONArray();
         jsonmessage.put(chan);
-        jsonmessage.put(guid);
         jsonmessage.put(adminpass);
 
 
