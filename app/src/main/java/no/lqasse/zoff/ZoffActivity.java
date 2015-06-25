@@ -98,6 +98,8 @@ public abstract class ZoffActivity extends ActionBarActivity {
             if (currentBackground != nextBackgroundImage) {
 
 
+
+
                 final Bitmap bg = nextBackgroundImage;
                 if (currentBackground != null) {
 

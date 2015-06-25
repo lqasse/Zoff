@@ -2,6 +2,8 @@ package no.lqasse.zoff.Remote;
 
 import android.app.FragmentManager;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.DrawerLayout;
@@ -14,7 +16,6 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -196,6 +197,7 @@ public class RemoteActivity extends ZoffActivity implements SettingsFragment.Lis
         settingsFragment.setSettings(zoff.getSettings());
 
         setBackgroundImage(zoff.getPlayingVideo().getId());
+        setToolbarBackground();
 
         if (!ImageCache.has(zoff.getNextVideo().getId(), ImageCache.ImageSize.HUGE)) {
             BitmapDownloader.download(zoff.getNextVideo().getId(), ImageCache.ImageSize.HUGE, true, null);
@@ -274,6 +276,7 @@ public class RemoteActivity extends ZoffActivity implements SettingsFragment.Lis
 
 
             case (R.id.action_shuffle):
+                zoffController.shuffle();
 
                 break;
             case (R.id.action_play):
@@ -330,6 +333,25 @@ public class RemoteActivity extends ZoffActivity implements SettingsFragment.Lis
                 ToastMaster.showToast(RemoteActivity.this, toastkeyword);
             }
         });
+
+    }
+
+    private void setToolbarBackground(){
+        if (ImageCache.has(zoff.getPlayingVideo().getId(), ImageCache.ImageSize.BLUR)){
+
+            BitmapDrawable drawable = new BitmapDrawable(ImageCache.get(zoff.getPlayingVideo().getId(), ImageCache.ImageSize.BLUR));
+            toolBar.setBackground(drawable);
+            drawable.setAlpha(155);
+        } else {
+            ImageCache.registerListener(zoff.getPlayingVideo().getId(), ImageCache.ImageSize.BLUR, new ImageCache.ImageInCacheListener() {
+                @Override
+                public void ImageInCache(Bitmap image) {
+                    BitmapDrawable drawable = new BitmapDrawable(ImageCache.get(zoff.getPlayingVideo().getId(), ImageCache.ImageSize.BLUR));
+                    drawable.setAlpha(155);
+                    toolBar.setBackground(drawable);
+                }
+            });
+        }
 
     }
 

@@ -91,7 +91,7 @@ public class PlaylistFragment extends Fragment {
 
     public void invalidateListviewViews(){
         if (videoList != null){
-            //videoList.invalidateViews();
+            recyclerAdapter.notifyDataSetChanged();
         }
     }
 

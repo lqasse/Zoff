@@ -5,6 +5,8 @@ import android.util.Log;
 import android.util.LruCache;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -18,6 +20,8 @@ public class ImageCache {
     private static final int LOWER_MEMORY_THRESHOLD = 10 * 1024; //10mb
     final static int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
     final static int cacheSize = maxMemory / 8;
+
+    private static Map<String,ImageInCacheListener> cacheListeners = new HashMap<>();
 
 
 
@@ -119,6 +123,10 @@ public class ImageCache {
 
         mMemoryCache.put(id + getSuffix(type),bitmap);
 
+        if (hasListener(id,type)){
+            cacheListeners.get(getIDWithTypeSuffix(id,type)).ImageInCache(bitmap);
+        }
+
         int FILL_PERCENTAGE =  (int) (((float)mMemoryCache.size()/(float)mMemoryCache.maxSize()*100));
         if (FILL_PERCENTAGE > 70){
             log();
@@ -171,4 +179,25 @@ public class ImageCache {
         }
         return "";
     }
+
+    public interface ImageInCacheListener{
+        void ImageInCache(Bitmap image);
+    }
+
+    public static void registerListener(String videoId, ImageSize size, ImageInCacheListener listener){
+
+        if (ImageCache.has(videoId,size)){
+            listener.ImageInCache(ImageCache.get(videoId,size));
+        } else {
+            cacheListeners.put(getIDWithTypeSuffix(videoId,size),listener);
+        }
+
+    }
+
+    private static boolean hasListener(String videoID, ImageSize type){
+        return cacheListeners.containsKey(getIDWithTypeSuffix(videoID,type));
+    }
+
+
+
 }
