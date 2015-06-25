@@ -2,23 +2,15 @@ package no.lqasse.zoff.Search;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 
-import java.net.URL;
 import java.util.ArrayList;
 
 import no.lqasse.zoff.ImageTools.BitmapDownloader;
@@ -75,9 +67,9 @@ public class SearchResultListAdapter extends ArrayAdapter<SearchResult> {
 
             holder = new ViewHolder();
 
-            holder.imageView       = (ImageView) rowView.findViewById(R.id.imageView);
+            holder.imageView       = (ImageView) rowView.findViewById(R.id.playlistHeaderImage);
             holder.progressBar      = (ProgressBar) rowView.findViewById(R.id.progressBar);
-            holder.title            = (TextView) rowView.findViewById(R.id.videoTitleView);
+            holder.title            = (TextView) rowView.findViewById(R.id.playlistHeaderTitle);
             holder.channelTitle     = (TextView) rowView.findViewById(R.id.channelTitle);
             holder.viewCount        = (TextView) rowView.findViewById(R.id.viewsTextView);
             holder.duration         = (TextView) rowView.findViewById(R.id.durationView);

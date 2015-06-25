@@ -8,8 +8,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-
 
 import no.lqasse.zoff.ImageTools.ImageCache;
 import no.lqasse.zoff.ImageTools.BitmapDownloader;
@@ -36,16 +34,16 @@ public class VideoListAdapterHeader extends VideoListAdapter {
             ViewHolder viewHolder = new ViewHolder();
 
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View rowView = inflater.inflate(R.layout.now_playing_row_top, parent, false);
+            View rowView = inflater.inflate(R.layout.playlist_header, parent, false);
 
 
 
-            TextView    title       = (TextView) rowView.findViewById(R.id.videoTitleView);
+            TextView    title       = (TextView) rowView.findViewById(R.id.playlistHeaderTitle);
             TextView    views       = (TextView) rowView.findViewById(R.id.viewsLabel);
             TextView    skips       = (TextView) rowView.findViewById(R.id.skipsLabel);
-            TextView    playtime    = (TextView) rowView.findViewById(R.id.playtimeCurrent);
-            ImageView   imageView   = ((ImageView) rowView.findViewById(R.id.imageView));
-            FrameLayout playProgress = ((FrameLayout) rowView.findViewById(R.id.playProgress));
+            TextView    playtime    = (TextView) rowView.findViewById(R.id.playlistHeaderPlaytime);
+            ImageView   imageView   = ((ImageView) rowView.findViewById(R.id.playlistHeaderImage));
+            FrameLayout playProgress = ((FrameLayout) rowView.findViewById(R.id.playlistHeaderPlayProgress));
 
 
 
@@ -79,7 +77,6 @@ public class VideoListAdapterHeader extends VideoListAdapter {
                 imageView.setImageBitmap(ImageCache.get(currentVideo.getId(), ImageCache.ImageSize.HUGE));
             } else {
                 BitmapDownloader.downloadAndSet(currentVideo.getThumbHuge(), currentVideo.getThumbMed(), currentVideo.getId(), viewHolder.imageView, ImageCache.ImageSize.HUGE, false);
-
             }
 
             return rowView;

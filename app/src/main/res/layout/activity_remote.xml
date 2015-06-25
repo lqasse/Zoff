@@ -34,7 +34,7 @@
     android:layout_height="match_parent"
     android:weightSum="1"
     android:id="@+id/listContainer"
-    android:layout_below="@id/tool_bar">
+    >
 <!---
         <ListView
         android:layout_width="match_parent"

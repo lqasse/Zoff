@@ -6,7 +6,7 @@
     <ImageView
         android:layout_width="120dp"
         android:layout_height="120dp"
-        android:id="@+id/imageView"
+        android:id="@+id/playlistHeaderImage"
         android:layout_alignParentTop="false"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
@@ -19,7 +19,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/titleTextView"
         android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/imageView"
+        android:layout_toRightOf="@+id/playlistHeaderImage"
         android:textColor="@color/white"
         android:text="Title"
         android:lines="1"
@@ -27,7 +27,7 @@
         android:layout_toLeftOf="@+id/closeImageView"
         android:layout_toStartOf="@+id/closeImageView"
         android:scrollHorizontally="false"
-        android:layout_toEndOf="@+id/imageView" />
+        android:layout_toEndOf="@+id/playlistHeaderImage" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -36,8 +36,8 @@
         android:textColor="@color/gray"
         android:text="Viewers"
         android:layout_below="@+id/channelTextView"
-        android:layout_toRightOf="@+id/imageView"
-        android:layout_toEndOf="@+id/imageView" />
+        android:layout_toRightOf="@+id/playlistHeaderImage"
+        android:layout_toEndOf="@+id/playlistHeaderImage" />
 
     <ImageView
         android:layout_width="wrap_content"
@@ -57,7 +57,7 @@
         android:src="@drawable/skip"
         android:scaleType="fitCenter"
         android:padding="10dp"
-        android:layout_alignBottom="@+id/imageView"
+        android:layout_alignBottom="@+id/playlistHeaderImage"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
 
@@ -68,6 +68,6 @@
         android:textColor="@color/gray"
         android:text="Channel"
         android:layout_below="@+id/titleTextView"
-        android:layout_toRightOf="@+id/imageView" />
+        android:layout_toRightOf="@+id/playlistHeaderImage" />
 
 </RelativeLayout>

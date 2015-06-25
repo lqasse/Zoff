@@ -51,7 +51,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:id="@+id/videoTitleView"
+            android:id="@+id/playlistHeaderTitle"
             android:textColor="@color/white"
             android:gravity="center"
             android:textSize="13dp"
@@ -67,7 +67,7 @@
 
             android:textSize="13dp"
 
-            android:layout_below="@id/videoTitleView"
+            android:layout_below="@id/playlistHeaderTitle"
             />
 
         <TextView
@@ -79,7 +79,7 @@
 
 
             android:textSize="13dp"
-            android:layout_below="@+id/videoTitleView"
+            android:layout_below="@+id/playlistHeaderTitle"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true" />
 

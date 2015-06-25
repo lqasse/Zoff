@@ -165,8 +165,8 @@ public class NotificationService extends Service {
         String nextVideoID = zoffController.getZoff().getNextVideo().getId();
 
         if (ImageCache.has(currentlyPlayingVideoID)){
-            view.setImageViewBitmap(R.id.imageView, ImageCache.get(currentlyPlayingVideoID));
-            bigView.setImageViewBitmap(R.id.imageView, ImageCache.get(currentlyPlayingVideoID));
+            view.setImageViewBitmap(R.id.playlistHeaderImage, ImageCache.get(currentlyPlayingVideoID));
+            bigView.setImageViewBitmap(R.id.playlistHeaderImage, ImageCache.get(currentlyPlayingVideoID));
 
         } else {
             BitmapDownloader.download(nextVideoID, ImageCache.ImageSize.REG, true, new BitmapDownloader.Callback() {

@@ -15,6 +15,8 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 
+import no.lqasse.zoff.Adapters.HidingScrollListener;
+import no.lqasse.zoff.Adapters.ItemDecorator;
 import no.lqasse.zoff.Adapters.VideoListAdapter;
 import no.lqasse.zoff.Adapters.VideoListAdapterHeader;
 import no.lqasse.zoff.Adapters.VideoListRecyclerAdapter;
@@ -29,7 +31,7 @@ import no.lqasse.zoff.Search.YouTube;
  * Created by lassedrevland on 16.06.15.
  */
 public class PlaylistFragment extends Fragment {
-    private ListView videoList;
+    private RecyclerView videoList;
     private Toolbar toolbar;
     private View header;
     private Activity activity;
@@ -49,53 +51,22 @@ public class PlaylistFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View v = inflater.inflate(R.layout.playlist_fragment,container,false);
-        videoList = (ListView) v.findViewById(R.id.videoPlaylist);
-        videoList.setAdapter(listAdapter);
+        videoList = (RecyclerView) v.findViewById(R.id.videoPlaylist);
+        //videoList.setAdapter(listAdapter);
 
+        recyclerAdapter = new VideoListRecyclerAdapter(zoffController);
+        final LinearLayoutManager layoutManager = new LinearLayoutManager(activity);
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        videoList.setLayoutManager(layoutManager);
+        videoList.addItemDecoration(new ItemDecorator(10));
+        videoList.setAdapter(recyclerAdapter);
 
-
-
-
-        videoList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+        videoList.setOnScrollListener(new HidingScrollListener((int)toolbar.getHeight()) {
             @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-
-                if (position != 0) { //Cant vote for current video duh
-                    Video selectedVideo = listAdapter.getItem(position);
-                    zoffController.vote(selectedVideo);
-                    ToastMaster.showToast(activity, ToastMaster.TYPE.VIDEO_VOTED, selectedVideo.getTitle());
-
-                }
-
-
-                return true;
+            public void toolbarOffset(int calculatedOffset) {
+                toolbar.setTranslationY(calculatedOffset);
             }
         });
-
-        videoList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                if (position != 0) { //Currently playing video cant be voted on
-                    ToastMaster.showToast(activity, ToastMaster.TYPE.HOLD_TO_VOTE);
-                }
-
-
-            }
-        });
-
-        videoList.setOnScrollListener(new AbsListView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState) {
-            }
-
-            @Override
-            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-
-            }
-        });
-
-
 
         return v;
     }
@@ -105,8 +76,6 @@ public class PlaylistFragment extends Fragment {
         super.onAttach(activity);
         this.activity = activity;
         zoffController = ((Host) activity).getZoffController();
-
-        listAdapter = new VideoListAdapterHeader(activity, zoffController);
 
 
 
@@ -122,12 +91,12 @@ public class PlaylistFragment extends Fragment {
 
     public void invalidateListviewViews(){
         if (videoList != null){
-            videoList.invalidateViews();
+            //videoList.invalidateViews();
         }
     }
 
     public void onZoffRefresh(ZoffModel zoffModel){
-        listAdapter.notifyDataSetChanged();
+        recyclerAdapter.notifyDataSetChanged();
 
     }
 

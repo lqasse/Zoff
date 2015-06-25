@@ -18,20 +18,22 @@ import no.lqasse.zoff.ImageTools.BitmapDownloader;
 import no.lqasse.zoff.Helpers.ToastMaster;
 import no.lqasse.zoff.Models.Video;
 import no.lqasse.zoff.Models.ZoffController;
-import no.lqasse.zoff.Models.ZoffModel;
 import no.lqasse.zoff.R;
 
 /**
  * Created by lassedrevland on 04.04.15.
  */
+
+
 public class VideoListAdapter extends ArrayAdapter<Video> {
+
         //private final String[] values;
         protected ArrayList<Video> videoList;
         protected Context context;
         protected ZoffController controller;
 
     public VideoListAdapter(Context context,  ZoffController controller) {
-        super(context, R.layout.now_playing_row, controller.getZoff().getVideos());
+        super(context, R.layout.playlist_item, controller.getZoff().getVideos());
         this.context = context;
         this.controller = controller;
         videoList = controller.getZoff().getVideos();
@@ -71,13 +73,13 @@ public class VideoListAdapter extends ArrayAdapter<Video> {
         if (rowView == null || isRecycledTopView){
 
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            rowView = inflater.inflate(R.layout.now_playing_row, parent, false);
+            rowView = inflater.inflate(R.layout.playlist_item, parent, false);
 
             holder = new ViewHolder();
-            holder.imageView      = (ImageView)    rowView.findViewById(R.id.imageView);
-            holder.deleteButton   = (ImageView)    rowView.findViewById(R.id.deleteButton);
-            holder.title          = (TextView)     rowView.findViewById(R.id.videoTitleView);
-            holder.votes          = (TextView)     rowView.findViewById(R.id.votesView);
+            holder.imageView      = (ImageView)    rowView.findViewById(R.id.playlistItemImage);
+            holder.deleteButton   = (ImageView)    rowView.findViewById(R.id.playlistItemDeleteButton);
+            holder.title          = (TextView)     rowView.findViewById(R.id.playlistItemTitle);
+            holder.votes          = (TextView)     rowView.findViewById(R.id.playlistItemVotes);
 
 
 
