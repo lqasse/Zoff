@@ -62,7 +62,14 @@ public class Video implements Comparable<Video>{
 
 
     public String getVotesString() {
-        return Integer.toString(this.votes);
+
+        if (votes == 0){
+            return "";
+        } else if (votes > 1){
+            return votes + " votes";
+        } else {
+            return votes + " vote";
+        }
     }
 
 
@@ -208,17 +215,6 @@ public class Video implements Comparable<Video>{
         public Video build(){
             return new Video(this);
         }
-
-
-
-
-
-
-
-
-
-
-
 
     }
 

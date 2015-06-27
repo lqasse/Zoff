@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import no.lqasse.zoff.Models.VoteMessage;
 import no.lqasse.zoff.Models.ZoffSettings;
 import no.lqasse.zoff.Models.Video;
 
@@ -37,6 +38,20 @@ public  class JSONTranslator {
             e.printStackTrace();
             return "";
         }
+
+    }
+
+    public static VoteMessage getVoteMessage(JSONArray data){
+
+        VoteMessage message = new VoteMessage();
+        try {
+            message.added = data.getInt(2);
+            message.videoid = data.getString(1);
+        }catch ( JSONException e){
+            e.printStackTrace();
+        }
+
+        return message;
 
     }
 

@@ -8,20 +8,21 @@ import android.view.View;
  * Created by lassedrevland on 24.06.15.
  */
 public class ItemDecorator extends RecyclerView.ItemDecoration {
-    private int space;
+    private int topSpace = 10;
+    private int sideSpace = 10;
+    private int bottomSpace = 25;
 
-    public ItemDecorator(int space) {
-        this.space = space;
+    public ItemDecorator() {
     }
 
     @Override
     public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
-        outRect.left = space;
-        outRect.right = space;
-        outRect.bottom = space;
+        outRect.left = sideSpace;
+        outRect.right = sideSpace;
+        outRect.bottom = bottomSpace;
 
         // Add top margin only for the first item to avoid double space between items
         if(parent.getChildPosition(view) == 0)
-            outRect.top = space;
+            outRect.top = topSpace;
     }
 }

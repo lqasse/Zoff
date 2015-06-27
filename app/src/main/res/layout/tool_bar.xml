@@ -11,7 +11,8 @@
         android:layout_height="wrap_content"
         android:id="@+id/toolbarTitle"
         android:textColor="@color/text_important_light"
-        android:textSize="15dp"/>
+        android:textSize="25dp"
+        android:fontFamily="sans-serif-thin" />
 
     <EditText
 

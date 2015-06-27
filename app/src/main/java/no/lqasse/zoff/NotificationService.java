@@ -40,6 +40,8 @@ public class NotificationService extends Service {
     private String channel = "";
     private MediaSession mediaSession;
 
+    private boolean shouldBeVisible = false;
+
     private void log(String data){
         Log.i(LOG_IDENTIFIER, data);
 
@@ -73,8 +75,6 @@ public class NotificationService extends Service {
                 openRemoteActivity();
 
 
-
-
                 break;
             case INTENT_KEY_START:
 
@@ -105,19 +105,10 @@ public class NotificationService extends Service {
         zoffController.skip();
     }
 
-    private void closeNotification(){
-        log("Closing");
-        if (zoffController !=null){
-            //zoffController.removeCallbacks();
-            //zoffController.disconnect();
-            zoffController = null;
-        }
 
-        clearNotification();
-        stopSelf();
-    }
 
     private void startService(String channel){
+        shouldBeVisible = true;
         this.channel = channel;
         zoffController = ZoffController.getInstance(channel,this);
 
@@ -125,7 +116,10 @@ public class NotificationService extends Service {
         zoffController.setOnRefreshListener(new ZoffController.RefreshCallback() {
             @Override
             public void onZoffRefreshed(ZoffModel zoff) {
-                showNotification();
+                if (shouldBeVisible){
+                    showNotification();
+                }
+
             }
         });
 
@@ -135,8 +129,6 @@ public class NotificationService extends Service {
 
     private void openRemoteActivity(){
         closeNotification();
-
-        zoffController = null;
 
         Intent startRemoteIntent = new Intent(this, RemoteActivity.class);
         startRemoteIntent.putExtra(zoffController.BUNDLEKEY_CHANNEL, channel);
@@ -172,7 +164,10 @@ public class NotificationService extends Service {
             BitmapDownloader.download(nextVideoID, ImageCache.ImageSize.REG, true, new BitmapDownloader.Callback() {
                 @Override
                 public void onImageDownloaded(Bitmap image, ImageCache.ImageSize type) {
-                    showNotification();
+                    if (shouldBeVisible){
+                        showNotification();
+                    }
+
                 }
             });
         }
@@ -245,18 +240,17 @@ public class NotificationService extends Service {
 
     @Override
     public void onDestroy() {
-        if (zoffController !=null){
-            //zoffController.disconnect();
-        }
-        clearNotification();
+        closeNotification();
         releaseMediaSession();
 
         super.onDestroy();
     }
 
-    private void clearNotification(){
+    private void closeNotification(){
+        shouldBeVisible = false;
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancelAll();
+        stopSelf();
         log("Notification cleared");
     }
 
@@ -297,7 +291,10 @@ public class NotificationService extends Service {
                 BitmapDownloader.download(currentlyPlayingVideo.getId(), ImageCache.ImageSize.HUGE, false, new BitmapDownloader.Callback() {
                     @Override
                     public void onImageDownloaded(Bitmap image, ImageCache.ImageSize type) {
-                        showNotification();
+                        if (shouldBeVisible) {
+                            showNotification();
+                        }
+
                     }
                 });
 

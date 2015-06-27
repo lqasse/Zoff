@@ -73,8 +73,9 @@ public class ZoffModel {
         Collections.sort(videos);
     }
 
-    public void addVote(String id){
-        idMap.get(id).addVote();
+    public void addVote(VoteMessage message){
+        idMap.get(message.videoid).addVote();
+        idMap.get(message.videoid).setAdded(message.added);
         Collections.sort(videos);
 
     }
@@ -120,7 +121,7 @@ public class ZoffModel {
     }
 
     public String getCurrentViewers() {
-        if (currentViewers < 2 || currentViewers != 0){
+        if (currentViewers < 2 && currentViewers != 0){
             return currentViewers + " viewer";
         } else {
             return currentViewers + " viewers";

@@ -36,11 +36,15 @@ public class Server {
     private static final String ZOFF_URL            = "https://zoff.no:3000";
     private static final String LOG_IDENTIFIER             = "SocketServer";
 
+    private static final String SOCKET_KEY_EMIT_FRONTPAGE_LIST = "frontpage_lists";
+    private static final String SOCKET_KEY_ON_FRONTPAGE_LIST = "playlists";
+
     private static final String SOCKET_KEY_EMIT_SKIP       = "skip";
     private static final String SOCKET_KEY_EMIT_SETTINGS   = "conf";
     private static final String SOCKET_KEY_EMIT_PASSWORD   = "password";
     private static final String SOCKET_KEY_EMIT_VOTE       = "vote";
     private static final String SOCKET_KEY_EMIT_SHUFFLE    = "shuffle";
+    private static final String SOCKET_KEY_EMIT_GET_LIST   = "list";
 
     private static final String SOCKET_KEY_ON_SKIPPED           = "skipping";
     private static final String SOCKET_KEY_ON_CHANNEL_REFRESH   = "channel";
@@ -50,6 +54,12 @@ public class Server {
     private static final String SOCKET_KEY_ON_PING_CALLBACK     = "ok";
     private static final String SOCKET_KEY_ON_SETTINGS_SAVED    = "savedsettings";
     private static final String SOCKET_KEY_ON_NOW_PLAYING_CHANGED = "np";
+
+    private static final String CHANNEL_REFRESH_VOTE_ADDED = "vote";
+    private static final String CHANNEL_REFRESH_VIDEO_DELETED = "deleted";
+    private static final String CHANNEL_REFRESH = "list";
+    private static final String CHANNEL_REFRESH_NOW_PLAYING_CHANGED = "song_change";
+    private static final String CHANNEL_REFRESH_VIDEO_ADDED = "added";
 
     Socket socket;
     ZoffController zoffController;
@@ -75,19 +85,19 @@ public class Server {
                             array = (JSONArray) args[0];
                             log("onChannelRefresh: " +  array.getString(0));
                             switch (array.getString(0)){
-                                case "list":
+                                case CHANNEL_REFRESH:
                                     zoffController.onListRefreshed(array);
                                     break;
-                                case "vote":
+                                case CHANNEL_REFRESH_VOTE_ADDED:
                                     zoffController.onVoteVideo(array);
                                     break;
-                                case "deleted":
+                                case CHANNEL_REFRESH_VIDEO_DELETED:
                                     zoffController.onDeleteVideo(array);
                                     break;
-                                case "song_change":
+                                case CHANNEL_REFRESH_NOW_PLAYING_CHANGED:
                                     zoffController.onSongChange(array);
                                     break;
-                                case "added":
+                                case CHANNEL_REFRESH_VIDEO_ADDED:
                                     zoffController.onVideoAdded(array);
                                     break;
 
@@ -297,8 +307,8 @@ public class Server {
 
 
 
-            tempSocket.emit("frontpage_lists");
-            tempSocket.on("playlists", new Emitter.Listener() {
+            tempSocket.emit(SOCKET_KEY_EMIT_FRONTPAGE_LIST);
+            tempSocket.on(SOCKET_KEY_ON_FRONTPAGE_LIST, new Emitter.Listener() {
                 @Override
                 public void call(final Object... args) {
 
@@ -319,7 +329,7 @@ public class Server {
                                 }
 
                                 suggestionsCallback.onResponse(suggestions);
-                                tempSocket.off("playlists");
+                                tempSocket.off(SOCKET_KEY_ON_FRONTPAGE_LIST);
                                 tempSocket.disconnect();
 
 
@@ -383,7 +393,7 @@ public class Server {
             log("Failed to connect");
         }
         socket.connect();
-        socket.emit("list", chan);
+        socket.emit(SOCKET_KEY_EMIT_GET_LIST, chan);
 
         socket = setSocketListeners(socket);
 

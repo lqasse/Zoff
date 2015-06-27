@@ -142,6 +142,8 @@ public class VideoListRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.
             if (controller.getZoff().isUnlocked()){
                 holderItem.vDeleteButton.setVisibility(View.VISIBLE);
             }
+
+
             holderItem.itemView.setTag(position);
             holderItem.vDeleteButton.setTag(position);
             holderItem.vDeleteButton.setOnClickListener(onClickDelete);

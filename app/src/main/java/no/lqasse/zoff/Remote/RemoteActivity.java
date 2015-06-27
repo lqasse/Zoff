@@ -2,6 +2,7 @@ package no.lqasse.zoff.Remote;
 
 import android.app.FragmentManager;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
@@ -22,6 +23,7 @@ import android.widget.TextView;
 
 import no.lqasse.zoff.Helpers.ScreenStateReceiver;
 import no.lqasse.zoff.Helpers.ToastMaster;
+import no.lqasse.zoff.ImageTools.BitmapColor;
 import no.lqasse.zoff.ImageTools.BitmapDownloader;
 import no.lqasse.zoff.ImageTools.ImageCache;
 import no.lqasse.zoff.Models.ZoffController;
@@ -69,6 +71,7 @@ public class RemoteActivity extends ZoffActivity implements SettingsFragment.Lis
     private boolean isBigScreen = false;
     private boolean isNewChannel = false;
     private boolean isInBackground = false;
+    private boolean screenOrientationChanged = false;
 
 
 
@@ -77,7 +80,6 @@ public class RemoteActivity extends ZoffActivity implements SettingsFragment.Lis
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ImageCache.empty();
 
         setContentView(R.layout.activity_remote);
         toolBar = (android.support.v7.widget.Toolbar) findViewById(R.id.tool_bar);
@@ -86,11 +88,7 @@ public class RemoteActivity extends ZoffActivity implements SettingsFragment.Lis
 
         fragmentManager = getFragmentManager();
 
-        playlistFragment = new PlaylistFragment();
-        fragmentManager
-                .beginTransaction()
-                .replace(R.id.listContainer, playlistFragment)
-                .commit();
+
 
         log("onCreate");
 
@@ -107,11 +105,12 @@ public class RemoteActivity extends ZoffActivity implements SettingsFragment.Lis
 
 
 
-        zoffController = ZoffController.getInstance(channel,this);
+        zoffController = ZoffController.getInstance(channel, this);
 
 
         zoff = zoffController.getZoff();
         setControllerCallbacks(zoffController);
+        displayPlaylistFragment();
 
 
 
@@ -125,12 +124,6 @@ public class RemoteActivity extends ZoffActivity implements SettingsFragment.Lis
         loadingProgressbar = (ProgressBar) findViewById(R.id.loadingProgressbar);
         isBigScreen = checkIsBigScreen();
 
-
-        /*
-        getSupportActionBar().setDisplayShowTitleEnabled(true);
-        getSupportActionBar().setTitle(zoff.getChannel());
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        */
 
 
 
@@ -177,7 +170,6 @@ public class RemoteActivity extends ZoffActivity implements SettingsFragment.Lis
                             break;
                         case R.id.searchButton:
                             displaySearchFragment();
-                            //toggleSearchLayout();
                             break;
 
                     }
@@ -198,12 +190,12 @@ public class RemoteActivity extends ZoffActivity implements SettingsFragment.Lis
     private void refreshViewData(ZoffModel zoff) {
 
 
-        playlistFragment.onZoffRefresh(zoff);
+        playlistFragment.notifyDataChange(zoff);
         loadingProgressbar.setVisibility(View.INVISIBLE);
         settingsFragment.setSettings(zoff.getSettings());
 
         setBackgroundImage(zoff.getPlayingVideo().getId());
-        setToolbarBackground();
+        //setToolbarBackground();
 
         if (!ImageCache.has(zoff.getNextVideo().getId(), ImageCache.ImageSize.HUGE)) {
             BitmapDownloader.download(zoff.getNextVideo().getId(), ImageCache.ImageSize.HUGE, true, null);
@@ -242,9 +234,8 @@ public class RemoteActivity extends ZoffActivity implements SettingsFragment.Lis
 
         }
 
-        if ((ScreenStateReceiver.wasScreenOn || homePressed) && !backPressed) {
+        if ((ScreenStateReceiver.wasScreenOn || homePressed) && !backPressed && !screenOrientationChanged) {
             startNotificationService();
-            //zoffController.disconnect();
             backPressed = false;
 
         }
@@ -312,12 +303,21 @@ public class RemoteActivity extends ZoffActivity implements SettingsFragment.Lis
                 .commit();
     }
 
+    private void displayPlaylistFragment(){
+        playlistFragment = new PlaylistFragment();
+        fragmentManager
+                .beginTransaction()
+                .replace(R.id.listContainer, playlistFragment)
+                .commit();
+
+    }
+
     private void setControllerCallbacks(ZoffController controller){
         controller.setOnRefreshListener(new ZoffController.RefreshCallback() {
             @Override
             public void onZoffRefreshed(ZoffModel zoff) {
                 refreshViewData(zoff);
-                playlistFragment.onZoffRefresh(zoff);
+                playlistFragment.notifyDataChange(zoff);
 
             }
         });
@@ -344,17 +344,18 @@ public class RemoteActivity extends ZoffActivity implements SettingsFragment.Lis
     }
 
     private void setToolbarBackground(){
-        if (ImageCache.has(zoff.getPlayingVideo().getId(), ImageCache.ImageSize.BLUR)){
+        if (ImageCache.has(zoff.getPlayingVideo().getId(), ImageCache.ImageSize.BACKGROUND)){
 
-            BitmapDrawable drawable = new BitmapDrawable(ImageCache.get(zoff.getPlayingVideo().getId(), ImageCache.ImageSize.BLUR));
+            Bitmap currentBackground = ImageCache.get(zoff.getPlayingVideo().getId(), ImageCache.ImageSize.BACKGROUND);
+            BitmapDrawable drawable = BitmapColor.darkenBitmap(currentBackground);
             toolBar.setBackground(drawable);
-            drawable.setAlpha(155);
+            //drawable.setAlpha(155);
         } else {
-            ImageCache.registerListener(zoff.getPlayingVideo().getId(), ImageCache.ImageSize.BLUR, new ImageCache.ImageInCacheListener() {
+            ImageCache.registerListener(zoff.getPlayingVideo().getId(), ImageCache.ImageSize.BACKGROUND, new ImageCache.ImageInCacheListener() {
                 @Override
                 public void ImageInCache(Bitmap image) {
-                    BitmapDrawable drawable = new BitmapDrawable(ImageCache.get(zoff.getPlayingVideo().getId(), ImageCache.ImageSize.BLUR));
-                    drawable.setAlpha(155);
+                    BitmapDrawable drawable = BitmapColor.darkenBitmap(image);
+                    //drawable.setAlpha(155);
                     toolBar.setBackground(drawable);
                 }
             });
@@ -371,7 +372,7 @@ public class RemoteActivity extends ZoffActivity implements SettingsFragment.Lis
         if (fragmentManager.getBackStackEntryCount() > 0) {
             fragmentManager.popBackStack();
         } else {
-           // zoffController.disconnect();
+
             finish();
             super.onBackPressed();
         }
@@ -405,11 +406,9 @@ public class RemoteActivity extends ZoffActivity implements SettingsFragment.Lis
 
     @Override
     protected void onDestroy() {
-        if (zoffController != null) {
+        if (!screenOrientationChanged){
             zoffController.disconnect();
-
         }
-        ImageCache.empty();
 
         super.onDestroy();
     }
@@ -439,6 +438,15 @@ public class RemoteActivity extends ZoffActivity implements SettingsFragment.Lis
     @Override
     public ZoffController getZoffController() {
         return zoffController;
+    }
+
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+
+        screenOrientationChanged = true;
+
+        super.onConfigurationChanged(newConfig);
     }
 }
 

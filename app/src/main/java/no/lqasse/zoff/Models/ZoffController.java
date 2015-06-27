@@ -7,6 +7,7 @@ import android.util.Log;
 import org.json.JSONArray;
 
 import no.lqasse.zoff.Helpers.Sha256;
+import no.lqasse.zoff.ImageTools.ImageCache;
 import no.lqasse.zoff.Server.JSONTranslator;
 import no.lqasse.zoff.Server.Server;
 
@@ -33,8 +34,12 @@ public class ZoffController {
                 controller.removeCallbacks();
                 return controller;
             }
+
+
+
         }
 
+        ImageCache.empty();
         controller = new ZoffController(channel,context);
         return controller;
 
@@ -97,7 +102,8 @@ public class ZoffController {
 
     public void onVoteVideo(JSONArray data){
 
-        zoff.addVote(JSONTranslator.getContentID(data));
+        zoff.addVote(JSONTranslator.getVoteMessage(data));
+
 
         if (refreshCallback != null) {
             refreshCallback.onZoffRefreshed(zoff);
@@ -158,10 +164,6 @@ public class ZoffController {
     }
 
 
-    public void checkConnection() {
-        server.ping();
-
-    }
 
 
     public void vote(Video video) {

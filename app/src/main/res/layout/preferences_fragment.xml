@@ -11,8 +11,8 @@
         android:imeOptions="actionGo"
         android:imeActionLabel="Save"
         android:textColorHint="@color/settings_adminpass_hint"
-        android:hint="Enter channel password"
-        />
+        android:hint="Password"
+        android:typeface="sans" />
 
     <Switch
         android:layout_width="fill_parent"

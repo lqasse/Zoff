@@ -42,6 +42,13 @@ public class PlaylistFragment extends Fragment {
 
 
     @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        this.activity = activity;
+
+
+    }
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
@@ -52,11 +59,31 @@ public class PlaylistFragment extends Fragment {
 
         View v = inflater.inflate(R.layout.playlist_fragment,container,false);
         videoList = (RecyclerView) v.findViewById(R.id.videoPlaylist);
+
+
+        return v;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        zoffController = ((Host) activity).getZoffController();
+        toolbar = ((Host) activity).getToolbar();
+        setUpRecyclerView();
+
+
+
+
+    }
+
+    private void setUpRecyclerView(){
+
         recyclerAdapter = new VideoListRecyclerAdapter(zoffController);
         final LinearLayoutManager layoutManager = new LinearLayoutManager(activity);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         videoList.setLayoutManager(layoutManager);
-        videoList.addItemDecoration(new ItemDecorator(10));
+        videoList.addItemDecoration(new ItemDecorator());
         videoList.setAdapter(recyclerAdapter);
 
         videoList.setOnScrollListener(new HidingScrollListener((int)toolbar.getHeight()) {
@@ -65,27 +92,8 @@ public class PlaylistFragment extends Fragment {
                 toolbar.setTranslationY(calculatedOffset);
             }
         });
-
-        return v;
     }
 
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        this.activity = activity;
-        zoffController = ((Host) activity).getZoffController();
-
-
-
-
-        toolbar = ((Host) activity).getToolbar();
-
-
-
-
-
-
-    }
 
     public void invalidateListviewViews(){
         if (videoList != null){
@@ -93,7 +101,7 @@ public class PlaylistFragment extends Fragment {
         }
     }
 
-    public void onZoffRefresh(ZoffModel zoffModel){
+    public void notifyDataChange(ZoffModel zoffModel){
         recyclerAdapter.notifyDataSetChanged();
 
     }

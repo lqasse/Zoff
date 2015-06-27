@@ -10,7 +10,7 @@ import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 
-import no.lqasse.zoff.ImageTools.BitmapBlurer;
+import no.lqasse.zoff.ImageTools.BackgroundGenerator;
 import no.lqasse.zoff.ImageTools.ImageCache;
 import no.lqasse.zoff.ImageTools.BitmapDownloader;
 import no.lqasse.zoff.Models.ZoffController;
@@ -92,9 +92,9 @@ public abstract class ZoffActivity extends ActionBarActivity {
         final ImageView background = (ImageView) findViewById(R.id.backgroundImage);
         final ImageView oldBackground = (ImageView) findViewById(R.id.backgroundImageOLD);
 
-        if (ImageCache.has(videoId, ImageCache.ImageSize.BLUR)){
+        if (ImageCache.has(videoId, ImageCache.ImageSize.BACKGROUND)){
 
-            Bitmap nextBackgroundImage = ImageCache.get(videoId, ImageCache.ImageSize.BLUR);
+            Bitmap nextBackgroundImage = ImageCache.get(videoId, ImageCache.ImageSize.BACKGROUND);
             if (currentBackground != nextBackgroundImage) {
 
 
@@ -122,9 +122,9 @@ public abstract class ZoffActivity extends ActionBarActivity {
 
         } else if (ImageCache.has(videoId)){
 
-            BitmapBlurer.blurBitmap(ImageCache.get(videoId), videoId, new BitmapBlurer.Callback() {
+            BackgroundGenerator.generateBackground(ImageCache.get(videoId), videoId, new BackgroundGenerator.Callback() {
                 @Override
-                public void onBlurFinished(Bitmap bitmap) {
+                public void onBackgroundCreated(Bitmap bitmap) {
                     fadeInNewBackgroundBitmap(bitmap);
 
                 }
@@ -136,9 +136,9 @@ public abstract class ZoffActivity extends ActionBarActivity {
             BitmapDownloader.download(videoId, ImageCache.ImageSize.REG, true, new BitmapDownloader.Callback() {
                 @Override
                 public void onImageDownloaded(Bitmap image, ImageCache.ImageSize type) {
-                    BitmapBlurer.blurBitmap(image, videoId, new BitmapBlurer.Callback() {
+                    BackgroundGenerator.generateBackground(image, videoId, new BackgroundGenerator.Callback() {
                         @Override
-                        public void onBlurFinished(Bitmap bitmap) {
+                        public void onBackgroundCreated(Bitmap bitmap) {
                             fadeInNewBackgroundBitmap(bitmap);
                         }
                     });

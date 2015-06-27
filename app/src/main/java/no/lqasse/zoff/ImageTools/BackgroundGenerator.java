@@ -7,9 +7,9 @@ import android.support.annotation.Nullable;
 /**
  * Created by lassedrevland on 23.03.15.
  */
-public class BitmapBlurer {
+public class BackgroundGenerator {
 
-    public static void blurBitmap(Bitmap bitmap, String videoID, @Nullable Callback callback){
+    public static void generateBackground(Bitmap bitmap, String videoID, @Nullable Callback callback){
         ViewHolder holder = new ViewHolder();
         holder.bitmap = bitmap;
         holder.videoID = videoID;
@@ -255,19 +255,23 @@ public class BitmapBlurer {
 
         @Override
         protected void onPostExecute(ViewHolder viewHolder) {
+            Bitmap image = viewHolder.bitmap;
 
+
+            image = BitmapColor.lightenBitmap(image);
+            ImageCache.put(viewHolder.videoID, ImageCache.ImageSize.BACKGROUND,image,false);
 
             if (viewHolder.callback != null){
-                viewHolder.callback.onBlurFinished(viewHolder.bitmap);
+                viewHolder.callback.onBackgroundCreated(image);
             }
 
-            ImageCache.put(viewHolder.videoID, ImageCache.ImageSize.BLUR,viewHolder.bitmap,false);
+
             super.onPostExecute(viewHolder);
         }
     }
 
     public interface Callback{
-        void onBlurFinished(Bitmap bitmap);
+        void onBackgroundCreated(Bitmap bitmap);
     }
 
 

@@ -44,7 +44,7 @@ public class ImageCache {
 
 
 
-    public enum ImageSize {BLUR,HUGE,REG}
+    public enum ImageSize {BACKGROUND,HUGE,REG}
 
     private static Bitmap currentBlurBG;
 
@@ -104,7 +104,7 @@ public class ImageCache {
 
         switch (type){
 
-            case BLUR:
+            case BACKGROUND:
 
                 if (currentBlurBG!=bitmap){
                     currentBlurBG = bitmap;
@@ -172,7 +172,7 @@ public class ImageCache {
             case HUGE:
                 return HUGE_APPENDIX;
 
-            case BLUR:
+            case BACKGROUND:
                 return BLUR_APPENDIX;
 
 
