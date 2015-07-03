@@ -74,7 +74,7 @@ public class SettingsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
 
-        View layout = inflater.inflate(R.layout.preferences_fragment,container,false);
+        View layout = inflater.inflate(R.layout.fragment_settings,container,false);
 
 
         passwordField       = (TextView) layout.findViewById(R.id.passwordField);
@@ -207,6 +207,8 @@ public class SettingsFragment extends Fragment {
     }
 
     public void setSettings(ZoffSettings settings){
+
+
 
         voteSwitch.setChecked(          settings.isVote());
         addsongsSwitch.setChecked(      settings.isAddsongs());

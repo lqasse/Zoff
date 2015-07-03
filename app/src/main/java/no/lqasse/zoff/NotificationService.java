@@ -20,7 +20,7 @@ import no.lqasse.zoff.ImageTools.ImageCache;
 import no.lqasse.zoff.ImageTools.BitmapDownloader;
 import no.lqasse.zoff.Models.Video;
 import no.lqasse.zoff.Models.ZoffController;
-import no.lqasse.zoff.Models.ZoffModel;
+import no.lqasse.zoff.Models.Zoff;
 import no.lqasse.zoff.Remote.RemoteActivity;
 
 /**
@@ -36,7 +36,7 @@ public class NotificationService extends Service {
     private String TAG = "MediaSessionTAG1227";
 
     private ZoffController zoffController;
-    private ZoffModel zoff;
+    private Zoff zoff;
     private String channel = "";
     private MediaSession mediaSession;
 
@@ -115,7 +115,7 @@ public class NotificationService extends Service {
         showNotification();
         zoffController.setOnRefreshListener(new ZoffController.RefreshCallback() {
             @Override
-            public void onZoffRefreshed(ZoffModel zoff) {
+            public void onZoffRefreshed(Zoff zoff) {
                 if (shouldBeVisible){
                     showNotification();
                 }
@@ -179,14 +179,14 @@ public class NotificationService extends Service {
 
         }
 
-        ZoffModel zoffmodel = zoffController.getZoff();
+        Zoff zoffmodel = zoffController.getZoff();
 
 
         view.setTextViewText(R.id.titleTextView, zoffmodel.getPlayingVideo().getTitle());
         view.setTextViewText(R.id.viewersTextView, zoffmodel.getCurrentViewers());
         bigView.setTextViewText(R.id.titleTextView, zoffmodel.getPlayingVideo().getTitle());
         bigView.setTextViewText(R.id.viewersTextView, zoffmodel.getCurrentViewers());
-        bigView.setTextViewText(R.id.channelTextView, zoffmodel.getChannel());
+        bigView.setTextViewText(R.id.channelTextView, zoffmodel.getChannelRaisedFirstLetter());
 
         //Closes notification
         Intent stopIntent = new Intent(this,NotificationService.class);

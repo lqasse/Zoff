@@ -34,6 +34,10 @@ public class ImageCache {
 
     };
 
+    public static void removeImage(String id, ImageSize size){
+        mMemoryCache.remove(getIDWithTypeSuffix(id,size));
+    }
+
     public static void empty(){
         log();
         if (mMemoryCache != null){

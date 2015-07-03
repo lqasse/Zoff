@@ -11,6 +11,7 @@ import com.github.nkzawa.socketio.client.Socket;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
@@ -34,7 +35,7 @@ import no.lqasse.zoff.Models.ZoffSettings;
 public class Server {
 
     private static final String ZOFF_URL            = "https://zoff.no:3000";
-    private static final String LOG_IDENTIFIER             = "SocketServer";
+    private static final String LOG_IDENTIFIER             = "Server";
 
     private static final String SOCKET_KEY_EMIT_FRONTPAGE_LIST = "frontpage_lists";
     private static final String SOCKET_KEY_ON_FRONTPAGE_LIST = "playlists";
@@ -54,6 +55,8 @@ public class Server {
     private static final String SOCKET_KEY_ON_PING_CALLBACK     = "ok";
     private static final String SOCKET_KEY_ON_SETTINGS_SAVED    = "savedsettings";
     private static final String SOCKET_KEY_ON_NOW_PLAYING_CHANGED = "np";
+    private static final String SOCKET_KEY_ON_CONFIGURATION_CHANGED = "conf";
+
 
     private static final String CHANNEL_REFRESH_VOTE_ADDED = "vote";
     private static final String CHANNEL_REFRESH_VIDEO_DELETED = "deleted";
@@ -67,6 +70,61 @@ public class Server {
     Handler handler;
 
 
+
+    private void connect(){
+
+        try {
+            IO.Options options = new IO.Options();
+
+            options.secure = true;
+
+
+            SSLContext ctx = SSLContext.getInstance("TLS");
+            ctx.init(null, new TrustManager[] {
+                    new X509TrustManager() {
+                        public void checkClientTrusted(X509Certificate[] chain, String authType) {}
+                        public void checkServerTrusted(X509Certificate[] chain, String authType) {}
+                        public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[]{}; }
+                    }
+            }, null);
+
+            options.sslContext = ctx;
+            options.forceNew = true;
+
+            socket = IO.socket(ZOFF_URL, options);
+
+        } catch (Exception e){
+            e.printStackTrace();
+            log("Failed to connect");
+        }
+        socket.connect();
+        socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                log("Connected");
+            }
+        });
+
+        socket.on(Socket.EVENT_CONNECT_ERROR, new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                log("Failed to connect, " + args[0].toString());
+            }
+        });
+
+
+        socket = setSocketListeners(socket);
+        //getPlaylist();
+
+
+
+    }
+
+    public void setChannel(){
+
+
+
+    }
 
 
     private boolean pinging = false;
@@ -128,6 +186,31 @@ public class Server {
 
 
 
+        }
+    };
+
+
+
+
+
+
+    private Emitter.Listener onConf = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            handler.post(new Runnable() {
+
+                @Override
+                public void run() {
+                    log("onConf");
+
+
+                    JSONArray conf = (JSONArray) args[0];
+
+                    zoffController.onConfigurationChanged(conf);
+
+
+                }
+            });
         }
     };
     private Emitter.Listener onNewVideo = new Emitter.Listener() {
@@ -363,44 +446,6 @@ public class Server {
         handler.postDelayed(pingTimer, TimeUnit.SECONDS.toMillis(1));
     }
 
-    private void connect(){
-        if (socket != null){
-            socket = removeSocketListeners(socket);
-            socket.disconnect();
-            socket.close();
-        }
-
-        try {
-            IO.Options options = new IO.Options();
-
-            options.secure = true;
-
-
-            SSLContext ctx = SSLContext.getInstance("TLS");
-            ctx.init(null, new TrustManager[] {
-                    new X509TrustManager() {
-                        public void checkClientTrusted(X509Certificate[] chain, String authType) {}
-                        public void checkServerTrusted(X509Certificate[] chain, String authType) {}
-                        public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[]{}; }
-                    }
-            }, null);
-
-            options.sslContext = ctx;
-
-            socket = IO.socket(ZOFF_URL, options);
-        } catch (Exception e){
-            e.printStackTrace();
-            log("Failed to connect");
-        }
-        socket.connect();
-        socket.emit(SOCKET_KEY_EMIT_GET_LIST, chan);
-
-        socket = setSocketListeners(socket);
-
-
-
-
-    }
 
 
     public void shuffle(String adminpass){
@@ -488,6 +533,10 @@ public class Server {
 
     }
 
+    public void getPlaylist(){
+        socket.emit(SOCKET_KEY_EMIT_GET_LIST, chan);
+    }
+
     public void savePassword(String password){
         JSONArray data = new JSONArray();
         data.put(password);
@@ -552,6 +601,7 @@ public class Server {
         socket.on(SOCKET_KEY_ON_CORRECT_PASSWORD, onPw);
         socket.on(chan + SOCKET_KEY_ON_SETTINGS_SAVED, onSavedSettings);
         socket.on(SOCKET_KEY_ON_PING_CALLBACK              ,onPingOK);
+        socket.on(SOCKET_KEY_ON_CONFIGURATION_CHANGED ,onConf);
 
         return socket;
     }
@@ -565,6 +615,9 @@ public class Server {
         socket.off(SOCKET_KEY_ON_CORRECT_PASSWORD);
         socket.off(chan+SOCKET_KEY_ON_SETTINGS_SAVED);
         socket.off(SOCKET_KEY_ON_PING_CALLBACK);
+        socket.off(SOCKET_KEY_ON_CONFIGURATION_CHANGED);
+        socket.off(Socket.EVENT_CONNECT);
+        socket.off(Socket.EVENT_CONNECT_ERROR);
 
 
         return socket;

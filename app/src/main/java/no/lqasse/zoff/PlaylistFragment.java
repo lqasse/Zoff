@@ -10,22 +10,14 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
 
+import jp.wasabeef.recyclerview.animators.SlideInDownAnimator;
 import no.lqasse.zoff.Adapters.HidingScrollListener;
 import no.lqasse.zoff.Adapters.ItemDecorator;
-import no.lqasse.zoff.Adapters.VideoListAdapter;
-import no.lqasse.zoff.Adapters.VideoListAdapterHeader;
 import no.lqasse.zoff.Adapters.VideoListRecyclerAdapter;
-import no.lqasse.zoff.Helpers.ToastMaster;
-import no.lqasse.zoff.Models.Video;
 import no.lqasse.zoff.Models.ZoffController;
-import no.lqasse.zoff.Models.ZoffModel;
-import no.lqasse.zoff.Remote.RemoteActivity;
-import no.lqasse.zoff.Search.YouTube;
+import no.lqasse.zoff.Models.Zoff;
 
 /**
  * Created by lassedrevland on 16.06.15.
@@ -37,7 +29,6 @@ public class PlaylistFragment extends Fragment {
     private Activity activity;
     private RelativeLayout layout;
     private ZoffController zoffController;
-    private VideoListAdapter listAdapter;
     private VideoListRecyclerAdapter recyclerAdapter;
 
 
@@ -57,7 +48,7 @@ public class PlaylistFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        View v = inflater.inflate(R.layout.playlist_fragment,container,false);
+        View v = inflater.inflate(R.layout.fragment_playlist,container,false);
         videoList = (RecyclerView) v.findViewById(R.id.videoPlaylist);
 
 
@@ -101,7 +92,7 @@ public class PlaylistFragment extends Fragment {
         }
     }
 
-    public void notifyDataChange(ZoffModel zoffModel){
+    public void notifyDataChange(Zoff zoff){
         recyclerAdapter.notifyDataSetChanged();
 
     }

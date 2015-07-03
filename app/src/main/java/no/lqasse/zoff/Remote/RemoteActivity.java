@@ -27,7 +27,7 @@ import no.lqasse.zoff.ImageTools.BitmapColor;
 import no.lqasse.zoff.ImageTools.BitmapDownloader;
 import no.lqasse.zoff.ImageTools.ImageCache;
 import no.lqasse.zoff.Models.ZoffController;
-import no.lqasse.zoff.Models.ZoffModel;
+import no.lqasse.zoff.Models.Zoff;
 import no.lqasse.zoff.Models.ZoffSettings;
 import no.lqasse.zoff.PlaylistFragment;
 import no.lqasse.zoff.R;
@@ -45,7 +45,7 @@ public class RemoteActivity extends ZoffActivity implements SettingsFragment.Lis
     private SearchFragment searchFragment;
     private PlaylistFragment playlistFragment;
     private FragmentManager fragmentManager;
-    private ZoffModel zoff;
+    private Zoff zoff;
 
     private Menu menu;
 
@@ -110,6 +110,7 @@ public class RemoteActivity extends ZoffActivity implements SettingsFragment.Lis
 
         zoff = zoffController.getZoff();
         setControllerCallbacks(zoffController);
+        zoffController.refreshPlaylist();
         displayPlaylistFragment();
 
 
@@ -187,7 +188,7 @@ public class RemoteActivity extends ZoffActivity implements SettingsFragment.Lis
 
     }
 
-    private void refreshViewData(ZoffModel zoff) {
+    private void refreshViewData(Zoff zoff) {
 
 
         playlistFragment.notifyDataChange(zoff);
@@ -202,7 +203,6 @@ public class RemoteActivity extends ZoffActivity implements SettingsFragment.Lis
         }
 
 
-        settingsFragment.setSettings(zoff.getSettings());
     }
 
 
@@ -217,7 +217,7 @@ public class RemoteActivity extends ZoffActivity implements SettingsFragment.Lis
         zoffController = ZoffController.getInstance(channel,this);
         zoff = zoffController.getZoff();
         refreshViewData(zoff);
-        toolBarTitle.setText(zoff.getChannel());
+        toolBarTitle.setText(zoff.getChannelRaisedFirstLetter());
 
         setControllerCallbacks(zoffController);
 
@@ -315,7 +315,7 @@ public class RemoteActivity extends ZoffActivity implements SettingsFragment.Lis
     private void setControllerCallbacks(ZoffController controller){
         controller.setOnRefreshListener(new ZoffController.RefreshCallback() {
             @Override
-            public void onZoffRefreshed(ZoffModel zoff) {
+            public void onZoffRefreshed(Zoff zoff) {
                 refreshViewData(zoff);
                 playlistFragment.notifyDataChange(zoff);
 
@@ -372,7 +372,7 @@ public class RemoteActivity extends ZoffActivity implements SettingsFragment.Lis
         if (fragmentManager.getBackStackEntryCount() > 0) {
             fragmentManager.popBackStack();
         } else {
-
+            zoffController.disconnect();
             finish();
             super.onBackPressed();
         }

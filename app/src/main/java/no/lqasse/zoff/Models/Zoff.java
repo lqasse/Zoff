@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by lassedrevland on 05.06.15.
  */
-public class ZoffModel {
+public class Zoff {
     public static final String BUNDLE_KEY_CHANNEL = "channel";
     public static final String BUNDLE_KEY_IS_NEW_CHANNEL = "NEW";
 
@@ -26,7 +26,7 @@ public class ZoffModel {
     private ArrayList<Video> videos = new ArrayList<>();
     private ArrayList<Video> nextVideos = new ArrayList<>();
 
-    public ZoffModel(String channel){
+    public Zoff(String channel){
         this.channel = channel;
     }
 
@@ -89,8 +89,13 @@ public class ZoffModel {
     }
 
     public void setNextNowPlaying(){
-        videos.get(0).setIsNowPlaying(false);
-        videos.get(1).setIsNowPlaying(true);
+        if (videos.size()>1){
+            videos.get(0).setIsNowPlaying(false);
+            videos.get(1).setIsNowPlaying(true);
+        } else {
+            videos.get(0).setIsNowPlaying(true);
+        }
+
         Collections.sort(videos);
     }
 
@@ -114,6 +119,10 @@ public class ZoffModel {
 
     public String getChannel() {
         return channel;
+    }
+
+    public String getChannelRaisedFirstLetter(){
+        return Character.toUpperCase(channel.charAt(0)) + channel.substring(1);
     }
 
     public String getAdminpass() {

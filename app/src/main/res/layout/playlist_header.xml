@@ -38,9 +38,11 @@
         android:gravity="center"
         android:textSize="16dp"
 
-        android:layout_below="@+id/playlistHeaderImage"
+        android:layout_below="@+id/playlistHeaderNowPlayingLabel"
         android:layout_marginTop="3dp"
-        android:text="Videotitle" />
+        android:text="Videotitle"
+        android:layout_marginLeft="3dp"
+        android:layout_marginRight="3dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -68,7 +70,8 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_marginRight="3dp"
-        android:text="0 viewers" />
+        android:text="0 viewers"
+        android:layout_marginBottom="3dp" />
 
 
     <TextView
@@ -81,5 +84,18 @@
         android:layout_below="@+id/playlistHeaderTitle"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="NOW PLAYING"
+        android:id="@+id/playlistHeaderNowPlayingLabel"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:textColor="@color/videolist_item_top_viewers"
+        android:textSize="10dp"
+        android:layout_below="@+id/playlistHeaderImage"
+        android:layout_marginTop="3dp"
+        android:layout_marginLeft="3dp" />
 
 </RelativeLayout>

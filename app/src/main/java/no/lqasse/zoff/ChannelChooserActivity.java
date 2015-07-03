@@ -3,6 +3,8 @@ package no.lqasse.zoff;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -29,6 +31,9 @@ public class ChannelChooserActivity extends ActionBarActivity  {
 
     private AutoCompleteTextView channelTextView;
     private static final String LOG_IDENTIFIER = "MainActivity";
+    private ArrayList<Channel> displayedSuggestions = new ArrayList<>();
+    private ArrayList<Channel> allSuggestions = new ArrayList<>();
+    private ChannelGridAdapter suggestionArrayAdapter;
 
 
 
@@ -39,8 +44,18 @@ public class ChannelChooserActivity extends ActionBarActivity  {
         ImageCache.empty();
 
 
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_channelchooser);
         channelTextView = (AutoCompleteTextView) findViewById(R.id.acEditText);
+        GridView gridView = (GridView) findViewById(R.id.chanGrid);
+        suggestionArrayAdapter = new ChannelGridAdapter(this,displayedSuggestions);
+        gridView.setAdapter(suggestionArrayAdapter);
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                initializeRemote(displayedSuggestions.get(position).getName());
+
+            }
+        });
 
 
 
@@ -55,32 +70,20 @@ public class ChannelChooserActivity extends ActionBarActivity  {
 
 
 
-        channelTextView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        channelTextView.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
-                if (actionId == EditorInfo.IME_ACTION_GO) {
-
-                    if (isValidRoom()) {
-
-                        initializeNew(channelTextView.getText().toString());
-
-
-                    } else {
-                        t.show();
-
-                    }
-
-                }
-                return true;
             }
 
-
-        });
-
-        channelTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                initializeRemote(channelTextView.getText().toString());
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                filterSuggestions(s.toString());
             }
         });
 
@@ -174,22 +177,69 @@ public class ChannelChooserActivity extends ActionBarActivity  {
     }
 
     public void setChannelSuggestions(final ArrayList<Channel> suggestions){
+        allSuggestions.clear();
+        allSuggestions.addAll(suggestions);
+        Collections.sort(allSuggestions);
+
+        displayedSuggestions.clear();
+
+        for (int i = 0;i<20;i++){
+            displayedSuggestions.add(allSuggestions.get(i));
+        }
 
 
-        GridView gridView = (GridView) findViewById(R.id.chanGrid);
-        ChannelGridAdapter suggestionArrayAdapter = new ChannelGridAdapter(this,suggestions);
-
-        Collections.sort(suggestions);
-        gridView.setAdapter(suggestionArrayAdapter);
+        suggestionArrayAdapter.notifyDataSetChanged();
 
 
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                initializeRemote(suggestions.get(position).getName());
 
+    }
+
+    private void filterSuggestions(String predicate){
+        predicate = predicate.toLowerCase();
+        ArrayList<Channel> filteredResults = new ArrayList<>();
+
+
+        for (Channel c:allSuggestions){
+            if (c.getName().contains(predicate)){
+                filteredResults.add(c);
             }
-        });
+        }
+
+        if (predicate.equals("")){
+            filteredResults.addAll(allSuggestions);
+        }
+
+        int lengthLimit = 20;
+
+        if (filteredResults.size() < 20){
+            lengthLimit = filteredResults.size();
+        }
+
+        displayedSuggestions.clear();
+        for (int i = 0;i<lengthLimit;i++){
+            displayedSuggestions.add(filteredResults.get(i));
+        }
+
+        ArrayList<String> titles = new ArrayList<>();
+        for (Channel c:displayedSuggestions){
+            titles.add(c.getName());
+        }
+
+        if (!titles.contains(predicate)){
+            displayedSuggestions.add(getNewChannelPlaceholder(predicate));
+
+        }
+
+        suggestionArrayAdapter.notifyDataSetChanged();
+
+
+    }
+
+    private Channel getNewChannelPlaceholder(String title){
+
+        Channel channel = Channel.createNewChannelPlaceholder(title);
+
+        return channel;
 
     }
 }

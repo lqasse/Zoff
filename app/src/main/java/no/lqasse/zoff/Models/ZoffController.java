@@ -19,7 +19,7 @@ public class ZoffController {
     public static final String BUNDLEKEY_CHANNEL = "channel";
     public static final String BUNDLEKEY_IS_NEW_CHANNEL = "NEW";
     private static final String LOG_IDENTIFIER = "Zoff_LOG";
-    private ZoffModel zoff;
+    private Zoff zoff;
     private Server server;
 
     private RefreshCallback refreshCallback;
@@ -32,7 +32,10 @@ public class ZoffController {
         if (controller != null){
             if (controller.getZoff().getChannel().equals(channel)){
                 controller.removeCallbacks();
+                Log.d("Controller", context.toString() +" got instance " +controller.toString());
+
                 return controller;
+
             }
 
 
@@ -41,12 +44,18 @@ public class ZoffController {
 
         ImageCache.empty();
         controller = new ZoffController(channel,context);
+        Log.d("Controller", context.toString() +" got NEW instance " +controller.toString());
         return controller;
 
     }
 
+    public static void StopInstance(){
+        Log.d("Controller", "Instance stopped");
+        controller = null;
+    }
+
     public ZoffController(String channel, Context context) {
-        zoff = new ZoffModel(channel);
+        zoff = new Zoff(channel);
         zoff.setAndroid_id(Settings.Secure.getString(context.getContentResolver(),
                 Settings.Secure.ANDROID_ID));
 
@@ -75,7 +84,7 @@ public class ZoffController {
         this.toastMessageCallback = null;
     }
 
-    public ZoffModel getZoff() {
+    public Zoff getZoff() {
         return zoff;
     }
 
@@ -87,10 +96,14 @@ public class ZoffController {
 
     }
 
+    public void onConfigurationChanged(JSONArray data){
+        zoff.setSettings(JSONTranslator.createSettingsFromJSON(data));
+        }
+
     public void onListRefreshed(JSONArray data) {
 
         zoff.setVideos(JSONTranslator.createVideoListFromJSON(data));
-        zoff.setSettings(JSONTranslator.createSettingsFromJSON(data));
+
 
 
         if (refreshCallback != null) {
@@ -164,6 +177,11 @@ public class ZoffController {
     }
 
 
+    public void onSettings(String settings){
+
+    }
+
+
 
 
     public void vote(Video video) {
@@ -196,6 +214,10 @@ public class ZoffController {
 
     }
 
+    public void refreshPlaylist(){
+        server.getPlaylist();
+    }
+
 
     @Override
     public String toString() {
@@ -203,7 +225,13 @@ public class ZoffController {
     }
 
     public void disconnect() {
-        server.off();
+        StopInstance();
+        try {
+            finalize();
+        } catch (Throwable t){
+            t.printStackTrace();
+        }
+
 
     }
 
@@ -213,7 +241,7 @@ public class ZoffController {
 
 
     public interface RefreshCallback {
-        void onZoffRefreshed(ZoffModel zoff);
+        void onZoffRefreshed(Zoff zoff);
     }
 
     public interface CorrectPasswordCallback {
@@ -224,7 +252,13 @@ public class ZoffController {
         void onToastReceived(String toastkeyword);
     }
 
+    @Override
+    protected void finalize() throws Throwable {
+        log("Finalized controller");
+        server.off();
 
+        super.finalize();
+    }
 }
 
 

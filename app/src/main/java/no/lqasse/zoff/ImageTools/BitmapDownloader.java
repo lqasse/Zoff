@@ -22,6 +22,8 @@ public class BitmapDownloader {
     private static final ArrayList<String> downloading = new ArrayList<>();
     private static final String LOG_IDENTIFIER = "ImageDownload";
 
+
+
     private static class ViewHolder{
         Bitmap bitmap;
         ImageView imageView;
@@ -194,17 +196,12 @@ public class BitmapDownloader {
                         if (viewHolder.imageView.getTag() != null){
                             if ((viewHolder.imageView.getTag().toString()).equals(viewHolder.videoId)){
                                 viewHolder.bitmap = BitmapScaler.Scale(viewHolder.bitmap, viewHolder.imageSize);
-
-
                                 Animation a = new AlphaAnimation(0.00f, 1.00f);
                                 a.setInterpolator(new DecelerateInterpolator());
                                 a.setDuration(700);
                                 viewHolder.imageView.startAnimation(a);
                                 a.start();
                                 viewHolder.imageView.setImageBitmap(viewHolder.bitmap);
-
-
-
 
                             }
                         }

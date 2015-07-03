@@ -61,12 +61,13 @@ public  class JSONTranslator {
         JSONObject object;
 
         try {
-            object = data.getJSONArray(1).getJSONObject(JSON_SETTINGS_INDEX);
+
+            object = data.getJSONObject(JSON_SETTINGS_INDEX);
 
 
 
             return new ZoffSettings.Builder()
-                    ._id                (object.getString("_id"))
+                    ._id(object.getString("_id"))
                     .numberOfSkips(object.getJSONArray("skips").length())
                     .numberOfViewers(object.getJSONArray("views").length())
                     .startTimeSeconds(object.getInt("startTime"))

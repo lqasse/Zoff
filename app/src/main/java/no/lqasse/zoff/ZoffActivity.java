@@ -34,6 +34,7 @@ public abstract class ZoffActivity extends ActionBarActivity {
     }
 
     protected void startNotificationService() {
+        ImageCache.removeImage(zoffController.getZoff().getPlayingVideo().getId(), ImageCache.ImageSize.HUGE);
         Intent notificationIntent = new Intent(this, NotificationService.class);
         notificationIntent.putExtra(ZoffController.BUNDLEKEY_CHANNEL, channel);
         notificationIntent.setAction("START");

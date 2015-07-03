@@ -1,9 +1,13 @@
 package no.lqasse.zoff.Adapters;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -41,6 +45,7 @@ public class ChannelGridAdapter extends ArrayAdapter<Channel> {
             TextView title;
             TextView viewers;
             TextView songs;
+            TextView newChannel;
         }
 
         View gridTile;
@@ -51,10 +56,12 @@ public class ChannelGridAdapter extends ArrayAdapter<Channel> {
             gridTile = inflater.inflate(R.layout.channel_gridtile, parent, false);
 
             viewholder = new Viewholder();
-            viewholder.headerImage =     (ImageView) gridTile.findViewById(R.id.headerImage);
-            viewholder.title =            (TextView) gridTile.findViewById(R.id.title);
-            viewholder.viewers =          (TextView) gridTile.findViewById(R.id.viewersLabel);
-            viewholder.songs =            (TextView) gridTile.findViewById(R.id.songsLabel);
+            viewholder.headerImage =     (ImageView) gridTile.findViewById(R.id.channelTileHeader);
+            viewholder.title =            (TextView) gridTile.findViewById(R.id.channelTileTitle);
+            viewholder.viewers =          (TextView) gridTile.findViewById(R.id.channelTileViewers);
+            viewholder.songs =            (TextView) gridTile.findViewById(R.id.channelTileSongs);
+            viewholder.newChannel = (TextView) gridTile.findViewById(R.id.channelTileNewChannel);
+
 
             gridTile.setTag(viewholder);
 
@@ -68,9 +75,9 @@ public class ChannelGridAdapter extends ArrayAdapter<Channel> {
 
 
 
-        viewholder.title.setText(suggestions.get(position).getName());
-        viewholder.viewers.setText(Integer.toString(suggestions.get(position).getViewers()));
-        viewholder.songs.setText(Integer.toString(suggestions.get(position).getSongs()));
+        viewholder.title.setText(suggestions.get(position).getNameRaisedFirstLetter());
+        viewholder.viewers.setText(suggestions.get(position).getViewersText());
+        viewholder.songs.setText(suggestions.get(position).getSongsText());
 
 
         String videoId = suggestions.get(position).getNowPlayingId();
@@ -80,11 +87,33 @@ public class ChannelGridAdapter extends ArrayAdapter<Channel> {
         String imageUrl = Video.getThumbMed(videoId);
         String imageUrlAlt = imageUrl;
 
-        if (ImageCache.has(videoId, ImageCache.ImageSize.HUGE)){
-            viewholder.headerImage.setImageBitmap(ImageCache.get(videoId, ImageCache.ImageSize.HUGE));
-        }else {
-            BitmapDownloader.downloadAndSet(imageUrl, imageUrlAlt, videoId, viewholder.headerImage, ImageCache.ImageSize.HUGE, false);
 
+        if (suggestions.get(position).isNewChannel()) {
+            viewholder.viewers.setText("");
+            viewholder.songs.setText("");
+            viewholder.newChannel.setText("Create new channel");
+        } else {
+            viewholder.newChannel.setText("");
+        }
+
+
+        if (ImageCache.has(videoId, ImageCache.ImageSize.REG)){
+            viewholder.headerImage.setImageBitmap(ImageCache.get(videoId, ImageCache.ImageSize.REG));
+        }else {
+            final ImageView targetView = viewholder.headerImage;
+
+            BitmapDownloader.download(videoId, ImageCache.ImageSize.REG, false, new BitmapDownloader.Callback() {
+                @Override
+                public void onImageDownloaded(Bitmap image, ImageCache.ImageSize type) {
+                    Animation a = new AlphaAnimation(0.00f, 1.00f);
+                    a.setInterpolator(new DecelerateInterpolator());
+                    a.setDuration(700);
+                    targetView.startAnimation(a);
+                    a.start();
+                    targetView.setImageBitmap(image);
+                }
+            });
+            //BitmapDownloader.downloadAndSet(imageUrl, imageUrlAlt, videoId, viewholder.headerImage, ImageCache.ImageSize.HUGE, false);
         }
 
 
