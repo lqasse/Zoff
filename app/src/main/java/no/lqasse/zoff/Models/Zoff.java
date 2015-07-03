@@ -1,190 +1,179 @@
 package no.lqasse.zoff.Models;
 
-import android.app.Activity;
-import android.app.Service;
-import android.provider.Settings;
-import android.util.Log;
-
-import org.json.JSONArray;
-
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
-import no.lqasse.zoff.Helpers.ToastMaster;
-import no.lqasse.zoff.Interfaces.ZoffListener;
-import no.lqasse.zoff.Server.JSONTranslator;
-import no.lqasse.zoff.Server.Server;
-
 /**
- * Created by lassedrevland on 11.01.15.
+ * Created by lassedrevland on 05.06.15.
  */
 public class Zoff {
+    public static final String BUNDLE_KEY_CHANNEL = "channel";
+    public static final String BUNDLE_KEY_IS_NEW_CHANNEL = "NEW";
 
-    private static final String LOG_IDENTIFIER         = "Zoff_LOG";
-    private ZoffSettings settings;
-
-
-
-    private String channelName;
+    private ZoffSettings settings = new ZoffSettings();
+    private String channel;
     private String adminpass = "";
-    private int viewersCount = 0;
-    private int skipsCount = 0;
-    private Server server;
-
-    private ArrayList<Video> videoList = new ArrayList<>();
-    private ArrayList<Video> nextVideosList = new ArrayList<>();
-
-    private ZoffListener listener;
-    private String android_id;
+    private String android_id = "";
+    private int currentViewers = 0;
+    private int currentSkips = 0;
+    private Boolean isUnlocked = false;
 
 
+    private HashMap<String,Video> idMap = new HashMap<>();
+    private ArrayList<Video> videos = new ArrayList<>();
+    private ArrayList<Video> nextVideos = new ArrayList<>();
 
+    public Zoff(String channel){
+        this.channel = channel;
+    }
 
+    public void setCurrentViewers(int currentViewers) {
+        this.currentViewers = currentViewers;
+    }
 
+    public String getAndroid_id() {
+        return android_id;
+    }
 
-    public Zoff(String channelName, ZoffListener listener) {
-        this.channelName = channelName;
-        log(channelName);
+    public void setAndroid_id(String android_id) {
+        this.android_id = android_id;
+    }
 
-        if (listener instanceof Activity){
-            android_id = Settings.Secure.getString( ((Activity) listener).getBaseContext().getContentResolver(),
-                    Settings.Secure.ANDROID_ID);
-        } else if (listener instanceof Service){
-            android_id = Settings.Secure.getString( ((Service) listener).getBaseContext().getContentResolver(),
-                    Settings.Secure.ANDROID_ID);
+    public void setCurrentSkips(int currentSkips) {
+        this.currentSkips = currentSkips;
+    }
+
+    public void setVideos(ArrayList<Video> videos) {
+
+        this.videos.clear();
+        this.videos.addAll(videos);
+
+        idMap.clear();
+        for (Video v:videos){
+            idMap.put(v.getId(),v);
         }
 
-        server = new Server(channelName,this,android_id);
+        Collections.sort(this.videos);
 
-        this.listener = listener;
 
 
     }
 
 
 
+    public void setNextVideos(ArrayList<Video> nextVideos) {
+        this.nextVideos = nextVideos;
+    }
 
+    public void addVideo(Video video){
+        videos.add(video);
+        Collections.sort(videos);
+    }
 
-    //Communication FROM server START
-
-    public void showToast(String toastKeyword){
-        if (listener instanceof Activity && listener!=null){
-            ToastMaster.showToast(listener, toastKeyword);
-        }
+    public void addVote(VoteMessage message){
+        idMap.get(message.videoid).addVote();
+        idMap.get(message.videoid).setAdded(message.added);
+        Collections.sort(videos);
 
     }
 
-    public void socketRefreshed(JSONArray data){
-
-        videoList.clear();
-        videoList.addAll(JSONTranslator.toVideos(data));
-
-
-        settings = JSONTranslator.getSettings(data);
-
-        if (!isEmpty() && listener != null ){
-            (listener).onZoffRefreshed();
-        }
-
+    public void deleteVideo(String videoID){
+        Video v = idMap.get(videoID);
+        videos.remove(v);
+        idMap.remove(v);
+        Collections.sort(videos);
 
     }
 
-    public void viewersChanged(int viewers){
-        this.viewersCount = viewers;
-        if (!isEmpty() && listener !=null){
-            (listener).onViewersChanged();
-        }
-
-
-    }
-
-    public void onCorrectPassword(String password){
-        adminpass = password;
-        listener.onCorrectPassword();
-
-    }
-
-    //Communication FROM server END
-
-    public void setAdminpass(String PASS){
-        this.adminpass = PASS;
-    }
-
-    //Communication TO server START
-
-    public void ping(ZoffListener listener){
-        server.ping();
-        if (this.listener == null){
-            this.listener = listener;
-        }
-    }
-
-
-    public void vote(Video video) {
-        server.vote(video, adminpass);
-    }
-
-    public void shuffle(){
-       server.shuffle(adminpass);
-    }
-
-    public void add(String id, String title, String duration){
-        server.add(id, title, adminpass, duration);
-    }
-
-    public void skip() {
-        server.skip(adminpass);
-
-    }
-
-    public void delete(Video video){
-        server.delete(video, adminpass);
-    }
-
-    public void savePassword(String password){
-        server.savePassword(password);
-    }
-
-
-    public void saveSettings(ZoffSettings settings){
-        server.saveSettings(adminpass,settings);
-
-    }
-
-    //Communication TO server END
-
-    public Boolean hasPassword(){
-
-        return !adminpass.equals("");
-
-
-    }
-
-
-    public boolean hasVideos() {
-        return !videoList.isEmpty();
-    }
-
-
-
-    public String getViewersCount(){
-
-
-        if (viewersCount < 2){
-            return viewersCount + " viewer";
+    public void setNextNowPlaying(){
+        if (videos.size()>1){
+            videos.get(0).setIsNowPlaying(false);
+            videos.get(1).setIsNowPlaying(true);
         } else {
-            return viewersCount + " viewers";
+            videos.get(0).setIsNowPlaying(true);
         }
 
+        Collections.sort(videos);
+    }
+
+
+    public void setSettings(ZoffSettings settings) {
+        this.settings = settings;
+    }
+
+    public void setChannel(String channel) {
+        this.channel = channel;
+    }
+
+    public void setAdminpass(String adminpass) {
+        this.adminpass = adminpass;
+        isUnlocked = true;
+    }
+
+    public ZoffSettings getSettings() {
+        return settings;
+    }
+
+    public String getChannel() {
+        return channel;
+    }
+
+    public String getChannelRaisedFirstLetter(){
+        return Character.toUpperCase(channel.charAt(0)) + channel.substring(1);
+    }
+
+    public String getAdminpass() {
+        return adminpass;
+    }
+
+    public String getCurrentViewers() {
+        if (currentViewers < 2 && currentViewers != 0){
+            return currentViewers + " viewer";
+        } else {
+            return currentViewers + " viewers";
+        }
+    }
+
+    public String getCurrentSkips() {
+        if (currentSkips > 0){
+            return currentSkips +"/"+ currentViewers + " skipped";
+        } else {
+            return "";
+        }
+    }
+
+    public ArrayList<Video> getVideos() {
+        return videos;
+    }
+
+    public ArrayList<Video> getNextVideos() {
+        return nextVideos;
+    }
+
+    public Video getPlayingVideo(){
+        if (videos.isEmpty() == false){
+            return videos.get(0);
+        }
+
+        return new Video();
+    }
+
+    public Video getNextVideo(){
+        if ((videos.isEmpty() == false) && (videos.size() > 2)){
+            return videos.get(1);
+        }
+
+        return new Video();
     }
 
     public float getPlayProgress(){
         long startTime = settings.getNowPlayingStartTimeMillis();
 
 
-        long duration = getNowPlayingVideo().getDurationMillis();
+        long duration = getPlayingVideo().getDurationMillis();
         long elapsed = Calendar.getInstance().getTimeInMillis() - startTime;
 
 
@@ -194,12 +183,10 @@ public class Zoff {
 
     }
 
-
-
     public String getCurrentPlaytime(){
 
         long startTime = settings.getNowPlayingStartTimeMillis();
-        long duration = getNowPlayingVideo().getDurationMillis();
+        long duration = getPlayingVideo().getDurationMillis();
 
         long elapsed = Calendar.getInstance().getTimeInMillis() - startTime;
 
@@ -251,121 +238,15 @@ public class Zoff {
 
     }
 
-    public String getSkips(){
-        if (skipsCount > 0){
-            return skipsCount +"/"+ viewersCount + " skipped";
-        } else {
-            return "";
-        }
+    public Boolean isUnlocked(){
 
-    }
-
-
-
-    public String getNextId() {
-
-        if (videoList.size() > 1){
-            return videoList.get(1).getId();
-        }
-
-        return "";
-    }
-
-    public List<String> getVideoIDs() {
-        ArrayList<String> ids = new ArrayList<>();
-        for (Video v : videoList) {
-            ids.add(v.getId());
-        }
-
-        return ids;
+        return isUnlocked;
 
 
     }
 
-    public String getChannelName() {
-        return channelName;
+    public boolean hasVideos() {
+        return !videos.isEmpty();
     }
-
-    public String getNowPlayingTitle() {
-        if (hasVideos())
-            return videoList.get(0).getTitle();
-        return "No videos";
-
-    }
-
-    public Video getNowPlayingVideo() {
-        return videoList.get(0);
-    }
-
-    public ArrayList<Video> getVideos() {
-        return videoList;
-    }
-
-    public ArrayList<Video> getNextVideos() {
-
-
-
-        return nextVideosList;
-    }
-
-    public List<String> getNextVideoIDs() {
-        ArrayList<String> nextVideos = new ArrayList();
-        nextVideos.addAll(getVideoIDs());
-        nextVideos.remove(0);
-
-        return nextVideos;
-    }
-
-    public String getNowPlayingID() {
-        if (videoList.isEmpty()){
-            return null;
-        } else {
-            return videoList.get(0).getId();
-        }
-
-    }
-
-    @Override
-    public String toString() {
-        return getChannelName() + ": " + videoList.size();
-    }
-
-    public void disconnect(){
-
-       server.off();
-
-
-
-    }
-
-    private void log(String data){
-        Log.i(LOG_IDENTIFIER, data);
-    }
-
-    public boolean isEmpty(){
-        return videoList.isEmpty();
-    }
-
-
-    public String getListener(){
-        return listener.toString();
-    }
-
-    public ZoffSettings getSettings(){
-        return settings;
-    }
-
-
-
-
-
-
-
-
-
 
 }
-
-
-
-

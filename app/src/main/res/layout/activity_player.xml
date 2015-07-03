@@ -4,7 +4,7 @@
 
     android:orientation="vertical"
     android:focusableInTouchMode="true"
-    android:id="@+id/layout"
+    android:id="@+id/listContainer"
     android:weightSum="1"
 
     >
@@ -51,7 +51,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:id="@+id/videoTitleView"
+            android:id="@+id/playlistHeaderTitle"
             android:textColor="@color/white"
             android:gravity="center"
             android:textSize="13dp"
@@ -67,7 +67,7 @@
 
             android:textSize="13dp"
 
-            android:layout_below="@id/videoTitleView"
+            android:layout_below="@id/playlistHeaderTitle"
             />
 
         <TextView
@@ -79,7 +79,7 @@
 
 
             android:textSize="13dp"
-            android:layout_below="@+id/videoTitleView"
+            android:layout_below="@+id/playlistHeaderTitle"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true" />
 
@@ -89,7 +89,7 @@
     <ListView
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:id="@+id/videoList"
+        android:id="@+id/videoPlaylist"
         android:dividerHeight="5dp"
         android:layout_below="@+id/relativeLayout"
         android:layout_marginLeft="13dp"

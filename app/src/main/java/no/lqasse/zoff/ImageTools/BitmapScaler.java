@@ -5,7 +5,7 @@ import android.graphics.Bitmap;
 /**
  * Created by lassedrevland on 20.04.15.
  */
-public class ImageScaler {
+public class BitmapScaler {
 
 
     private static final float IMAGE_RATIO = (16f/9f);
@@ -15,13 +15,13 @@ public class ImageScaler {
     private static int TARGET_IMAGE_WIDTH       = 150;
     private static int TARGET_IMAGE_HEIGHT      = (int)( TARGET_IMAGE_WIDTH / IMAGE_RATIO);
 
-    public static Bitmap Scale(Bitmap bitmap, ImageCache.ImageType type){
+    public static Bitmap Scale(Bitmap bitmap, ImageCache.ImageSize type){
 
         if (bitmap.getWidth() >= 640){
 
             bitmap = Bitmap.createScaledBitmap(bitmap, (int) (TARGET_IMAGE_WIDTH_BIG*AGGRESSIVE_DOWNSCALE_RATIO), (int) (TARGET_IMAGE_HEIGHT_BIG*AGGRESSIVE_DOWNSCALE_RATIO),true);
 
-        } else if (type != ImageCache.ImageType.HUGE){ //Dont scale if Image should be huge but is small (Fallback if big image doesnt exist)
+        } else if (type != ImageCache.ImageSize.HUGE){ //Dont scale if Image should be huge but is small (Fallback if big image doesnt exist)
 
             bitmap = Bitmap.createScaledBitmap(bitmap, (int)(TARGET_IMAGE_WIDTH*AGGRESSIVE_DOWNSCALE_RATIO), (int) (TARGET_IMAGE_HEIGHT*AGGRESSIVE_DOWNSCALE_RATIO),true);
         }

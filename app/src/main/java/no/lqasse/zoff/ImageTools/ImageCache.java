@@ -6,8 +6,8 @@ import android.util.LruCache;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
-import no.lqasse.zoff.Interfaces.ImageListener;
 
 /**
  * Created by lassedrevland on 23.03.15.
@@ -21,6 +21,8 @@ public class ImageCache {
     final static int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
     final static int cacheSize = maxMemory / 8;
 
+    private static Map<String,ImageInCacheListener> cacheListeners = new HashMap<>();
+
 
 
     private static ArrayList<String> hugeImagesInCache = new ArrayList<>();
@@ -32,6 +34,10 @@ public class ImageCache {
 
     };
 
+    public static void removeImage(String id, ImageSize size){
+        mMemoryCache.remove(getIDWithTypeSuffix(id,size));
+    }
+
     public static void empty(){
         log();
         if (mMemoryCache != null){
@@ -42,25 +48,19 @@ public class ImageCache {
 
 
 
-    public enum ImageType{BLUR,HUGE,REG}
+    public enum ImageSize {BACKGROUND,HUGE,REG}
 
     private static Bitmap currentBlurBG;
 
-    private static ImageListener listener;
 
 
-    private static String listenID;
-
-    private static HashMap<String,ImageListener> listenersMap = new HashMap<>();
-
-    //private static HashMap<String,Bitmap> ImageMap = new HashMap<>();
 
 
     public static boolean has(String id){
         return mMemoryCache.get(id) != null;
     }
 
-    public static boolean has(String id,ImageType type){
+    public static boolean has(String id,ImageSize type){
 
 
         return mMemoryCache.get(id + getSuffix(type)) != null;
@@ -70,7 +70,7 @@ public class ImageCache {
 
     }
 
-    public static Bitmap get(String id,ImageType type){
+    public static Bitmap get(String id,ImageSize type){
 
 
         if (has(id,type)){
@@ -86,33 +86,29 @@ public class ImageCache {
 
     public static void put(String id,Bitmap image){
 
-        mMemoryCache.put(id,image);
+        mMemoryCache.put(id, image);
         if (id.contains("_blur") && currentBlurBG!=image){
             currentBlurBG = image;
         }
 
 
-        if(listener !=null && id.equals(listenID)){
-            listener.imageInCache(image);
-            listener = null;
 
-        }
 
 
     }
 
-    public static void put(String id, ImageType type, Bitmap bitmap){
+    public static void put(String id, ImageSize type, Bitmap bitmap, Boolean flagScaleDown){
 
         if (cacheSize < LOWER_MEMORY_THRESHOLD){
 
-            ImageScaler.setAggressiveScaling(0.75f);
+            BitmapScaler.setAggressiveScaling(0.75f);
         }
 
 
 
         switch (type){
 
-            case BLUR:
+            case BACKGROUND:
 
                 if (currentBlurBG!=bitmap){
                     currentBlurBG = bitmap;
@@ -123,13 +119,17 @@ public class ImageCache {
                 break;
         }
 
-
-
+        if (flagScaleDown){
+            bitmap = BitmapScaler.Scale(bitmap, type);
+        }
 
 
 
         mMemoryCache.put(id + getSuffix(type),bitmap);
-        notifyListeners(id + getSuffix(type), bitmap);
+
+        if (hasListener(id,type)){
+            cacheListeners.get(getIDWithTypeSuffix(id,type)).ImageInCache(bitmap);
+        }
 
         int FILL_PERCENTAGE =  (int) (((float)mMemoryCache.size()/(float)mMemoryCache.maxSize()*100));
         if (FILL_PERCENTAGE > 70){
@@ -137,35 +137,9 @@ public class ImageCache {
         }
 
 
-
-
-
-
-
-        if(listener !=null && id.equals(listenID)){
-            listener.imageInCache(bitmap);
-            listener = null;
-
-        }
     }
 
-    public static void cleanHugeImages(String... keep){
-        log();
-        for(int i = 0;i<keep.length;i++){
-            hugeImagesInCache.remove(keep[i]);
-        }
 
-        for(String id:hugeImagesInCache){
-            mMemoryCache.remove(getIDWithTypeSuffix(id,ImageType.HUGE));
-            log(id);
-        }
-
-        for(int i = 0;i<keep.length;i++){
-           hugeImagesInCache.add(keep[i]);
-        }
-        log("Cleaned");
-        log();
-    }
 
     public static Bitmap get(String id){
         return mMemoryCache.get(id);
@@ -173,37 +147,6 @@ public class ImageCache {
 
     public static Bitmap getCurrentBlurBG() {
         return currentBlurBG;
-    }
-
-    public static void registerImageListener(ImageListener listener, String idToListenFor){
-        ImageCache.listener = listener;
-        listenID = idToListenFor;
-
-
-        listenersMap.put(idToListenFor,listener);
-
-
-    }
-
-
-    public static void registerImageListener(ImageListener listener, String idToListenFor, ImageType type){
-        ImageCache.listener = listener;
-        listenID = idToListenFor;
-
-
-
-        listenersMap.put(idToListenFor + getSuffix(type),listener );
-
-
-    }
-
-    private static void notifyListeners(String id, Bitmap bitmap){
-
-        if (listenersMap.containsKey(id)){
-            listenersMap.get(id).imageInCache(bitmap);
-            listenersMap.remove(id);
-        }
-
     }
 
 
@@ -224,21 +167,41 @@ public class ImageCache {
         Log.i(LOG_IDENTIFIER, data);
     }
 
-    public static String getIDWithTypeSuffix(String id, ImageCache.ImageType type){
+    public static String getIDWithTypeSuffix(String id, ImageSize type){
         return id + getSuffix(type);
     }
 
-    private static String getSuffix(ImageCache.ImageType type){
+    private static String getSuffix(ImageSize type){
         switch (type){
             case HUGE:
                 return HUGE_APPENDIX;
 
-            case BLUR:
+            case BACKGROUND:
                 return BLUR_APPENDIX;
-
 
 
         }
         return "";
     }
+
+    public interface ImageInCacheListener{
+        void ImageInCache(Bitmap image);
+    }
+
+    public static void registerListener(String videoId, ImageSize size, ImageInCacheListener listener){
+
+        if (ImageCache.has(videoId,size)){
+            listener.ImageInCache(ImageCache.get(videoId,size));
+        } else {
+            cacheListeners.put(getIDWithTypeSuffix(videoId,size),listener);
+        }
+
+    }
+
+    private static boolean hasListener(String videoID, ImageSize type){
+        return cacheListeners.containsKey(getIDWithTypeSuffix(videoID,type));
+    }
+
+
+
 }

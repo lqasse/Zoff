@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import no.lqasse.zoff.Models.SearchResult;
+import no.lqasse.zoff.Models.SearchResultDetail;
 
 /**
  * Created by lassedrevland on 24.03.15.
@@ -104,7 +105,8 @@ public class YouTubeJSONTranslator {
 
     }
 
-    public static ArrayList<String[]> toDetails(String JSONString){
+    /*
+    public static ArrayList<String[]> toDetailsArray(String JSONString){
         ArrayList<String[]> detailsArray = new ArrayList<>();
         try {
             JSONObject json = new JSONObject(JSONString);
@@ -123,6 +125,38 @@ public class YouTubeJSONTranslator {
 
                 String[] entry = {id,duration,views};
                 detailsArray.add(entry);
+
+
+            }
+
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return detailsArray;
+    }
+    */
+
+    public static ArrayList<SearchResultDetail> toDetailsArray(String JSONString){
+        ArrayList<SearchResultDetail> detailsArray = new ArrayList<>();
+        try {
+            JSONObject json = new JSONObject(JSONString);
+            JSONArray items = json.getJSONArray("items");
+            String duration = "";
+            String views = "";
+            String id = "";
+
+            for (int i = 0; i < items.length(); i++) {
+                JSONObject details = items.getJSONObject(i).getJSONObject("contentDetails");
+                JSONObject statistics = items.getJSONObject(i).getJSONObject("statistics");
+
+                id = items.getJSONObject(i).getString("id");
+                duration = details.getString("duration");
+                views = statistics.getString("viewCount");
+
+                detailsArray.add(new SearchResultDetail(id,views,duration));
 
 
             }

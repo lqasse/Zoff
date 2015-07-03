@@ -22,15 +22,12 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import java.net.URLEncoder;
-
-import no.lqasse.zoff.Adapters.SearchResultListAdapter;
+import no.lqasse.zoff.Search.SearchResultListAdapter;
 import no.lqasse.zoff.ImageTools.ImageCache;
 import no.lqasse.zoff.Helpers.ToastMaster;
 import no.lqasse.zoff.Interfaces.YouTubeListener;
 import no.lqasse.zoff.Helpers.SpotifyServer;
 import no.lqasse.zoff.Search.YouTube;
-import no.lqasse.zoff.Search.YouTubeServer;
 
 
 /**
@@ -118,7 +115,7 @@ public class SearchActivity extends ActionBarActivity implements YouTubeListener
             layout.setBackground(new BitmapDrawable(getResources(),ImageCache.getCurrentBlurBG()));
         }
         //Bundle b = i.getExtras();
-        /*ROOM_NAME = Zoff.getChannelName();*/
+        /*channel = Zoff.getChannelName();*/
         //ROOM_PASS = b.getString("ROOM_PASS");
         //ALL_VIDEOS = b.getBoolean("allVideosAllowed");
         //LONG_SONGS = b.getBoolean("LONG_SONGS");
@@ -181,23 +178,11 @@ public class SearchActivity extends ActionBarActivity implements YouTubeListener
                             Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(queryView.getWindowToken(), 0);
 
-                    doYoutubeSearch(false,false);
                     handled = true;
                 }
                 return handled;
             }
         });
-
-        delaySearch = new Runnable() {
-            @Override
-            public void run() {
-                doYoutubeSearch(false,false);
-            }
-        };
-
-
-
-
 
         resultsView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
@@ -233,7 +218,6 @@ public class SearchActivity extends ActionBarActivity implements YouTubeListener
                     NEXT_PAGE_TOKEN = "";
 
                     String query = queryView.getText().toString();
-                    YouTubeServer.getNextPage(searchActivity, query, ALL_VIDEOS, LONG_SONGS, NEXT_PAGE_TOKEN);
                     Log.d("Scroll", "Loading next page");
 
                 }
@@ -243,20 +227,7 @@ public class SearchActivity extends ActionBarActivity implements YouTubeListener
 
     }
 
-    private void doYoutubeSearch(Boolean ignoreEmpty, Boolean nextPage) {
 
-
-        progressBar.setVisibility(View.VISIBLE);
-
-        String query = queryView.getText().toString();
-        query = URLEncoder.encode(query);
-
-
-        YouTubeServer.search(this,query,ALL_VIDEOS,LONG_SONGS);
-
-
-
-    }
 
 
 

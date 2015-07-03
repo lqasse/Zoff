@@ -1,91 +1,106 @@
 package no.lqasse.zoff.Search;
 
 import android.content.Context;
-import android.os.Handler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import no.lqasse.zoff.Interfaces.YouTubeListener;
 import no.lqasse.zoff.Models.SearchResult;
+import no.lqasse.zoff.Models.SearchResultDetail;
+import no.lqasse.zoff.Models.ZoffSettings;
 
 /**
  * Created by lassedrevland on 26.03.15.
  */
 public class YouTube {
-    private Handler handler = new Handler();
-    private Runnable delaySearch;
-    private static ArrayList<SearchResult> searchResults = new ArrayList<>();
-    private static HashMap<String,SearchResult> searchResultHashMap = new HashMap<>();
-    private Context context;
-    public static String NEXT_PAGE_TOKEN = "";
 
-    private static String QUERY;
-    private static Boolean LONG_SONGS;
-    private static Boolean ALL_CATEGORIES;
+    private static ArrayList<SearchResult> searchResults = new ArrayList<>();
+    private static HashMap<String,SearchResult> searchResultIDHashMap = new HashMap<>();
+    private static String nextPageToken = "";
+    private static String query;
+    private static ZoffSettings settings;
+
+
 
     public static ArrayList<SearchResult> getSearchResults() {
         return searchResults;
     }
 
+    public static void search(final String query, final ZoffSettings settings, final Callback callback){
+        nextPageToken = "";
+        YouTube.query = query;
+        YouTube.settings = settings;
 
 
-    public static void getNextPage(Context context){
-        if (!NEXT_PAGE_TOKEN.equals("")){
-            YouTubeServer.getNextPage(context,QUERY,ALL_CATEGORIES,LONG_SONGS,NEXT_PAGE_TOKEN);
+        YouTubeServer.doSearch(query, "", settings, new YouTubeServer.Callback() {
+           @Override
+           public void onGotResults(String resultsJSON) {
 
-        }
-    }
-    public static void search(Context context,String query,Boolean allsongs, Boolean longsongs){
-        QUERY = query;
-        LONG_SONGS = longsongs;
-        ALL_CATEGORIES = allsongs;
+               nextPageToken = YouTubeJSONTranslator.toNextPageToken(resultsJSON);
+               searchResults.clear();
+               searchResultIDHashMap.clear();
 
-        YouTubeServer.search(context,query,allsongs,longsongs);
+               searchResults.addAll(YouTubeJSONTranslator.toSearchResults(resultsJSON));
 
-    }
+               for (SearchResult r : searchResults){
+                   searchResultIDHashMap.put(r.getVideoID(), r);
+               }
 
-    public static  void firstPageReceived(Context context, ArrayList<SearchResult> results, String nextPageToken){
+               callback.onResultsChanged();
+           }
 
-        searchResultHashMap.clear();
-        searchResults.clear();
+           @Override
+           public void onGotDetails(String detailsJSON) {
 
+               for (SearchResultDetail detail : YouTubeJSONTranslator.toDetailsArray(detailsJSON)){
+                   SearchResult result = searchResultIDHashMap.get(detail.getId());
+                   if (result != null ){
+                       result.setDuration(detail.getDuration());
+                       result.setViews(detail.getViews());
+                   }
 
-
-        pageReceived(context, results, nextPageToken);
-
-
-
-
-
-    }
-    public static void pageReceived(Context context, ArrayList<SearchResult> results, String nextPageToken){
-        NEXT_PAGE_TOKEN = nextPageToken;
-        searchResults.addAll(results);
-
-        for (SearchResult r : results){
-            searchResultHashMap.put(r.getVideoID(), r);
-        }
+               }
+               callback.onResultsChanged();
+           }
 
 
-        YouTubeServer.getDetails(context,results);
+       });
 
     }
 
-    public static void detailsReceived(Context context, ArrayList<String[]> details){
+    public static void getNextPage(final Callback callback){
+        YouTubeServer.doSearch(query, nextPageToken, settings, new YouTubeServer.Callback() {
+            @Override
+            public void onGotResults(String results) {
+                nextPageToken = YouTubeJSONTranslator.toNextPageToken(results);
 
-        for (String[] s : details){
-            SearchResult result = searchResultHashMap.get(s[0]);
-            if (result != null ){
-                result.setDuration(s[1]);
-                result.setViews(s[2]);
+                searchResults.addAll(YouTubeJSONTranslator.toSearchResults(results));
+
+                for (SearchResult r : searchResults){
+                    searchResultIDHashMap.put(r.getVideoID(), r);
+                }
+
+                callback.onResultsChanged();
             }
 
-        }
+            @Override
+            public void onGotDetails(String details) {
+                for (SearchResultDetail detail : YouTubeJSONTranslator.toDetailsArray(details)){
+                    SearchResult result = searchResultIDHashMap.get(detail.getId());
+                    if (result != null ){
+                        result.setDuration(detail.getDuration());
+                        result.setViews(detail.getViews());
+                    }
 
-        ((YouTubeListener)context).notifySearchResultChange();
+                }
+                callback.onResultsChanged();
+            }
+        });
+    }
 
-
+    public interface Callback{
+        void onResultsChanged();
     }
 
 

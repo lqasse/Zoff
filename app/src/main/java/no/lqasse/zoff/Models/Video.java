@@ -1,13 +1,16 @@
 package no.lqasse.zoff.Models;
 
-import java.util.concurrent.TimeUnit;
+import android.support.v7.widget.RecyclerView;
 
-import javax.xml.datatype.Duration;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by lassedrevland on 23.03.15.
  */
 public class Video implements Comparable<Video>{
+
+
+
     private String _id = "Error";
     private String id = "Error";
     private String title = "Error";
@@ -15,7 +18,7 @@ public class Video implements Comparable<Video>{
     private int durationSecs = 0;
     private int added = 0;
     private String[] guids;
-    private Boolean now_playing = false;
+    private Boolean isNowPlaying = false;
 
     public Video(String title, String id, String votes, String added){
         this.title = title;
@@ -30,7 +33,21 @@ public class Video implements Comparable<Video>{
 
     }
 
-    public Video(String _id, String id, String title, int votes, int added, int duration, String[] guids,Boolean now_playing) {
+    public Video(Video.Builder builder){
+        this._id            = builder.nested_id;
+        this.id             = builder.nestedId;
+        this.title          = builder.nestedTitle;
+        this.votes          = builder.nestedVotes;
+        this.added          = builder.nestedAdded;
+        this.durationSecs   = builder.nestedDurationSecs;
+        this.guids          = builder.nestedGuids;
+        this.isNowPlaying   = builder.nestedNowPlaying;
+
+    }
+
+
+
+    public Video(String _id, String id, String title, int votes, int added, int duration, String[] guids,Boolean isNowPlaying) {
         this._id = _id;
         this.id = id;
         this.title = title;
@@ -38,24 +55,21 @@ public class Video implements Comparable<Video>{
         this.added = added;
         this.durationSecs = duration;
         this.guids = guids;
-        this.now_playing = now_playing;
+        this.isNowPlaying = isNowPlaying;
     }
 
-    @Override
-    public int compareTo(Video another) {
 
-        if (this.getVotesInt() != another.getVotesInt()){
-            return another.getVotesInt() - this.getVotesInt(); //Descending on votes 1, 2 ,3 etc
-
-        } else {
-            return (int) (this.getAddedLong()- another.getAddedLong()); //Ascending on time, ie added earliger gives higher position
-        }
-
-    }
 
 
     public String getVotesString() {
-        return Integer.toString(this.votes);
+
+        if (votes == 0){
+            return "";
+        } else if (votes > 1){
+            return votes + " votes";
+        } else {
+            return votes + " vote";
+        }
     }
 
 
@@ -86,6 +100,25 @@ public class Video implements Comparable<Video>{
 
     public int getVotesInt(){
         return Integer.valueOf(votes);
+    }
+
+
+    public void addVote(){
+        votes++;
+
+    }
+
+    public void setAdded(int added){
+        this.added = added;
+
+    }
+
+    public void setNullVotes(){
+        votes = 0;
+    }
+
+    public void setIsNowPlaying(Boolean isNowPlaying){
+        this.isNowPlaying = isNowPlaying;
     }
 
     public long getAddedLong(){
@@ -124,7 +157,84 @@ public class Video implements Comparable<Video>{
         return guids;
     }
 
-    public Boolean getNow_playing() {
-        return now_playing;
+    public Boolean isNowPlaying() {
+        return isNowPlaying;
+    }
+
+    public static class Builder{
+
+        String      nested_id;
+        String      nestedId;
+        String      nestedTitle;
+        int         nestedVotes;
+        int         nestedDurationSecs;
+        int         nestedAdded;
+        String[]    nestedGuids;
+        Boolean     nestedNowPlaying;
+
+        public Video.Builder _id(String _id){
+            nested_id = _id;
+            return this;
+        }
+
+        public Video.Builder id(String id){
+            nestedId = id;
+            return this;
+        }
+
+        public Video.Builder title(String title){
+            nestedTitle = title;
+            return this;
+        }
+
+        public Video.Builder votesCount(int votes){
+            nestedVotes = votes;
+            return this;
+        }
+
+        public Video.Builder durationSecs(int durationSecs){
+            nestedDurationSecs = durationSecs;
+            return this;
+        }
+
+        public Video.Builder addedMillis(int added){
+            nestedAdded = added;
+            return this;
+        }
+
+        public Video.Builder guids(String[] guids){
+            nestedGuids = guids;
+            return  this;
+        }
+
+        public Video.Builder isNowPlaying(boolean nowPlaying){
+            nestedNowPlaying = nowPlaying;
+            return  this;
+        }
+
+        public Video build(){
+            return new Video(this);
+        }
+
+    }
+
+    @Override
+    public int compareTo(Video another) {
+
+
+        if (this.isNowPlaying){
+            return -1;
+        } else if (another.isNowPlaying){
+            return 1;
+        }
+
+
+        if (this.getVotesInt() != another.getVotesInt()){
+            return another.getVotes() - this.getVotes(); //Descending on votes 1, 2 ,3 etc
+
+        } else {
+            return (this.getAdded() - another.getAdded()); //Ascending on time, ie added earlier gives higher position
+        }
+
     }
 }

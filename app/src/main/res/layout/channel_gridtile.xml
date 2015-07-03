@@ -12,15 +12,17 @@
     <ImageView
         android:layout_width="fill_parent"
         android:layout_height="100dp"
-        android:id="@+id/headerImage"
-        android:scaleType="centerCrop" />
+        android:id="@+id/channelTileHeader"
+        android:scaleType="centerCrop"
+        android:translationZ="0dp"
+        android:background="@color/white"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="lglizecrystlfknweed"
-        android:id="@+id/title"
-        android:layout_below="@+id/headerImage"
+        android:id="@+id/channelTileTitle"
+        android:layout_below="@+id/channelTileHeader"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_marginLeft="5dp"
@@ -31,43 +33,30 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Songs: "
-        android:id="@+id/textView2"
-        android:layout_below="@+id/textView3"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginLeft="5dp"
-        android:textColor="@color/zoff_black" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Viewers: "
-        android:id="@+id/textView3"
-        android:layout_below="@+id/title"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginLeft="5dp"
-        android:textColor="@color/zoff_black" />
+        android:text="0"
+        android:id="@+id/channelTileViewers"
+        android:layout_below="@+id/channelTileTitle"
+        android:textColor="@color/zoff_black"
+        android:layout_marginLeft="7dp" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="0"
-        android:id="@+id/viewersLabel"
-        android:layout_below="@+id/title"
-        android:layout_toRightOf="@+id/textView3"
-        android:layout_toEndOf="@+id/textView3"
-        android:textColor="@color/zoff_black" />
+        android:id="@+id/channelTileSongs"
+        android:textColor="@color/zoff_black"
+        android:layout_below="@+id/channelTileViewers"
+        android:layout_marginLeft="7dp" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="0"
-        android:id="@+id/songsLabel"
-        android:layout_below="@+id/textView3"
-        android:layout_toRightOf="@+id/textView2"
-        android:layout_toEndOf="@+id/textView2"
-        android:textColor="@color/zoff_black" />
+        android:id="@+id/channelTileNewChannel"
+        android:layout_centerHorizontal="true"
+        android:layout_alignBottom="@+id/channelTileHeader"
+        android:layout_alignTop="@+id/channelTileHeader"
+        android:gravity="center_vertical|center_horizontal"
+        android:textSize="20dp"
+        android:visibility="visible" />
 
 </RelativeLayout>

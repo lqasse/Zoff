@@ -7,7 +7,7 @@ import android.content.Intent;
 /**
  * Created by lassedrevland on 02.05.15.
  */
-public class ScreenReceiver extends BroadcastReceiver {
+public class ScreenStateReceiver extends BroadcastReceiver {
     // THANKS JASON
     public static boolean wasScreenOn = true;
 

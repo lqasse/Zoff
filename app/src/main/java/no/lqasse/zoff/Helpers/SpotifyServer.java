@@ -138,7 +138,7 @@ public class SpotifyServer {
 
             switch (getHolder.type){
                 case getAndSearch:
-                    YouTube.search(getHolder.context,artist + track,true,true);
+                   // YouTube.search(getHolder.context,artist + track,true,true);
                     break;
                 case getAndSet:
                     getHolder.textView.setText(artist +" " + track);

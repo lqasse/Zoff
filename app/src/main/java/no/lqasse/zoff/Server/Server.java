@@ -11,15 +11,22 @@ import com.github.nkzawa.socketio.client.Socket;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.net.URISyntaxException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
-import no.lqasse.zoff.MainActivity;
-import no.lqasse.zoff.Models.ChanSuggestion;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
+import no.lqasse.zoff.ChannelChooserActivity;
+import no.lqasse.zoff.Models.Channel;
 import no.lqasse.zoff.Models.Video;
-import no.lqasse.zoff.Models.Zoff;
+import no.lqasse.zoff.Models.ZoffController;
 import no.lqasse.zoff.Models.ZoffSettings;
 
 /**
@@ -27,129 +34,147 @@ import no.lqasse.zoff.Models.ZoffSettings;
  */
 public class Server {
 
-    private final static String ZOFF_URL            = "http://dev.zoff.no:3000";
-    private final String LOG_IDENTIFIER             = "SocketServer";
-    private final String SOCKET_KEY_EMIT_SKIP       = "skip";
-    private final String SOCKET_KEY_EMIT_SETTINGS   = "conf";
-    private final String SOCKET_KEY_EMIT_PASSWORD   = "password";
-    private final String SOCKET_KEY_EMIT_VOTE       = "vote";
-    private final String SOCKET_KEY_EMIT_SHUFFLE    = "shuffle";
+    private static final String ZOFF_URL            = "https://zoff.no:3000";
+    private static final String LOG_IDENTIFIER             = "Server";
 
-    private boolean pinging = false;
+    private static final String SOCKET_KEY_EMIT_FRONTPAGE_LIST = "frontpage_lists";
+    private static final String SOCKET_KEY_ON_FRONTPAGE_LIST = "playlists";
+
+    private static final String SOCKET_KEY_EMIT_SKIP       = "skip";
+    private static final String SOCKET_KEY_EMIT_SETTINGS   = "conf";
+    private static final String SOCKET_KEY_EMIT_PASSWORD   = "password";
+    private static final String SOCKET_KEY_EMIT_VOTE       = "vote";
+    private static final String SOCKET_KEY_EMIT_SHUFFLE    = "shuffle";
+    private static final String SOCKET_KEY_EMIT_GET_LIST   = "list";
+
+    private static final String SOCKET_KEY_ON_SKIPPED           = "skipping";
+    private static final String SOCKET_KEY_ON_CHANNEL_REFRESH   = "channel";
+    private static final String SOCKET_KEY_ON_VIEWCOUNT_CHANGED = "viewers";
+    private static final String SOCKET_KEY_ON_TOAST             = "toast";
+    private static final String SOCKET_KEY_ON_CORRECT_PASSWORD  = "pw";
+    private static final String SOCKET_KEY_ON_PING_CALLBACK     = "ok";
+    private static final String SOCKET_KEY_ON_SETTINGS_SAVED    = "savedsettings";
+    private static final String SOCKET_KEY_ON_NOW_PLAYING_CHANGED = "np";
+    private static final String SOCKET_KEY_ON_CONFIGURATION_CHANGED = "conf";
+
+
+    private static final String CHANNEL_REFRESH_VOTE_ADDED = "vote";
+    private static final String CHANNEL_REFRESH_VIDEO_DELETED = "deleted";
+    private static final String CHANNEL_REFRESH = "list";
+    private static final String CHANNEL_REFRESH_NOW_PLAYING_CHANGED = "song_change";
+    private static final String CHANNEL_REFRESH_VIDEO_ADDED = "added";
 
     Socket socket;
-    Zoff zoff;
+    ZoffController zoffController;
     String chan;
-    String guid = "1337";
     Handler handler;
-    Runnable pingTimer = new Runnable() {
-        @Override
-        public void run() {
-            pinging = false;
-            handler.postDelayed(connectTimer, TimeUnit.SECONDS.toMillis(3));
 
-
-        }
-    };
-
-    Runnable connectTimer = new Runnable() {
-        @Override
-        public void run() {
-            log("Trying to connect");
-            connect();
-            handler.postDelayed(connectTimer, TimeUnit.SECONDS.toMillis(2));
-        }
-    };
-
-
-
-
-
-
-
-
-    public Server(String chan, Zoff zoff, String android_id){
-
-        this.zoff = zoff;
-        this.chan = chan;
-        this.guid = android_id;
-        handler = new Handler(Looper.getMainLooper());
-
-        connect();
-
-
-
-
-    }
-
-    public void ping(){
-        pinging = true;
-        log("ping..");
-
-        socket.emit("ping");
-
-        handler.postDelayed(pingTimer, TimeUnit.SECONDS.toMillis(1));
-    }
 
 
     private void connect(){
 
-
-
-        if (socket != null){
-            socket.off(chan);
-            socket.off(chan+",np");
-            socket.off("skipping");
-            socket.off(chan+",viewers");
-            socket.off("toast");
-            socket.off("pw");
-            socket.off(chan+"savedsettings");
-            socket.off("ok");
-            socket.disconnect();
-            socket.close();
-        }
-
-
         try {
-            socket = IO.socket(ZOFF_URL);
+            IO.Options options = new IO.Options();
+
+            options.secure = true;
+
+
+            SSLContext ctx = SSLContext.getInstance("TLS");
+            ctx.init(null, new TrustManager[] {
+                    new X509TrustManager() {
+                        public void checkClientTrusted(X509Certificate[] chain, String authType) {}
+                        public void checkServerTrusted(X509Certificate[] chain, String authType) {}
+                        public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[]{}; }
+                    }
+            }, null);
+
+            options.sslContext = ctx;
+            options.forceNew = true;
+
+            socket = IO.socket(ZOFF_URL, options);
 
         } catch (Exception e){
             e.printStackTrace();
             log("Failed to connect");
         }
         socket.connect();
+        socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                log("Connected");
+            }
+        });
 
-        socket.emit("list", chan + "," + guid);
+        socket.on(Socket.EVENT_CONNECT_ERROR, new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                log("Failed to connect, " + args[0].toString());
+            }
+        });
 
-        socket.on(chan              ,onChannelRefresh);
-        socket.on(chan+",np"        , onNewVideo);
-        socket.on("skipping"        ,onSkip);
-        socket.on(chan+",viewers"   ,onViewersChanged);
-        socket.on("toast"           ,onToast);
-        socket.on("pw"              ,onPw);
-        socket.on(chan+"savedsettings",onSavedSettings);
-        socket.on("ok"              ,onPingOK);
+
+        socket = setSocketListeners(socket);
+        //getPlaylist();
+
 
 
     }
 
-    ///////////Socket Listeners\\\\\\\\\\\\\\
+    public void setChannel(){
 
 
 
+    }
 
+
+    private boolean pinging = false;
     private Emitter.Listener onChannelRefresh = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
-
             handler.post(new Runnable() {
 
                 @Override
                 public void run() {
-                    log( "onChannelRefresh");
+
                     JSONArray array;
-                     array = (JSONArray) args[0];
-                     zoff.socketRefreshed(array);
+                    if (args.length > 0){
+
+                        try {
+                            array = (JSONArray) args[0];
+                            log("onChannelRefresh: " +  array.getString(0));
+                            switch (array.getString(0)){
+                                case CHANNEL_REFRESH:
+                                    zoffController.onListRefreshed(array);
+                                    break;
+                                case CHANNEL_REFRESH_VOTE_ADDED:
+                                    zoffController.onVoteVideo(array);
+                                    break;
+                                case CHANNEL_REFRESH_VIDEO_DELETED:
+                                    zoffController.onDeleteVideo(array);
+                                    break;
+                                case CHANNEL_REFRESH_NOW_PLAYING_CHANGED:
+                                    zoffController.onSongChange(array);
+                                    break;
+                                case CHANNEL_REFRESH_VIDEO_ADDED:
+                                    zoffController.onVideoAdded(array);
+                                    break;
+
+                            }
+
+                        } catch (JSONException e){
+                            e.printStackTrace();
+                        }
+
+
+
+
+
+
+
+                    }
+
+
+
 
                     connectionOK();
 
@@ -164,10 +189,31 @@ public class Server {
         }
     };
 
+
+
+
+
+
+    private Emitter.Listener onConf = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            handler.post(new Runnable() {
+
+                @Override
+                public void run() {
+                    log("onConf");
+
+
+                    JSONArray conf = (JSONArray) args[0];
+
+                    zoffController.onConfigurationChanged(conf);
+
+
+                }
+            });
+        }
+    };
     private Emitter.Listener onNewVideo = new Emitter.Listener() {
-
-
-
         @Override
         public void call(Object... args) {
             handler.post(new Runnable() {
@@ -179,20 +225,14 @@ public class Server {
 
                 }
             });
-
-            }
-        };
-
+        }
+    };
     private Emitter.Listener onSkip = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
             log("onSkip");
-
-
-
         }
     };
-
     private Emitter.Listener onToast = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
@@ -204,9 +244,8 @@ public class Server {
                     String toast = (String) args[0];
                     connectionOK();
 
-
-                        log("onToast: " + toast);
-                        zoff.showToast(toast);
+                    log("onToast: " + toast);
+                    zoffController.showToast(toast);
 
 
 
@@ -215,8 +254,7 @@ public class Server {
             });
         }
     };
-
-    private Emitter.Listener onViewersChanged = new Emitter.Listener() {
+    private Emitter.Listener onViewCountChanged = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
             handler.post(new Runnable() {
@@ -226,10 +264,11 @@ public class Server {
 
 
                     int viewers = (int) args[0];
-                    zoff.viewersChanged(viewers);
+
+                    zoffController.viewersChanged(viewers);
 
 
-                    log("onViewesChanged: " + viewers);
+                    log("onViewsChanged: " + viewers);
                     connectionOK();
 
 
@@ -248,7 +287,7 @@ public class Server {
 
                     String data = args[0].toString();
                     log("onPw: " + data);
-                    zoff.onCorrectPassword(data);
+                    zoffController.onCorrectPassword(data);
                     connectionOK();
 
 
@@ -268,7 +307,6 @@ public class Server {
 
                     String data = args[0].toString();
                     log("Settings saved" + data);
-
 
 
                 }
@@ -293,59 +331,122 @@ public class Server {
             });
         }
     };
+    Runnable connectTimer = new Runnable() {
+        @Override
+        public void run() {
+            log("Trying to connect");
+            connect();
+            handler.postDelayed(connectTimer, TimeUnit.SECONDS.toMillis(2));
+        }
+    };
+    Runnable pingTimer = new Runnable() {
+        @Override
+        public void run() {
+            pinging = false;
+            handler.postDelayed(connectTimer, TimeUnit.SECONDS.toMillis(3));
+        }
+    };
+    public Server(String chan, ZoffController zoffController, String android_id){
+        this.zoffController = zoffController;
+        this.chan = chan;
+        handler = new Handler(Looper.getMainLooper());
+        connect();
+    }
 
-
-
-    public static void getSuggestions(final MainActivity main){
-        final Socket tempSocket;
+    public static void getChannelSuggestions(final ChannelChooserActivity main, final SuggestionsCallback suggestionsCallback){
         try {
-            tempSocket = IO.socket(ZOFF_URL);
+            IO.Options options = new IO.Options();
+
+            options.secure = true;
+
+
+            SSLContext ctx = SSLContext.getInstance("TLS");
+            ctx.init(null, new TrustManager[] {
+                    new X509TrustManager() {
+                        public void checkClientTrusted(X509Certificate[] chain, String authType) {}
+                        public void checkServerTrusted(X509Certificate[] chain, String authType) {}
+                        public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[]{}; }
+                    }
+            }, null);
+
+            options.sslContext = ctx;
+            final Socket tempSocket = IO.socket(ZOFF_URL, options);
+
+
+            tempSocket.connect();
+            tempSocket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
+                @Override
+                public void call(Object... args) {
+                    Log.d("CONNECT", "OK");
+                }
+            });
+
+            tempSocket.on(Socket.EVENT_CONNECT_ERROR, new Emitter.Listener() {
+                @Override
+                public void call(Object... args) {
+                    Log.d("ERROR", args[0].toString());
+                }
+            });
+
+
+
+            tempSocket.emit(SOCKET_KEY_EMIT_FRONTPAGE_LIST);
+            tempSocket.on(SOCKET_KEY_ON_FRONTPAGE_LIST, new Emitter.Listener() {
+                @Override
+                public void call(final Object... args) {
+
+                    main.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                ArrayList<Channel> suggestions = new ArrayList<>();
+                                JSONArray array = (JSONArray) args[0];
+
+                                for (int i = 0; i < array.length(); i++) {
+
+                                    JSONArray item = array.getJSONArray(i);
+                                    // [numberOfViewers,nowPlayingId,nowPLayingTitle,chanName,noOfSongs]
+                                    //[0,"6Cp6mKbRTQY","Avicii - Hey Brother","lqasse",4]
+                                    suggestions.add(new Channel(item.getInt(0), item.getString(1), item.getString(2), item.getString(3), item.getInt(4)));
+
+                                }
+
+                                suggestionsCallback.onResponse(suggestions);
+                                tempSocket.off(SOCKET_KEY_ON_FRONTPAGE_LIST);
+                                tempSocket.disconnect();
+
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                                Log.d("SocketServer", "Suggestions failed");
+                            }
+                        }
+                    });
+
+                }
+            });
         } catch (URISyntaxException e){
             e.printStackTrace();
             return;
+        } catch (NoSuchAlgorithmException e){
+            e.printStackTrace();
+        } catch (Exception e){
+            e.printStackTrace();
         }
 
-        tempSocket.connect();
-        tempSocket.emit("frontpage_lists");
-        tempSocket.on("playlists", new Emitter.Listener() {
-            @Override
-            public void call(final Object... args) {
 
-                main.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            ArrayList<ChanSuggestion> suggestions = new ArrayList<>();
-                            JSONArray array = (JSONArray) args[0];
-
-                            for (int i = 0; i < array.length(); i++) {
-
-                                JSONArray item = array.getJSONArray(i);
-                                // [viewers,nowPlayingId,nowPLayingTitle,chanName,noOfSongs]
-                                //[0,"6Cp6mKbRTQY","Avicii - Hey Brother","lqasse",4]
-                                suggestions.add(new ChanSuggestion(item.getInt(0), item.getString(1), item.getString(2), item.getString(3), item.getInt(4)));
-
-                            }
-
-                            main.setSuggestions(suggestions);
-                            tempSocket.off("playlists");
-                            tempSocket.disconnect();
-
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            Log.d("SocketServer", "Suggestions failed");
-                        }
-                    }
-                });
-
-            }
-        });
 
 
     }
 
-    ////////////Emitters
+    public void ping(){
+        pinging = true;
+        log("ping..");
+        socket.emit("ping");
+        handler.postDelayed(pingTimer, TimeUnit.SECONDS.toMillis(1));
+    }
+
+
 
     public void shuffle(String adminpass){
         socket.emit(SOCKET_KEY_EMIT_SHUFFLE, adminpass);
@@ -361,7 +462,6 @@ public class Server {
         jsonmessage.put(chan);
         jsonmessage.put(video.getId());
         jsonmessage.put("pos");
-        jsonmessage.put(guid);
         jsonmessage.put(adminpass);
 
 
@@ -384,7 +484,6 @@ public class Server {
         jsonmessage.put(chan);
         jsonmessage.put(video.getId());
         jsonmessage.put("del");
-        jsonmessage.put(guid);
         jsonmessage.put(adminpass);
 
 
@@ -415,7 +514,6 @@ public class Server {
 
         JSONArray jsonmessage = new JSONArray();
         jsonmessage.put(chan);
-        jsonmessage.put(guid);
         jsonmessage.put(adminpass);
 
 
@@ -435,8 +533,15 @@ public class Server {
 
     }
 
+    public void getPlaylist(){
+        socket.emit(SOCKET_KEY_EMIT_GET_LIST, chan);
+    }
+
     public void savePassword(String password){
-        socket.emit(SOCKET_KEY_EMIT_PASSWORD, password);
+        JSONArray data = new JSONArray();
+        data.put(password);
+        data.put(chan);
+        socket.emit(SOCKET_KEY_EMIT_PASSWORD, data);
     }
 
     public void saveSettings(String adminpass, ZoffSettings settings){
@@ -444,8 +549,8 @@ public class Server {
         JSONArray data = new JSONArray();
         data.put(settings.isVote());
         data.put(settings.isAddsongs());
-        data.put(settings.isLongsongs());
         data.put(settings.isFrontpage());
+        data.put(settings.isLongsongs());
         data.put(settings.isAllvideos());
         data.put(settings.isRemoveplay());
         data.put(adminpass);
@@ -459,19 +564,14 @@ public class Server {
     }
 
     private void log(String data){
-        Log.i(LOG_IDENTIFIER+": " +zoff.getListener(), data);
+        Log.i(LOG_IDENTIFIER+": " , data);
 
     }
 
     public void off()  {
         log("disconnect");
-        socket.off(chan);
-        socket.off(chan+",np");
-        socket.off("skipping");
-        socket.off(chan+",viewers");
-        socket.off("toast");
-        socket.off("pw");
-        socket.off(chan+"savedsettings");
+
+        socket = removeSocketListeners(socket);
 
         socket.disconnect();
         socket.close();
@@ -487,6 +587,42 @@ public class Server {
         }
 
     }
+
+    public interface SuggestionsCallback {
+        void onResponse(ArrayList<Channel> response);
+    }
+
+    private Socket setSocketListeners(Socket socket){
+        socket.on(SOCKET_KEY_ON_CHANNEL_REFRESH,        onChannelRefresh);
+        socket.on(chan+SOCKET_KEY_ON_NOW_PLAYING_CHANGED        ,onNewVideo);
+        socket.on(SOCKET_KEY_ON_SKIPPED        ,onSkip);
+        socket.on(SOCKET_KEY_ON_VIEWCOUNT_CHANGED         , onViewCountChanged);
+        socket.on(SOCKET_KEY_ON_TOAST           ,onToast);
+        socket.on(SOCKET_KEY_ON_CORRECT_PASSWORD, onPw);
+        socket.on(chan + SOCKET_KEY_ON_SETTINGS_SAVED, onSavedSettings);
+        socket.on(SOCKET_KEY_ON_PING_CALLBACK              ,onPingOK);
+        socket.on(SOCKET_KEY_ON_CONFIGURATION_CHANGED ,onConf);
+
+        return socket;
+    }
+
+    private Socket removeSocketListeners(Socket socket){
+        socket.off(SOCKET_KEY_ON_CHANNEL_REFRESH);
+        socket.off(chan+SOCKET_KEY_ON_NOW_PLAYING_CHANGED);
+        socket.off(SOCKET_KEY_ON_SKIPPED );
+        socket.off(SOCKET_KEY_ON_VIEWCOUNT_CHANGED);
+        socket.off(SOCKET_KEY_ON_TOAST);
+        socket.off(SOCKET_KEY_ON_CORRECT_PASSWORD);
+        socket.off(chan+SOCKET_KEY_ON_SETTINGS_SAVED);
+        socket.off(SOCKET_KEY_ON_PING_CALLBACK);
+        socket.off(SOCKET_KEY_ON_CONFIGURATION_CHANGED);
+        socket.off(Socket.EVENT_CONNECT);
+        socket.off(Socket.EVENT_CONNECT_ERROR);
+
+
+        return socket;
+    }
+
 
 
 

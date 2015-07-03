@@ -17,14 +17,14 @@
         android:layout_height="wrap_content"
         android:background="@drawable/progressbar"
         android:layout_alignParentStart="true"
-        android:id="@+id/playProgress"
-        android:layout_below="@+id/imageView"
+        android:id="@+id/playlistHeaderPlayProgress"
+        android:layout_below="@+id/playlistHeaderImage"
      ></FrameLayout>
 
     <ImageView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/imageView"
+        android:id="@+id/playlistHeaderImage"
         android:scaleType="fitCenter"
         android:adjustViewBounds="true"
         android:elevation="5dp"/>
@@ -32,53 +32,70 @@
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:id="@+id/videoTitleView"
+        android:fontFamily="sans-serif-thin"
+        android:id="@+id/playlistHeaderTitle"
         android:textColor="@color/videolist_item_title"
         android:gravity="center"
-        android:textSize="13dp"
-        android:layout_below="@+id/imageView"
+        android:textSize="16dp"
+
+        android:layout_below="@+id/playlistHeaderNowPlayingLabel"
         android:layout_marginTop="3dp"
-        android:text="Videotitle" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:id="@+id/skipsLabel"
-        android:textColor="@color/videolist_item_top_skip"
-
-
-        android:textSize="13dp"
-
-        android:layout_below="@id/videoTitleView"
+        android:text="Videotitle"
+        android:layout_marginLeft="3dp"
         android:layout_marginRight="3dp" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:id="@+id/viewsLabel"
+        android:id="@+id/playlistHeaderSkips"
+        android:textColor="@color/videolist_item_top_skip"
+
+
+        android:textSize="13dp"
+
+        android:layout_below="@id/playlistHeaderTitle"
+        android:layout_marginRight="3dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:id="@+id/playlistHeaderViews"
         android:textColor="@color/videolist_item_top_viewers"
 
 
         android:textSize="13dp"
-        android:layout_below="@+id/videoTitleView"
+        android:layout_below="@+id/playlistHeaderTitle"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_marginRight="3dp"
-        android:text="0 viewers" />
+        android:text="0 viewers"
+        android:layout_marginBottom="3dp" />
 
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:id="@+id/playtimeCurrent"
+        android:id="@+id/playlistHeaderPlaytime"
         android:textColor="@color/videolist_item_top_viewers"
         android:textSize="13dp"
-        android:layout_below="@+id/videoTitleView"
+        android:layout_below="@+id/playlistHeaderTitle"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="NOW PLAYING"
+        android:id="@+id/playlistHeaderNowPlayingLabel"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:textColor="@color/videolist_item_top_viewers"
+        android:textSize="10dp"
+        android:layout_below="@+id/playlistHeaderImage"
+        android:layout_marginTop="3dp"
+        android:layout_marginLeft="3dp" />
 
 </RelativeLayout>

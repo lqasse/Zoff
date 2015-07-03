@@ -3,7 +3,7 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:weightSum="1"
-    android:id="@+id/layout"
+    android:id="@+id/listContainer"
     android:tag="big_screen" >
 
 
@@ -33,7 +33,7 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:orientation="vertical"
-            android:layout_toLeftOf="@+id/videoList"
+            android:layout_toLeftOf="@+id/videoPlaylist"
             android:layout_weight="0.5"
             android:layout_margin="10dp">
 
@@ -41,14 +41,14 @@
             <ImageView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/imageView"
+                android:id="@+id/playlistHeaderImage"
                 android:scaleType="fitCenter"
                 android:adjustViewBounds="true"/>
 
             <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/imageView"
+                android:layout_below="@id/playlistHeaderImage"
                 android:background="@drawable/searchresult_item_background"
                 android:layout_marginTop="5dp"
                 android:id="@+id/relativeLayout2">
@@ -58,7 +58,7 @@
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:id="@+id/videoTitleView"
+                    android:id="@+id/playlistHeaderTitle"
                     android:textColor="@color/white"
                     android:gravity="center"
                     android:textSize="13dp"
@@ -74,7 +74,7 @@
 
                     android:textSize="13dp"
 
-                    android:layout_below="@id/videoTitleView"
+                    android:layout_below="@id/playlistHeaderTitle"
                     />
 
                 <TextView
@@ -86,7 +86,7 @@
 
 
                     android:textSize="13dp"
-                    android:layout_below="@+id/videoTitleView"
+                    android:layout_below="@+id/playlistHeaderTitle"
                     android:layout_alignParentRight="true"
                     android:layout_alignParentEnd="true" />
 
@@ -163,7 +163,7 @@
             <ListView
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:id="@+id/videoList"
+                android:id="@+id/videoPlaylist"
                 android:fastScrollEnabled="false"
                 android:scrollbars="none"
                 android:overScrollMode="ifContentScrolls"

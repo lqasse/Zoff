@@ -1,26 +1,20 @@
-package no.lqasse.zoff.Adapters;
+package no.lqasse.zoff.Search;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 
-import java.net.URL;
 import java.util.ArrayList;
 
+import no.lqasse.zoff.ImageTools.BitmapDownloader;
+import no.lqasse.zoff.ImageTools.ImageCache;
 import no.lqasse.zoff.Models.SearchResult;
 import no.lqasse.zoff.R;
 
@@ -73,9 +67,9 @@ public class SearchResultListAdapter extends ArrayAdapter<SearchResult> {
 
             holder = new ViewHolder();
 
-            holder.imageView       = (ImageView) rowView.findViewById(R.id.imageView);
+            holder.imageView       = (ImageView) rowView.findViewById(R.id.playlistHeaderImage);
             holder.progressBar      = (ProgressBar) rowView.findViewById(R.id.progressBar);
-            holder.title            = (TextView) rowView.findViewById(R.id.videoTitleView);
+            holder.title            = (TextView) rowView.findViewById(R.id.playlistHeaderTitle);
             holder.channelTitle     = (TextView) rowView.findViewById(R.id.channelTitle);
             holder.viewCount        = (TextView) rowView.findViewById(R.id.viewsTextView);
             holder.duration         = (TextView) rowView.findViewById(R.id.durationView);
@@ -86,10 +80,33 @@ public class SearchResultListAdapter extends ArrayAdapter<SearchResult> {
         } else {
             holder = (ViewHolder) rowView.getTag();
 
+
+
         }
 
 
+        SearchResult currentVideo = searchResults.get(position);
 
+        holder.imageView.setTag(currentVideo.getVideoID());
+
+
+
+
+
+
+
+        if (ImageCache.has(currentVideo.getVideoID())) {
+            Bitmap videoImage = ImageCache.get(currentVideo.getVideoID());
+            holder.imageView.setImageBitmap(videoImage);
+        } else {
+
+            holder.imageView.setImageBitmap(null);
+            BitmapDownloader.downloadAndSet(currentVideo.getThumbSmall(), currentVideo.getThumbSmall(), currentVideo.getVideoID(), holder.imageView, ImageCache.ImageSize.REG, true);
+        };
+
+
+
+        /*
 
         if (searchResults.get(position).getImgSmall() == null){
             downloadViewHolder = new downloadViewHolder();
@@ -106,6 +123,9 @@ public class SearchResultListAdapter extends ArrayAdapter<SearchResult> {
             holder.progressBar.setVisibility(View.GONE);
         }
 
+        */
+
+
         holder.title.setText(searchResults.get(position).getTitle());
         holder.channelTitle.setText(searchResults.get(position).getChannelTitle());
         holder.viewCount.setText(searchResults.get(position).getViewCountLocalized());
@@ -113,8 +133,10 @@ public class SearchResultListAdapter extends ArrayAdapter<SearchResult> {
 
 
         return rowView;
-    }
 
+
+    }
+/*
 
 
     private class downloadImage extends AsyncTask<downloadViewHolder, Void, downloadViewHolder>{
@@ -153,6 +175,8 @@ public class SearchResultListAdapter extends ArrayAdapter<SearchResult> {
 
     }
 
+
+*/
 
 
     }
