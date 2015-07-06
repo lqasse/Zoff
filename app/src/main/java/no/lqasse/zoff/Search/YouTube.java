@@ -32,6 +32,9 @@ public class YouTube {
         YouTube.query = query;
         YouTube.settings = settings;
 
+        searchResults.clear();
+        searchResultIDHashMap.clear();
+        callback.onResultsChanged();
 
         YouTubeServer.doSearch(query, "", settings, new YouTubeServer.Callback() {
            @Override

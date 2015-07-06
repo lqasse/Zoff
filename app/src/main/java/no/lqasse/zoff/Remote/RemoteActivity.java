@@ -26,7 +26,8 @@ import no.lqasse.zoff.Helpers.ToastMaster;
 import no.lqasse.zoff.ImageTools.BitmapColor;
 import no.lqasse.zoff.ImageTools.BitmapDownloader;
 import no.lqasse.zoff.ImageTools.ImageCache;
-import no.lqasse.zoff.Models.ZoffController;
+import no.lqasse.zoff.LoadingAnimation;
+import no.lqasse.zoff.ZoffController;
 import no.lqasse.zoff.Models.Zoff;
 import no.lqasse.zoff.Models.ZoffSettings;
 import no.lqasse.zoff.PlaylistFragment;
@@ -56,6 +57,7 @@ public class RemoteActivity extends ZoffActivity implements SettingsFragment.Lis
     private TextView toolBarTitle;
     private ProgressBar loadingProgressbar;
     private ActionBarDrawerToggle drawerToggle;
+    private LoadingAnimation loadingAnimation;
 
 
     private Handler handler = new Handler();
@@ -110,6 +112,7 @@ public class RemoteActivity extends ZoffActivity implements SettingsFragment.Lis
 
         zoff = zoffController.getZoff();
         setControllerCallbacks(zoffController);
+
         zoffController.refreshPlaylist();
         displayPlaylistFragment();
 
@@ -122,8 +125,16 @@ public class RemoteActivity extends ZoffActivity implements SettingsFragment.Lis
         mainLayout = (RelativeLayout) findViewById(R.id.listContainer);
         toolBarSearchField = (EditText) findViewById(R.id.tool_bar_search_edittext);
         toolBarTitle = (TextView) findViewById(R.id.toolbarTitle);
-        loadingProgressbar = (ProgressBar) findViewById(R.id.loadingProgressbar);
+        loadingAnimation = (LoadingAnimation) findViewById(R.id.activity_remote_loading_animation);
         isBigScreen = checkIsBigScreen();
+
+
+        zoffController.setPlaylistCallback(new ZoffController.PlaylistCallback() {
+            @Override
+            public void onGotPlaylist() {
+                loadingAnimation.setVisibility(View.INVISIBLE);
+            }
+        });
 
 
 
@@ -190,13 +201,10 @@ public class RemoteActivity extends ZoffActivity implements SettingsFragment.Lis
 
     private void refreshViewData(Zoff zoff) {
 
-
         playlistFragment.notifyDataChange(zoff);
-        loadingProgressbar.setVisibility(View.INVISIBLE);
         settingsFragment.setSettings(zoff.getSettings());
 
         setBackgroundImage(zoff.getPlayingVideo().getId());
-        //setToolbarBackground();
 
         if (!ImageCache.has(zoff.getNextVideo().getId(), ImageCache.ImageSize.HUGE)) {
             BitmapDownloader.download(zoff.getNextVideo().getId(), ImageCache.ImageSize.HUGE, true, null);

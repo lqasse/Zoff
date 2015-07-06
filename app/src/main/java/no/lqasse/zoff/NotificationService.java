@@ -19,7 +19,6 @@ import android.widget.RemoteViews;
 import no.lqasse.zoff.ImageTools.ImageCache;
 import no.lqasse.zoff.ImageTools.BitmapDownloader;
 import no.lqasse.zoff.Models.Video;
-import no.lqasse.zoff.Models.ZoffController;
 import no.lqasse.zoff.Models.Zoff;
 import no.lqasse.zoff.Remote.RemoteActivity;
 
@@ -99,7 +98,7 @@ public class NotificationService extends Service {
     private void skipCurrentVideo(){
         log("skip");
         if (zoffController == null){
-            zoffController = new ZoffController(channel,this);
+            zoffController = new ZoffController(channel);
         }
 
         zoffController.skip();

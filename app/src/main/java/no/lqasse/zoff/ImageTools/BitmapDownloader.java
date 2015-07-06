@@ -177,8 +177,8 @@ public class BitmapDownloader {
 
                 ImageCache.put(viewHolder.videoId, viewHolder.imageSize, viewHolder.bitmap,viewHolder.scaleDownFlag);
 
-
                 if (viewHolder.callback != null){
+
                     viewHolder.callback.onImageDownloaded(viewHolder.bitmap, viewHolder.imageSize);
                 }
 

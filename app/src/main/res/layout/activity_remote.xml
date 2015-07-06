@@ -6,14 +6,15 @@
     android:layout_height="match_parent"
     android:layout_width="match_parent"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/topLayout">
 <RelativeLayout
+
+
+
+
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
-    <include
-        android:id="@+id/tool_bar"
-        layout="@layout/tool_bar"
-        />
 
     <ImageView
         android:layout_width="fill_parent"
@@ -35,39 +36,26 @@
     android:weightSum="1"
     android:id="@+id/listContainer"
     >
-<!---
-        <ListView
-        android:layout_width="match_parent"
-        android:layout_height="fill_parent"
-        android:id="@+id/videoList"
-        android:fastScrollEnabled="false"
-        android:scrollbars="none"
-        android:overScrollMode="ifContentScrolls"
-        android:clipToPadding="false"
-        android:dividerHeight="5dp"
-        android:divider="#00000000"
 
-        android:paddingTop="10dp"
-        android:paddingLeft="15dp"
-        android:paddingRight="15dp" />
 
-        -->
 
 
     </RelativeLayout>
 
-    <ProgressBar
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/loadingProgressbar"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"
-        android:background="@drawable/videolist_item_background"
-        android:visibility="visible"
-        android:indeterminate="true"
-        android:indeterminateBehavior="repeat"
+    <no.lqasse.zoff.LoadingAnimation
+        android:id="@+id/activity_remote_loading_animation"
+        android:layout_height="60dp"
+        android:layout_width="60dp"
+        app:visible="true"
+        app:iconColor="@color/background_dark"
+        android:layout_centerInParent="true"
+        android:background="@drawable/loading_animation_background"
         android:elevation="5dp"/>
+
+    <include
+        android:id="@+id/tool_bar"
+        layout="@layout/tool_bar" />
+
 
 </RelativeLayout>
 

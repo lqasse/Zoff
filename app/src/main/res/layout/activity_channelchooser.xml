@@ -1,5 +1,8 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="fill_parent"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_height="fill_parent"
     tools:context=".Main"
@@ -7,7 +10,6 @@
     android:id="@+id/listContainer"
     android:descendantFocusability="beforeDescendants"
     android:focusableInTouchMode="true">
-
 
 
     <AutoCompleteTextView
@@ -42,6 +44,7 @@
         android:elevation="5dp"
         android:translationZ="0dp"/>
 
+
     <GridView
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
@@ -58,4 +61,15 @@
         android:paddingTop="5dp"
         android:paddingLeft="10dp" />
 
-</LinearLayout>
+    <no.lqasse.zoff.LoadingAnimation
+        android:id="@+id/channel_chooser_loading_icon"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        custom:visible="true"
+        custom:iconColor="@color/background_dark"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:elevation="5dp"
+        android:background="@drawable/loading_animation_background"/>
+
+</RelativeLayout>

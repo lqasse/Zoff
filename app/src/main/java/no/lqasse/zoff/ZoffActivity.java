@@ -13,7 +13,6 @@ import android.widget.ImageView;
 import no.lqasse.zoff.ImageTools.BackgroundGenerator;
 import no.lqasse.zoff.ImageTools.ImageCache;
 import no.lqasse.zoff.ImageTools.BitmapDownloader;
-import no.lqasse.zoff.Models.ZoffController;
 
 /**
  * Created by lassedrevland on 04.04.15.

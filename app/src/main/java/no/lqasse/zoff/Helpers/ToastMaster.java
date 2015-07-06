@@ -196,7 +196,7 @@ public class ToastMaster {
                 toastText="Only admin can skip songs on this channel";
                 break;
             case PROTECTED_LIST:
-                toastText="Only admin can skip songs on this channel";
+                toastText="This list is password protected";
                 break;
 
 
