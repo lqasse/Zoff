@@ -15,10 +15,9 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import no.lqasse.zoff.ImageTools.BitmapDownloader;
-import no.lqasse.zoff.ImageTools.BitmapScaler;
 import no.lqasse.zoff.ImageTools.ImageCache;
 import no.lqasse.zoff.Models.Video;
-import no.lqasse.zoff.Models.ZoffController;
+import no.lqasse.zoff.ZoffController;
 import no.lqasse.zoff.R;
 
 /**

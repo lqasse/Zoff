@@ -6,13 +6,10 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.GridView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -22,7 +19,6 @@ import java.util.Collections;
 import no.lqasse.zoff.Adapters.ChannelGridAdapter;
 import no.lqasse.zoff.ImageTools.ImageCache;
 import no.lqasse.zoff.Models.Channel;
-import no.lqasse.zoff.Models.ZoffController;
 import no.lqasse.zoff.Remote.RemoteActivity;
 import no.lqasse.zoff.Server.Server;
 
@@ -34,6 +30,7 @@ public class ChannelChooserActivity extends ActionBarActivity  {
     private ArrayList<Channel> displayedSuggestions = new ArrayList<>();
     private ArrayList<Channel> allSuggestions = new ArrayList<>();
     private ChannelGridAdapter suggestionArrayAdapter;
+    private LoadingAnimation loadingAnimation;
 
 
 
@@ -47,7 +44,9 @@ public class ChannelChooserActivity extends ActionBarActivity  {
         setContentView(R.layout.activity_channelchooser);
         channelTextView = (AutoCompleteTextView) findViewById(R.id.acEditText);
         GridView gridView = (GridView) findViewById(R.id.chanGrid);
+        loadingAnimation = (LoadingAnimation) findViewById(R.id.channel_chooser_loading_icon);
         suggestionArrayAdapter = new ChannelGridAdapter(this,displayedSuggestions);
+
         gridView.setAdapter(suggestionArrayAdapter);
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -59,14 +58,7 @@ public class ChannelChooserActivity extends ActionBarActivity  {
 
 
 
-        Intent i = getIntent();
-        if (i.getAction().equals(Intent.ACTION_VIEW)){
 
-            handleLinkClickIntent(i.getData().toString());
-        }
-
-
-        final Toast t = Toast.makeText(this,"Name must be letters or digits ONLY", Toast.LENGTH_SHORT);
 
 
 
@@ -83,7 +75,11 @@ public class ChannelChooserActivity extends ActionBarActivity  {
 
             @Override
             public void afterTextChanged(Editable s) {
-                filterSuggestions(s.toString());
+
+                if (!allSuggestions.isEmpty()){
+                    filterSuggestions(s.toString());
+                }
+
             }
         });
 
@@ -167,7 +163,8 @@ public class ChannelChooserActivity extends ActionBarActivity  {
         Server.getChannelSuggestions(this, new Server.SuggestionsCallback() {
             @Override
             public void onResponse(final ArrayList<Channel> suggestions) {
-                setChannelSuggestions(suggestions);
+                    setChannelSuggestions(suggestions);
+                    loadingAnimation.setVisibility(View.INVISIBLE);
             }
         });
 
@@ -179,6 +176,8 @@ public class ChannelChooserActivity extends ActionBarActivity  {
     public void setChannelSuggestions(final ArrayList<Channel> suggestions){
         allSuggestions.clear();
         allSuggestions.addAll(suggestions);
+
+
         Collections.sort(allSuggestions);
 
         displayedSuggestions.clear();
@@ -187,8 +186,9 @@ public class ChannelChooserActivity extends ActionBarActivity  {
             displayedSuggestions.add(allSuggestions.get(i));
         }
 
-
         suggestionArrayAdapter.notifyDataSetChanged();
+
+
 
 
 
@@ -230,7 +230,10 @@ public class ChannelChooserActivity extends ActionBarActivity  {
 
         }
 
-        suggestionArrayAdapter.notifyDataSetChanged();
+        if (displayedSuggestions.size()>1){
+            suggestionArrayAdapter.notifyDataSetChanged();
+
+        }
 
 
     }

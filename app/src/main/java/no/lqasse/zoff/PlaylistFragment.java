@@ -12,11 +12,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
-import jp.wasabeef.recyclerview.animators.SlideInDownAnimator;
 import no.lqasse.zoff.Adapters.HidingScrollListener;
 import no.lqasse.zoff.Adapters.ItemDecorator;
 import no.lqasse.zoff.Adapters.VideoListRecyclerAdapter;
-import no.lqasse.zoff.Models.ZoffController;
 import no.lqasse.zoff.Models.Zoff;
 
 /**

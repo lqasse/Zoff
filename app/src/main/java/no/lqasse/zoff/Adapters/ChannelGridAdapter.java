@@ -113,7 +113,6 @@ public class ChannelGridAdapter extends ArrayAdapter<Channel> {
                     targetView.setImageBitmap(image);
                 }
             });
-            //BitmapDownloader.downloadAndSet(imageUrl, imageUrlAlt, videoId, viewholder.headerImage, ImageCache.ImageSize.HUGE, false);
         }
 
 

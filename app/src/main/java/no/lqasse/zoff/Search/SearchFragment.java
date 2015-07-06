@@ -18,10 +18,12 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import no.lqasse.zoff.Helpers.ToastMaster;
-import no.lqasse.zoff.Models.ZoffController;
+import no.lqasse.zoff.LoadingAnimation;
+import no.lqasse.zoff.ZoffController;
 import no.lqasse.zoff.R;
 
 /**
@@ -38,7 +40,7 @@ public class SearchFragment extends Fragment {
     private ZoffController zoffController;
     private ListView resultsList;
     private SearchResultListAdapter searchAdapter;
-    private LinearLayout searchFragment;
+    private RelativeLayout searchFragment;
 
     private Boolean isGettingPage = false;
 
@@ -47,14 +49,15 @@ public class SearchFragment extends Fragment {
     private MenuItem search;
     private MenuItem close;
 
+
+    private LoadingAnimation loadingAnimation;
     private Handler handler = new Handler();
     private Runnable delaySearch = new Runnable() {
         @Override
         public void run() {
 
             doSearch(toolBarSearchField.getText().toString());
-            //YouTube.search(activity, toolBarSearchField.getText().toString(), zoff.getSettings().isAllvideos(), zoff.getSettings().isLongsongs());
-            //loadingProgressbar.setVisibility(View.VISIBLE);
+            loadingAnimation.setVisibility(View.VISIBLE);
         }
     };
 
@@ -83,8 +86,9 @@ public class SearchFragment extends Fragment {
 
         View v = inflater.inflate(R.layout.fragment_search, container,false);
 
-        searchFragment = (LinearLayout) v.findViewById(R.id.searchFragment);
+        searchFragment = (RelativeLayout) v.findViewById(R.id.searchFragment);
         resultsList = (ListView) v.findViewById(R.id.searchFragmentListView);
+        loadingAnimation = (LoadingAnimation) v.findViewById(R.id.search_fragment_loading_animation);
         toolBarSearchField = (EditText) toolbar.findViewById(R.id.tool_bar_search_edittext);
         toolBarTitle = (TextView) toolbar.findViewById(R.id.toolbarTitle);
         skip = toolbar.getMenu().findItem(R.id.action_skip);
@@ -95,6 +99,7 @@ public class SearchFragment extends Fragment {
         searchAdapter = new SearchResultListAdapter(activity,YouTube.getSearchResults());
         resultsList.setAdapter(searchAdapter);
         searchAdapter.notifyDataSetChanged();
+
 
         resultsList.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
@@ -107,6 +112,7 @@ public class SearchFragment extends Fragment {
 
 
                 if (resultsList.getLastVisiblePosition() == YouTube.getSearchResults().size() - 10 && !isGettingPage) {
+                    loadingAnimation.setVisibility(View.VISIBLE);
 
                     isGettingPage = true;
                     YouTube.getNextPage(new YouTube.Callback() {
@@ -114,6 +120,7 @@ public class SearchFragment extends Fragment {
                         public void onResultsChanged() {
                             searchAdapter.notifyDataSetChanged();
                             isGettingPage = false;
+                            loadingAnimation.setVisibility(View.INVISIBLE);
                         }
                     });
                     Log.d("Scroll", "Loading next page");
@@ -206,6 +213,7 @@ public class SearchFragment extends Fragment {
             @Override
             public void onResultsChanged() {
                 searchAdapter.notifyDataSetChanged();
+                loadingAnimation.setVisibility(View.INVISIBLE);
             }
         });
 
