@@ -101,29 +101,9 @@ public class SearchResultListAdapter extends ArrayAdapter<SearchResult> {
         } else {
 
             holder.imageView.setImageBitmap(null);
-            BitmapDownloader.downloadAndSet(currentVideo.getThumbSmall(), currentVideo.getThumbSmall(), currentVideo.getVideoID(), holder.imageView, ImageCache.ImageSize.REG, true);
+            BitmapDownloader.downloadAndSet(currentVideo.getThumbMed(), currentVideo.getThumbSmall(), currentVideo.getVideoID(), holder.imageView, ImageCache.ImageSize.REG, true);
         };
 
-
-
-        /*
-
-        if (searchResults.get(position).getImgSmall() == null){
-            downloadViewHolder = new downloadViewHolder();
-            downloadViewHolder.imageView = holder.imageView;
-            downloadViewHolder.imageURL = searchResults.get(position).getThumbSmall();
-            downloadViewHolder.position = position;
-            downloadViewHolder.progressBar = holder.progressBar;
-
-            holder.imageView.setImageBitmap(null);
-            holder.progressBar.setVisibility(View.VISIBLE);
-            new downloadImage().execute(downloadViewHolder);
-        } else {
-            holder.imageView.setImageBitmap(searchResults.get(position).getImgSmall());
-            holder.progressBar.setVisibility(View.GONE);
-        }
-
-        */
 
 
         holder.title.setText(searchResults.get(position).getTitle());
@@ -136,47 +116,7 @@ public class SearchResultListAdapter extends ArrayAdapter<SearchResult> {
 
 
     }
-/*
 
-
-    private class downloadImage extends AsyncTask<downloadViewHolder, Void, downloadViewHolder>{
-
-        @Override
-        protected downloadViewHolder doInBackground(downloadViewHolder... params){
-            downloadViewHolder downloadViewHolder = params[0];
-
-            try {
-                URL imageURL = new URL(downloadViewHolder.imageURL);
-                downloadViewHolder.bitmap = BitmapFactory.decodeStream(imageURL.openStream());
-            } catch (Exception e){
-                Log.d("ERROR", e.getLocalizedMessage());
-                e.printStackTrace();
-                downloadViewHolder.bitmap = null;
-            }
-            return downloadViewHolder;
-        }
-
-        @Override
-        protected void onPostExecute(downloadViewHolder result){
-            if (result.bitmap == null){
-                Log.d("FAIL", "NO IMAGE");
-            } else {
-               result.progressBar.setVisibility(View.GONE);
-
-                Animation a = new AlphaAnimation(0.00f,1.00f);
-                a.setInterpolator(new DecelerateInterpolator());
-                a.setDuration(700);
-                result.imageView.setImageBitmap(result.bitmap);
-                result.imageView.setAnimation(a);
-                result.imageView.startAnimation(a);
-               searchResults.get(result.position).setImgSmall(result.bitmap);
-            }
-        }
-
-    }
-
-
-*/
 
 
     }
