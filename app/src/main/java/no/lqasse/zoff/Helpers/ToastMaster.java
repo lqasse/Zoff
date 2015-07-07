@@ -16,6 +16,7 @@ import no.lqasse.zoff.R;
  * Created by lassedrevland on 24.03.15.
  */
 public class ToastMaster {
+    private static final String LOG_INDETIFIER = "ToastMaster";
 
     public enum TYPE{
         NEEDS_PASS_TO_VOTE,
@@ -180,6 +181,11 @@ public class ToastMaster {
         ((TextView) toast.findViewById(R.id.toastTitle)).setText(text);
         ((ImageView) toast.findViewById(R.id.toastIcon)).setImageDrawable(icon);
 
+        log("Showing toast: "+text);
         t.show();
+    }
+
+    private static void log(String message){
+        Log.i(LOG_INDETIFIER, message);
     }
 }

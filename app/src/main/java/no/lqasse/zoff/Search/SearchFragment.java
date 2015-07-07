@@ -75,8 +75,6 @@ public class SearchFragment extends Fragment {
         super.onAttach(activity);
         toolbar = ((Host) activity).getToolbar();
         zoffController = ((Host) activity).getZoffController();
-
-
         this.activity = activity;
     }
 
@@ -99,6 +97,7 @@ public class SearchFragment extends Fragment {
         searchAdapter = new SearchResultListAdapter(activity,YouTube.getSearchResults());
         resultsList.setAdapter(searchAdapter);
         searchAdapter.notifyDataSetChanged();
+
 
 
         resultsList.setOnScrollListener(new AbsListView.OnScrollListener() {

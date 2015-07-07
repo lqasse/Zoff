@@ -1,4 +1,4 @@
-package no.lqasse.zoff;
+package no.lqasse.zoff.Notification;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -21,7 +21,9 @@ import no.lqasse.zoff.ImageTools.ImageCache;
 import no.lqasse.zoff.ImageTools.BitmapDownloader;
 import no.lqasse.zoff.Models.Video;
 import no.lqasse.zoff.Models.Zoff;
+import no.lqasse.zoff.R;
 import no.lqasse.zoff.Remote.RemoteActivity;
+import no.lqasse.zoff.ZoffController;
 
 /**
  * Created by lassedrevland on 04.02.15.
@@ -39,14 +41,24 @@ public class NotificationService extends Service {
     private Zoff zoff;
     private String channel = "";
     private MediaSession mediaSession;
-
     private String currentToast = "";
-
     private boolean shouldBeVisible = false;
 
-    private void log(String data){
-        Log.i(LOG_IDENTIFIER, data);
+
+    public static void start(Context context, String channel){
+        Intent notificationIntent = new Intent(context, NotificationService.class);
+        notificationIntent.putExtra(ZoffController.BUNDLEKEY_CHANNEL, channel);
+        notificationIntent.setAction("START");
+        context.startService(notificationIntent);
     }
+
+    public static void stop(Context context){
+        Intent notificationIntent = new Intent(context, NotificationService.class);
+        notificationIntent.setAction(NotificationService.INTENT_KEY_CLOSE);
+        context.startService(notificationIntent);
+    }
+
+
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -71,7 +83,6 @@ public class NotificationService extends Service {
             case INTENT_KEY_START:
                 if (b.containsKey(ZoffController.BUNDLEKEY_CHANNEL)) {
                     startService(b.getString(ZoffController.BUNDLEKEY_CHANNEL));
-
                 } else {
                     stopSelf();
                 }
@@ -92,9 +103,11 @@ public class NotificationService extends Service {
 
 
     private void startService(String channel){
+
         shouldBeVisible = true;
         this.channel = channel;
         zoffController = ZoffController.getInstance(channel);
+        ImageCache.removeImage(zoffController.getZoff().getPlayingVideo().getId(), ImageCache.ImageSize.HUGE);
 
         showNotification();
         zoffController.setOnRefreshListener(new ZoffController.RefreshCallback() {
@@ -141,7 +154,7 @@ public class NotificationService extends Service {
 
     private void showNotification() {
         log("Showing notification");
-        RemoteViews view = new RemoteViews(getApplicationContext().getPackageName(),R.layout.notification);
+        RemoteViews view = new RemoteViews(getApplicationContext().getPackageName(), R.layout.notification);
         RemoteViews bigView = new RemoteViews(getApplicationContext().getPackageName(),R.layout.notification_big);
         String currentlyPlayingVideoID = zoffController.getZoff().getPlayingVideo().getId();
         String nextVideoID = zoffController.getZoff().getNextVideo().getId();
@@ -338,5 +351,9 @@ public class NotificationService extends Service {
     @Override
     public String toString() {
         return "NotificationService";
+    }
+
+    private void log(String data){
+        Log.i(LOG_IDENTIFIER, data);
     }
 }
