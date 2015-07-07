@@ -41,8 +41,9 @@
         android:layout_marginRight="10dp"
         android:layout_marginTop="10dp"
         android:background="@color/white"
-        android:elevation="5dp"
-        android:translationZ="0dp"/>
+
+
+        />
 
 
     <GridView
@@ -66,10 +67,10 @@
         android:layout_width="60dp"
         android:layout_height="60dp"
         custom:visible="true"
-        custom:iconColor="@color/background_dark"
+        custom:styling="light"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
-        android:elevation="5dp"
-        android:background="@drawable/loading_animation_background"/>
+        android:elevation="5dp"/>
+        <!---android:background="@drawable/loading_animation_background_light"-->
 
 </RelativeLayout>

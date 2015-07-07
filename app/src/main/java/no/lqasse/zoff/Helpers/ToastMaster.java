@@ -16,6 +16,7 @@ import no.lqasse.zoff.R;
  * Created by lassedrevland on 24.03.15.
  */
 public class ToastMaster {
+    private static final String LOG_INDETIFIER = "ToastMaster";
 
     public enum TYPE{
         NEEDS_PASS_TO_VOTE,
@@ -38,15 +39,10 @@ public class ToastMaster {
         WRONG_PASSWORD,
         SAVED_SETTINGS,
         PROTECTED_LIST,
-
-
     }
-
-
 
     public static void showToast(Object context,TYPE type){
         showToast(context,type,"");
-
     }
 
 
@@ -62,12 +58,9 @@ public class ToastMaster {
 
         switch (type){
             case "addedsong":
-
                 //Do nothing handled locally
                 break;
             case "savedsettings":
-
-
                 showToast(context, TYPE.SAVED_SETTINGS);
                 break;
             case "wrongpass":
@@ -75,12 +68,9 @@ public class ToastMaster {
                 break;
             case "shuffled":
                 showToast(context, TYPE.SHUFFLED);
-
                 break;
             case "deletesong":
-
                 //Do nothing handled locally
-
                 break;
             case "voted":
                 //Do nothing handle locally
@@ -92,44 +82,23 @@ public class ToastMaster {
                 showToast(context, TYPE.PROTECTED_LIST);
                 break;
             case "noskip":
-
                 showToast(context, TYPE.NO_SKIP);
                 break;
             case "alreadyskip":
                 showToast(context, TYPE.HAS_SKIPPED);
-
                 break;
             case "skip":
-
-
+                break;
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     }
 
-    public static void showToast(Object context, TYPE type, String CONTEXTUAL_STRING){
-
-
+    public static void showToast(Object context, TYPE type, String contextual){
 
         Toast t;
         String toastText = "Toast error";
         Drawable toastIcon = null;
 
         switch (type){
-
-
             case NEEDS_PASS_TO_VOTE:
                 toastText = "This room is password protected, set a password to vote";
                 break;
@@ -137,11 +106,11 @@ public class ToastMaster {
                 toastText = "This room is password protected, set a password to add videos";
                 break;
             case VIDEO_ADDED:
-                toastText = CONTEXTUAL_STRING + " was added";
+                toastText = contextual + " was added";
                 toastIcon = ((Activity)context).getResources().getDrawable(R.drawable.plus);
                 break;
             case VIDEO_VOTED:
-                toastText = "+1 to " + CONTEXTUAL_STRING;
+                toastText = "+1 to " + contextual;
                 toastIcon = ((Activity)context).getResources().getDrawable(R.drawable.plus);
                 break;
             case HOLD_TO_VOTE:
@@ -151,25 +120,21 @@ public class ToastMaster {
                 toastText = "Shuffled!";
                 toastIcon = ((Activity) context).getResources().getDrawable(R.drawable.shuffle);
                 break;
-
             case EMBEDDING_DISABLED:
-                toastText = CONTEXTUAL_STRING + " could not be played, embedded playback disabled.";
+                toastText = contextual + " could not be played, embedded playback disabled.";
                 break;
             case HOLD_TO_ADD:
                 toastText = "Click and hold to add videos";
                 break;
             case HOLD_TO_DELETE:
                 toastText = "Tap and hold to delete";
-
                 break;
-
             case STOP:
                 toastText = "Stopped";
                 break;
             case PAUSE:
                 toastText = "Paused";
                 break;
-
             case SAVED_SETTINGS:
                 toastText = "Saved settings";
                 break;
@@ -177,7 +142,7 @@ public class ToastMaster {
                 toastText = "Incorrect password";
                 break;
             case VIDEO_DELETED:
-                toastText = CONTEXTUAL_STRING + " was deleted";
+                toastText = contextual + " was deleted";
                 toastIcon = ((Activity)context).getResources().getDrawable(R.drawable.cross);
                 break;
             case HAS_SKIPPED:
@@ -198,41 +163,29 @@ public class ToastMaster {
             case PROTECTED_LIST:
                 toastText="This list is password protected";
                 break;
-
-
-
-
-
         }
 
         if (context instanceof Activity) {
-
-
                 show((Activity) context,toastText,toastIcon);
-
-
         } else {
             Log.d("TOAST", "No COntext");
         }
-
-
     }
 
 
     private static void show(Context context, String text, Drawable icon){
         Toast t = new Toast(context);
-
-
         t.setGravity(Gravity.TOP|Gravity.LEFT, 60, 210);
-
         View toast  =((Activity) context).getLayoutInflater().inflate(R.layout.toast, null);
-
         t.setView(toast);
         ((TextView) toast.findViewById(R.id.toastTitle)).setText(text);
         ((ImageView) toast.findViewById(R.id.toastIcon)).setImageDrawable(icon);
 
+        log("Showing toast: "+text);
         t.show();
+    }
 
-
+    private static void log(String message){
+        Log.i(LOG_INDETIFIER, message);
     }
 }

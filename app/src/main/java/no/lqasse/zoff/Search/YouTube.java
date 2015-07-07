@@ -1,14 +1,11 @@
 package no.lqasse.zoff.Search;
 
-import android.content.Context;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import no.lqasse.zoff.Interfaces.YouTubeListener;
 import no.lqasse.zoff.Models.SearchResult;
 import no.lqasse.zoff.Models.SearchResultDetail;
-import no.lqasse.zoff.Models.ZoffSettings;
+import no.lqasse.zoff.Models.Settings;
 
 /**
  * Created by lassedrevland on 26.03.15.
@@ -19,7 +16,7 @@ public class YouTube {
     private static HashMap<String,SearchResult> searchResultIDHashMap = new HashMap<>();
     private static String nextPageToken = "";
     private static String query;
-    private static ZoffSettings settings;
+    private static Settings settings;
 
 
 
@@ -27,7 +24,7 @@ public class YouTube {
         return searchResults;
     }
 
-    public static void search(final String query, final ZoffSettings settings, final Callback callback){
+    public static void search(final String query, final Settings settings, final Callback callback){
         nextPageToken = "";
         YouTube.query = query;
         YouTube.settings = settings;

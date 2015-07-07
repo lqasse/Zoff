@@ -8,8 +8,9 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import no.lqasse.zoff.Models.VideoChangeMessage;
 import no.lqasse.zoff.Models.VoteMessage;
-import no.lqasse.zoff.Models.ZoffSettings;
+import no.lqasse.zoff.Models.Settings;
 import no.lqasse.zoff.Models.Video;
 
 /**
@@ -20,6 +21,19 @@ public  class JSONTranslator {
     private static final int JSON_SETTINGS_INDEX_OFFSET = -1;
     private static final int JSON_SETTINGS_INDEX = 0;
 
+
+    public static VideoChangeMessage getVideoChangeMessage(JSONArray data){
+        VideoChangeMessage message = new VideoChangeMessage();
+        try {
+            message.videoId = data.getString(0);
+        }catch ( JSONException e){
+            e.printStackTrace();
+        }
+        message.timeChanged = getTimeAdded(data);
+
+        return message;
+
+    }
 
     public static int getTimeAdded(JSONArray data){
 
@@ -55,44 +69,30 @@ public  class JSONTranslator {
 
     }
 
-    public static ZoffSettings createSettingsFromJSON(JSONArray data){
-
-
+    public static Settings createSettingsFromJSON(JSONArray data){
         JSONObject object;
-
         try {
-
             object = data.getJSONObject(JSON_SETTINGS_INDEX);
-
-
-
-            return new ZoffSettings.Builder()
+            return new Settings.Builder()
                     ._id(object.getString("_id"))
                     .numberOfSkips(object.getJSONArray("skips").length())
                     .numberOfViewers(object.getJSONArray("views").length())
                     .startTimeSeconds(object.getInt("startTime"))
-                    .allowsAddsongs(object.getBoolean(ZoffSettings.KEY_ADD_SONGS))
-                    .allvideos(object.getBoolean(ZoffSettings.KEY_ALL_VIDEOS))
-                    .longsongs(object.getBoolean(ZoffSettings.KEY_LONG_SONGS))
-                    .frontpage(object.getBoolean(ZoffSettings.KEY_FRONTPAGE))
-                    .removeplay(object.getBoolean(ZoffSettings.KEY_REMOVE_PLAY))
-                    .shuffle(object.getBoolean(ZoffSettings.KEY_SHUFFLE))
-                    .skip(object.getBoolean(ZoffSettings.KEY_SKIP))
-                    .vote(object.getBoolean(ZoffSettings.KEY_VOTE))
+                    .allowsAddsongs(object.getBoolean(Settings.KEY_ADD_SONGS))
+                    .allvideos(object.getBoolean(Settings.KEY_ALL_VIDEOS))
+                    .longsongs(object.getBoolean(Settings.KEY_LONG_SONGS))
+                    .frontpage(object.getBoolean(Settings.KEY_FRONTPAGE))
+                    .removeplay(object.getBoolean(Settings.KEY_REMOVE_PLAY))
+                    .shuffle(object.getBoolean(Settings.KEY_SHUFFLE))
+                    .skip(object.getBoolean(Settings.KEY_SKIP))
+                    .vote(object.getBoolean(Settings.KEY_VOTE))
                     .build();
-
-
-
 
 
         }catch (JSONException e){
             e.printStackTrace();
             return null;
-
         }
-
-
-
     }
 
     public static ArrayList<Video> createVideoListFromJSON(JSONArray array){
@@ -101,7 +101,7 @@ public  class JSONTranslator {
         try {
 
             JSONArray videosJSONArray = array.getJSONArray(1);
-            for (int i = 1;i<videosJSONArray.length();i++){
+            for (int i = 0;i<videosJSONArray.length();i++){
                 Video current = createVideoFromJSON(videosJSONArray.getJSONObject(i));
                     if (current.isNowPlaying()){
                         videos.add(0,current);

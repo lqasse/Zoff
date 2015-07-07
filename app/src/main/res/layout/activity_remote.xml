@@ -47,9 +47,8 @@
         android:layout_height="60dp"
         android:layout_width="60dp"
         app:visible="true"
-        app:iconColor="@color/background_dark"
+        app:styling="dark"
         android:layout_centerInParent="true"
-        android:background="@drawable/loading_animation_background"
         android:elevation="5dp"/>
 
     <include

@@ -12,10 +12,9 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-
 import no.lqasse.zoff.ImageTools.BitmapDownloader;
 import no.lqasse.zoff.ImageTools.ImageCache;
+import no.lqasse.zoff.Models.Playlist;
 import no.lqasse.zoff.Models.Video;
 import no.lqasse.zoff.ZoffController;
 import no.lqasse.zoff.R;
@@ -31,11 +30,11 @@ public class VideoListRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.
     private final static int TYPE_ROW = 1;
 
 
-    private ArrayList<Video> videos;
+    private Playlist playlist;
     private ZoffController controller;
 
     public VideoListRecyclerAdapter(ZoffController controller) {
-        this.videos = controller.getZoff().getVideos();
+        this.playlist = controller.getPlaylist();
         this.controller = controller;
     }
 
@@ -110,18 +109,17 @@ public class VideoListRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 
-        Video currentVideo = videos.get(position);
+        Video currentVideo;
         ImageCache.ImageSize imageSize = ImageCache.ImageSize.REG;
         ImageView currentImageView = null;
+        currentVideo = playlist.get(position);
 
         if (holder instanceof ViewHolderHeader){
-
 
             ((ViewHolderHeader) holder).vTitle.setText(currentVideo.getTitle());
             ((ViewHolderHeader) holder).vViews.setText(controller.getZoff().getCurrentViewers());
             ((ViewHolderHeader) holder).vSkips.setText(controller.getZoff().getCurrentSkips());
             ((ViewHolderHeader) holder).vThumbnail.setTag(currentVideo.getId());
-
             ((ViewHolderHeader) holder).vProgress.setPivotX(0);
             ((ViewHolderHeader) holder).vProgress.setScaleX(controller.getZoff().getPlayProgress());
 
@@ -146,49 +144,39 @@ public class VideoListRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.
                 holderItem.vDeleteButton.setVisibility(View.VISIBLE);
             }
 
-
             holderItem.itemView.setTag(position);
             holderItem.vDeleteButton.setTag(position);
             holderItem.vDeleteButton.setOnClickListener(onClickDelete);
             holderItem.itemView.setOnLongClickListener(onLongClickVote);
         }
 
-
-
-
-
-
         if (ImageCache.has(currentVideo.getId())) {
             Bitmap videoImage = ImageCache.get(currentVideo.getId(),imageSize);
             currentImageView.setImageBitmap(videoImage);
         } else {
-
-            final ImageView targetView = currentImageView;
             currentImageView.setImageBitmap(null);
-            BitmapDownloader.download(currentVideo.getId(), imageSize, true, new BitmapDownloader.Callback() {
+            final ImageView targetView = currentImageView;
+            targetView.setTag(currentVideo.getId());
+            BitmapDownloader.downloadTo(currentVideo.getId(), targetView, true, imageSize, new BitmapDownloader.SetImageCallback() {
                 @Override
-                public void onImageDownloaded(Bitmap image, ImageCache.ImageSize type) {
-                    Animation a = new AlphaAnimation(0.00f, 1.00f);
-                    a.setInterpolator(new DecelerateInterpolator());
-                    a.setDuration(700);
-                    targetView.startAnimation(a);
-                    a.start();
-                    targetView.setImageBitmap(image);
+                public void onImageDownloaded(Bitmap image, String videoId) {
+                    if (targetView.getTag().equals(videoId)){
+                        Animation a = new AlphaAnimation(0.00f, 1.00f);
+                        a.setInterpolator(new DecelerateInterpolator());
+                        a.setDuration(700);
+                        targetView.startAnimation(a);
+                        a.start();
+                        targetView.setImageBitmap(image);
+                    }
                 }
             });
-
-
-
         };
-
-
-
 
     }
 
     @Override
     public int getItemCount() {
-        return videos.size();
+        return playlist.size();
     }
 
     @Override
@@ -208,7 +196,7 @@ public class VideoListRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.
         @Override
         public void onClick(View v) {
             int index = (int) v.getTag();
-            controller.delete(videos.get(index));
+            controller.delete(playlist.get(index));
 
         }
     };
@@ -219,7 +207,7 @@ public class VideoListRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.
         @Override
         public boolean onLongClick(View v) {
             int index = (int) v.getTag();
-            controller.vote(videos.get(index));
+            controller.vote(playlist.get(index));
             return true;
         }
     };

@@ -1,4 +1,4 @@
-package no.lqasse.zoff;
+package no.lqasse.zoff.Notification;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -16,11 +16,14 @@ import android.os.IBinder;
 import android.util.Log;
 import android.widget.RemoteViews;
 
+import no.lqasse.zoff.Helpers.ToastMaster;
 import no.lqasse.zoff.ImageTools.ImageCache;
 import no.lqasse.zoff.ImageTools.BitmapDownloader;
 import no.lqasse.zoff.Models.Video;
 import no.lqasse.zoff.Models.Zoff;
+import no.lqasse.zoff.R;
 import no.lqasse.zoff.Remote.RemoteActivity;
+import no.lqasse.zoff.ZoffController;
 
 /**
  * Created by lassedrevland on 04.02.15.
@@ -38,13 +41,24 @@ public class NotificationService extends Service {
     private Zoff zoff;
     private String channel = "";
     private MediaSession mediaSession;
-
+    private String currentToast = "";
     private boolean shouldBeVisible = false;
 
-    private void log(String data){
-        Log.i(LOG_IDENTIFIER, data);
 
+    public static void start(Context context, String channel){
+        Intent notificationIntent = new Intent(context, NotificationService.class);
+        notificationIntent.putExtra(ZoffController.BUNDLEKEY_CHANNEL, channel);
+        notificationIntent.setAction("START");
+        context.startService(notificationIntent);
     }
+
+    public static void stop(Context context){
+        Intent notificationIntent = new Intent(context, NotificationService.class);
+        notificationIntent.setAction(NotificationService.INTENT_KEY_CLOSE);
+        context.startService(notificationIntent);
+    }
+
+
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -55,44 +69,26 @@ public class NotificationService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
 
         Bundle b = intent.getExtras();
-
-
         log("onStartCommand");
-
-
         switch (intent.getAction()){
             case INTENT_KEY_CLOSE:
                 closeNotification();
-
                 break;
             case INTENT_KEY_SKIP:
-
                 skipCurrentVideo();
-
                 break;
             case INTENT_KEY_OPEN_REMOTE:
                 openRemoteActivity();
-
-
                 break;
             case INTENT_KEY_START:
-
                 if (b.containsKey(ZoffController.BUNDLEKEY_CHANNEL)) {
                     startService(b.getString(ZoffController.BUNDLEKEY_CHANNEL));
-
                 } else {
                     stopSelf();
                 }
                 break;
-
         }
-
-
-
         return START_STICKY;
-
-
-
     }
 
     private void skipCurrentVideo(){
@@ -107,9 +103,11 @@ public class NotificationService extends Service {
 
 
     private void startService(String channel){
+
         shouldBeVisible = true;
         this.channel = channel;
-        zoffController = ZoffController.getInstance(channel,this);
+        zoffController = ZoffController.getInstance(channel);
+        ImageCache.removeImage(zoffController.getZoff().getPlayingVideo().getId(), ImageCache.ImageSize.HUGE);
 
         showNotification();
         zoffController.setOnRefreshListener(new ZoffController.RefreshCallback() {
@@ -122,38 +120,44 @@ public class NotificationService extends Service {
             }
         });
 
+        zoffController.setToastMessageCallback(new ZoffController.ToastMessageCallback() {
+            @Override
+            public void showToast(String toastkeyword) {
+                if (toastkeyword.contains("more are needed to skip")){
+                    currentToast = toastkeyword;
+                    showNotification();
+                } else if (toastkeyword.equals("alreadyskip")){
+                    currentToast = "You've already voted to skip";
+                    showNotification();
+                }
+            }
 
+            @Override
+            public void showToast(ToastMaster.TYPE type, String contextual) {
 
+            }
+        });
     }
 
     private void openRemoteActivity(){
         closeNotification();
-
         Intent startRemoteIntent = new Intent(this, RemoteActivity.class);
         startRemoteIntent.putExtra(zoffController.BUNDLEKEY_CHANNEL, channel);
-
-
         startRemoteIntent.addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
         startRemoteIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startRemoteIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startRemoteIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
-
         startActivity(startRemoteIntent);
-
         stopSelf();
     }
 
 
     private void showNotification() {
         log("Showing notification");
-
-        RemoteViews view = new RemoteViews(getApplicationContext().getPackageName(),R.layout.notification);
+        RemoteViews view = new RemoteViews(getApplicationContext().getPackageName(), R.layout.notification);
         RemoteViews bigView = new RemoteViews(getApplicationContext().getPackageName(),R.layout.notification_big);
-
-
-        String currentlyPlayingVideoID = zoffController.getZoff().getPlayingVideo().getId();
-        String nextVideoID = zoffController.getZoff().getNextVideo().getId();
+        String currentlyPlayingVideoID = zoffController.getCurrentlyPlayingVideo().getId();
+        String nextVideoID = zoffController.getZoff().getNextVideoId();
 
         if (ImageCache.has(currentlyPlayingVideoID)){
             view.setImageViewBitmap(R.id.playlistHeaderImage, ImageCache.get(currentlyPlayingVideoID));
@@ -166,11 +170,9 @@ public class NotificationService extends Service {
                     if (shouldBeVisible){
                         showNotification();
                     }
-
                 }
             });
         }
-
 
         if (nextVideoID != null){
 
@@ -181,11 +183,14 @@ public class NotificationService extends Service {
         Zoff zoffmodel = zoffController.getZoff();
 
 
-        view.setTextViewText(R.id.titleTextView, zoffmodel.getPlayingVideo().getTitle());
-        view.setTextViewText(R.id.viewersTextView, zoffmodel.getCurrentViewers());
-        bigView.setTextViewText(R.id.titleTextView, zoffmodel.getPlayingVideo().getTitle());
-        bigView.setTextViewText(R.id.viewersTextView, zoffmodel.getCurrentViewers());
+        view.setTextViewText(R.id.notification_title, zoffmodel.getPlayingVideo().getTitle());
+        view.setTextViewText(R.id.notification_viewers, zoffmodel.getCurrentViewers());
+        view.setTextViewText(R.id.notification_toast, currentToast);
+        bigView.setTextViewText(R.id.notification_title, zoffmodel.getPlayingVideo().getTitle());
+        bigView.setTextViewText(R.id.notification_viewers, zoffmodel.getCurrentViewers());
         bigView.setTextViewText(R.id.channelTextView, zoffmodel.getChannelRaisedFirstLetter());
+        bigView.setTextViewText(R.id.notification_toast, currentToast);
+        currentToast = "";
 
         //Closes notification
         Intent stopIntent = new Intent(this,NotificationService.class);
@@ -231,6 +236,8 @@ public class NotificationService extends Service {
         notificationManager.notify(1, notification);
 
         startMediaSession();
+
+
 
 
 
@@ -303,11 +310,10 @@ public class NotificationService extends Service {
 
             }
 
-            Video nextVideo = zoffController.getZoff().getNextVideo();
 
 
-            if (!ImageCache.has(nextVideo.getId(), ImageCache.ImageSize.HUGE)){
-                BitmapDownloader.download(nextVideo.getId(), ImageCache.ImageSize.HUGE, false, null);
+            if (!ImageCache.has(zoffController.getZoff().getNextVideoId(), ImageCache.ImageSize.HUGE)){
+                BitmapDownloader.download(zoffController.getZoff().getNextVideoId(), ImageCache.ImageSize.HUGE, false, null);
 
             }
 
@@ -344,5 +350,9 @@ public class NotificationService extends Service {
     @Override
     public String toString() {
         return "NotificationService";
+    }
+
+    private void log(String data){
+        Log.i(LOG_IDENTIFIER, data);
     }
 }

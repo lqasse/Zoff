@@ -13,7 +13,8 @@ public class Zoff {
     public static final String BUNDLE_KEY_CHANNEL = "channel";
     public static final String BUNDLE_KEY_IS_NEW_CHANNEL = "NEW";
 
-    private ZoffSettings settings = new ZoffSettings();
+    private Settings settings = new Settings();
+    private Playlist playlist = new Playlist();
     private String channel;
     private String adminpass = "";
     private String android_id = "";
@@ -34,73 +35,35 @@ public class Zoff {
         this.currentViewers = currentViewers;
     }
 
-    public String getAndroid_id() {
-        return android_id;
-    }
-
-    public void setAndroid_id(String android_id) {
-        this.android_id = android_id;
-    }
-
     public void setCurrentSkips(int currentSkips) {
         this.currentSkips = currentSkips;
     }
 
     public void setVideos(ArrayList<Video> videos) {
-
-        this.videos.clear();
-        this.videos.addAll(videos);
-
-        idMap.clear();
-        for (Video v:videos){
-            idMap.put(v.getId(),v);
-        }
-
-        Collections.sort(this.videos);
-
-
-
+        playlist.setPlaylist(videos);
     }
 
-
-
-    public void setNextVideos(ArrayList<Video> nextVideos) {
-        this.nextVideos = nextVideos;
-    }
 
     public void addVideo(Video video){
-        videos.add(video);
-        Collections.sort(videos);
+        playlist.addVideo(video);
     }
 
     public void addVote(VoteMessage message){
-        idMap.get(message.videoid).addVote();
-        idMap.get(message.videoid).setAdded(message.added);
-        Collections.sort(videos);
+        playlist.addVote(message);
 
     }
 
     public void deleteVideo(String videoID){
-        Video v = idMap.get(videoID);
-        videos.remove(v);
-        idMap.remove(v);
-        Collections.sort(videos);
+        playlist.delete(videoID);
 
     }
 
-    public void setNextNowPlaying(){
-        if (videos.size()>1){
-            videos.get(0).setIsNowPlaying(false);
-            videos.get(1).setIsNowPlaying(true);
-        } else {
-            videos.get(0).setIsNowPlaying(true);
-        }
+    public void setNowPlaying(Video nowPlaying){
 
-        Collections.sort(videos);
     }
 
 
-    public void setSettings(ZoffSettings settings) {
+    public void setSettings(Settings settings) {
         this.settings = settings;
     }
 
@@ -113,7 +76,7 @@ public class Zoff {
         isUnlocked = true;
     }
 
-    public ZoffSettings getSettings() {
+    public Settings getSettings() {
         return settings;
     }
 
@@ -145,8 +108,8 @@ public class Zoff {
         }
     }
 
-    public ArrayList<Video> getVideos() {
-        return videos;
+    public Playlist getPlaylist() {
+        return playlist;
     }
 
     public ArrayList<Video> getNextVideos() {
@@ -154,19 +117,13 @@ public class Zoff {
     }
 
     public Video getPlayingVideo(){
-        if (videos.isEmpty() == false){
-            return videos.get(0);
-        }
-
-        return new Video();
+       return playlist.getNowPlaying();
     }
 
-    public Video getNextVideo(){
-        if ((videos.isEmpty() == false) && (videos.size() > 2)){
-            return videos.get(1);
-        }
+    public String getNextVideoId(){
+         return  playlist.getNextVideo().getId();
 
-        return new Video();
+
     }
 
     public float getPlayProgress(){
@@ -186,7 +143,7 @@ public class Zoff {
     public String getCurrentPlaytime(){
 
         long startTime = settings.getNowPlayingStartTimeMillis();
-        long duration = getPlayingVideo().getDurationMillis();
+        long duration = playlist.getNowPlaying().getDurationMillis();
 
         long elapsed = Calendar.getInstance().getTimeInMillis() - startTime;
 

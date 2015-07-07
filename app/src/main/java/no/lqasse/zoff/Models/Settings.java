@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by lassedrevland on 02.05.15.
  */
-public class ZoffSettings {
+public class Settings {
 
     public static final String KEY_ADD_SONGS  = "addsongs";
     public static final String KEY_ALL_VIDEOS = "allvideos";
@@ -41,7 +41,7 @@ public class ZoffSettings {
     private boolean skip;
     private boolean vote;
 
-    public ZoffSettings() {
+    public Settings() {
 
         this._id            = "";
         this.skips          = 0;
@@ -57,7 +57,7 @@ public class ZoffSettings {
         this.vote           = false;
     }
 
-    public ZoffSettings(ZoffSettings.Builder builder){
+    public Settings(Settings.Builder builder){
         this._id                = builder.nested_id;
         this.skips              = builder.nestedSkips;
         this.viewers            = builder.nestedViewers;
@@ -156,53 +156,53 @@ public class ZoffSettings {
 
 
 
-        public ZoffSettings.Builder _id(String _id){
+        public Settings.Builder _id(String _id){
             this.nested_id = _id;
             return this;
         }
 
-        public ZoffSettings.Builder numberOfSkips(int skips){
+        public Settings.Builder numberOfSkips(int skips){
             this.nestedSkips = skips;
             return this;
         }
-        public ZoffSettings.Builder numberOfViewers(int viewers){
+        public Settings.Builder numberOfViewers(int viewers){
             this.nestedViewers = viewers;
             return this;
         }
-        public ZoffSettings.Builder startTimeSeconds(int secs){
+        public Settings.Builder startTimeSeconds(int secs){
             this.nestedStartTimeMillis = TimeUnit.SECONDS.toMillis(secs);
             return this;
         }
 
-        public ZoffSettings.Builder allowsAddsongs(Boolean addsongs){
+        public Settings.Builder allowsAddsongs(Boolean addsongs){
             this.nestedAddsongs = addsongs;
             return this;
         }
-        public ZoffSettings.Builder allvideos(Boolean allvideos){
+        public Settings.Builder allvideos(Boolean allvideos){
             this.nesttedAllvideos = allvideos;
             return this;
         }
-        public ZoffSettings.Builder frontpage(Boolean frontpage){
+        public Settings.Builder frontpage(Boolean frontpage){
             this.nestedFrontpage = frontpage;
             return this;
         }
-        public ZoffSettings.Builder longsongs(Boolean longsongs){
+        public Settings.Builder longsongs(Boolean longsongs){
             this.nestedLongsongs = longsongs;
             return this;
         }
-        public ZoffSettings.Builder removeplay(Boolean removeplay){
+        public Settings.Builder removeplay(Boolean removeplay){
             this.nestedRemoveplay = removeplay;
             return this;
         }
-        public ZoffSettings.Builder shuffle(Boolean shuffle){
+        public Settings.Builder shuffle(Boolean shuffle){
             this.nestedShuffle = shuffle;
             return this;
         }
-        public ZoffSettings.Builder skip(Boolean skip){
+        public Settings.Builder skip(Boolean skip){
             this.nestedSkip = skip;
             return this;
         }
-        public ZoffSettings.Builder vote(Boolean vote){
+        public Settings.Builder vote(Boolean vote){
             this.nestedVote = vote;
             return this;
         }
@@ -216,9 +216,9 @@ public class ZoffSettings {
 
 
 
-        public ZoffSettings build() {
+        public Settings build() {
 
-            return new ZoffSettings(this) {
+            return new Settings(this) {
 
 
             };
