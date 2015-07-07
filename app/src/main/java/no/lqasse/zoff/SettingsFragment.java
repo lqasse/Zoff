@@ -12,7 +12,7 @@ import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import no.lqasse.zoff.Models.ZoffSettings;
+import no.lqasse.zoff.Models.Settings;
 
 /**
  * Created by lassedrevland on 01.05.15.
@@ -174,7 +174,7 @@ public class SettingsFragment extends Fragment {
 
 
 
-                ZoffSettings settings = new ZoffSettings.Builder()
+                Settings settings = new Settings.Builder()
                         .allowsAddsongs(addsongsSwitch.isChecked())
                         .allvideos(allvideosSwitch.isChecked())
                         .frontpage(frontpageSwitch.isChecked())
@@ -206,7 +206,7 @@ public class SettingsFragment extends Fragment {
 
     }
 
-    public void setSettings(ZoffSettings settings){
+    public void setSettings(Settings settings){
 
 
 
@@ -278,7 +278,7 @@ public class SettingsFragment extends Fragment {
     public interface Listener {
         void savePassword(String password);
         void setFragment(SettingsFragment fragment);
-        void saveSettings(ZoffSettings settings);
+        void saveSettings(Settings settings);
 
     }
 }

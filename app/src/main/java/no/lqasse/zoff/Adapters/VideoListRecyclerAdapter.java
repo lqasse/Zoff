@@ -35,7 +35,7 @@ public class VideoListRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.
     private ZoffController controller;
 
     public VideoListRecyclerAdapter(ZoffController controller) {
-        this.videos = controller.getZoff().getVideos();
+        this.videos = controller.getZoff().getPlaylist();
         this.controller = controller;
     }
 

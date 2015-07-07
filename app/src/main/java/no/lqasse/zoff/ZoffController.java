@@ -1,6 +1,5 @@
 package no.lqasse.zoff;
 
-import android.support.annotation.Nullable;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -10,7 +9,7 @@ import no.lqasse.zoff.Helpers.ToastMaster;
 import no.lqasse.zoff.ImageTools.ImageCache;
 import no.lqasse.zoff.Models.Video;
 import no.lqasse.zoff.Models.Zoff;
-import no.lqasse.zoff.Models.ZoffSettings;
+import no.lqasse.zoff.Models.Settings;
 import no.lqasse.zoff.Server.JSONTranslator;
 import no.lqasse.zoff.Server.Server;
 
@@ -189,7 +188,7 @@ public class ZoffController implements Server.Listener{
         server.savePassword(Sha256.getHash(password));
     }
 
-    public void saveSettings(ZoffSettings settings) {
+    public void saveSettings(Settings settings) {
         server.saveSettings(zoff.getAdminpass(), settings);
     }
 
@@ -226,7 +225,7 @@ public class ZoffController implements Server.Listener{
 
     @Override
     public String toString() {
-        return zoff.getChannel() + ": " + zoff.getVideos().size();
+        return zoff.getChannel() + ": " + zoff.getPlaylist().size();
     }
 
     @Override

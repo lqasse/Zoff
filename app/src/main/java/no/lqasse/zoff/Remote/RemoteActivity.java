@@ -35,7 +35,7 @@ import no.lqasse.zoff.LoadingAnimation;
 import no.lqasse.zoff.Notification.NotificationService;
 import no.lqasse.zoff.ZoffController;
 import no.lqasse.zoff.Models.Zoff;
-import no.lqasse.zoff.Models.ZoffSettings;
+import no.lqasse.zoff.Models.Settings;
 import no.lqasse.zoff.PlaylistFragment;
 import no.lqasse.zoff.R;
 import no.lqasse.zoff.Search.SearchFragment;
@@ -375,7 +375,7 @@ public class RemoteActivity extends ActionBarActivity implements SettingsFragmen
 
 
     @Override
-    public void saveSettings(ZoffSettings settings) {
+    public void saveSettings(Settings settings) {
         zoffController.saveSettings(settings);
     }
 

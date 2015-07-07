@@ -25,7 +25,7 @@ import javax.net.ssl.X509TrustManager;
 import no.lqasse.zoff.ChannelChooserActivity;
 import no.lqasse.zoff.Models.Channel;
 import no.lqasse.zoff.Models.Video;
-import no.lqasse.zoff.Models.ZoffSettings;
+import no.lqasse.zoff.Models.Settings;
 
 /**
  * Created by lassedrevland on 15.04.15.
@@ -266,7 +266,7 @@ public class Server {
         log("Saving password");
     }
 
-    public void saveSettings(String adminpass, ZoffSettings settings) {
+    public void saveSettings(String adminpass, Settings settings) {
 
         JSONArray data = new JSONArray();
         data.put(settings.isVote());
@@ -292,7 +292,7 @@ public class Server {
 
     private Socket setSocketListeners(Socket socket) {
         socket.on(SOCKET_KEY_ON_CHANNEL_REFRESH, onChannelRefresh);
-        socket.on(channel + SOCKET_KEY_ON_NOW_PLAYING_CHANGED, onNewVideo);
+        socket.on(SOCKET_KEY_ON_NOW_PLAYING_CHANGED, onNewVideo);
         socket.on(SOCKET_KEY_ON_SKIPPED, onSkip);
         socket.on(SOCKET_KEY_ON_VIEWCOUNT_CHANGED, onViewCountChanged);
         socket.on(SOCKET_KEY_ON_TOAST, onToast);
@@ -300,6 +300,7 @@ public class Server {
         socket.on(channel + SOCKET_KEY_ON_SETTINGS_SAVED, onSavedSettings);
         socket.on(SOCKET_KEY_ON_PING_CALLBACK, onPingResponse);
         socket.on(SOCKET_KEY_ON_CONFIGURATION_CHANGED, onConf);
+
         socket.on(Socket.EVENT_CONNECT, onConnected);
         socket.on(Socket.EVENT_CONNECT_ERROR, onConnectError);
         socket.on(Socket.EVENT_DISCONNECT, onDisconnected);
@@ -312,7 +313,7 @@ public class Server {
 
     private Socket removeSocketListeners(Socket socket) {
         socket.off(SOCKET_KEY_ON_CHANNEL_REFRESH);
-        socket.off(channel + SOCKET_KEY_ON_NOW_PLAYING_CHANGED);
+        socket.off(SOCKET_KEY_ON_NOW_PLAYING_CHANGED);
         socket.off(SOCKET_KEY_ON_SKIPPED);
         socket.off(SOCKET_KEY_ON_VIEWCOUNT_CHANGED);
         socket.off(SOCKET_KEY_ON_TOAST);

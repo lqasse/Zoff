@@ -9,7 +9,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import no.lqasse.zoff.Models.VoteMessage;
-import no.lqasse.zoff.Models.ZoffSettings;
+import no.lqasse.zoff.Models.Settings;
 import no.lqasse.zoff.Models.Video;
 
 /**
@@ -55,7 +55,7 @@ public  class JSONTranslator {
 
     }
 
-    public static ZoffSettings createSettingsFromJSON(JSONArray data){
+    public static Settings createSettingsFromJSON(JSONArray data){
 
 
         JSONObject object;
@@ -66,19 +66,19 @@ public  class JSONTranslator {
 
 
 
-            return new ZoffSettings.Builder()
+            return new Settings.Builder()
                     ._id(object.getString("_id"))
                     .numberOfSkips(object.getJSONArray("skips").length())
                     .numberOfViewers(object.getJSONArray("views").length())
                     .startTimeSeconds(object.getInt("startTime"))
-                    .allowsAddsongs(object.getBoolean(ZoffSettings.KEY_ADD_SONGS))
-                    .allvideos(object.getBoolean(ZoffSettings.KEY_ALL_VIDEOS))
-                    .longsongs(object.getBoolean(ZoffSettings.KEY_LONG_SONGS))
-                    .frontpage(object.getBoolean(ZoffSettings.KEY_FRONTPAGE))
-                    .removeplay(object.getBoolean(ZoffSettings.KEY_REMOVE_PLAY))
-                    .shuffle(object.getBoolean(ZoffSettings.KEY_SHUFFLE))
-                    .skip(object.getBoolean(ZoffSettings.KEY_SKIP))
-                    .vote(object.getBoolean(ZoffSettings.KEY_VOTE))
+                    .allowsAddsongs(object.getBoolean(Settings.KEY_ADD_SONGS))
+                    .allvideos(object.getBoolean(Settings.KEY_ALL_VIDEOS))
+                    .longsongs(object.getBoolean(Settings.KEY_LONG_SONGS))
+                    .frontpage(object.getBoolean(Settings.KEY_FRONTPAGE))
+                    .removeplay(object.getBoolean(Settings.KEY_REMOVE_PLAY))
+                    .shuffle(object.getBoolean(Settings.KEY_SHUFFLE))
+                    .skip(object.getBoolean(Settings.KEY_SKIP))
+                    .vote(object.getBoolean(Settings.KEY_VOTE))
                     .build();
 
 
@@ -101,7 +101,7 @@ public  class JSONTranslator {
         try {
 
             JSONArray videosJSONArray = array.getJSONArray(1);
-            for (int i = 1;i<videosJSONArray.length();i++){
+            for (int i = 0;i<videosJSONArray.length();i++){
                 Video current = createVideoFromJSON(videosJSONArray.getJSONObject(i));
                     if (current.isNowPlaying()){
                         videos.add(0,current);

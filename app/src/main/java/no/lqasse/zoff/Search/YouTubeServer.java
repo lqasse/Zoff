@@ -14,7 +14,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 
 import no.lqasse.zoff.Models.SearchResult;
-import no.lqasse.zoff.Models.ZoffSettings;
+import no.lqasse.zoff.Models.Settings;
 
 /**
  * Created by lassedrevland on 24.03.15.
@@ -41,7 +41,7 @@ public class YouTubeServer {
 
     }
 
-    public static void doSearch(String query, String pageToken, ZoffSettings settings, Callback callback){
+    public static void doSearch(String query, String pageToken, Settings settings, Callback callback){
 
         String categoryLimit = "";
         String lenghtLimit = "";
