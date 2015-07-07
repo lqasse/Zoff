@@ -101,18 +101,23 @@ public class ChannelGridAdapter extends ArrayAdapter<Channel> {
             viewholder.headerImage.setImageBitmap(ImageCache.get(videoId, ImageCache.ImageSize.REG));
         }else {
             final ImageView targetView = viewholder.headerImage;
+            targetView.setTag(videoId);
 
-            BitmapDownloader.download(videoId, ImageCache.ImageSize.REG, false, new BitmapDownloader.Callback() {
+            BitmapDownloader.downloadTo(videoId, targetView,false, ImageCache.ImageSize.REG, new BitmapDownloader.SetImageCallback() {
                 @Override
-                public void onImageDownloaded(Bitmap image, ImageCache.ImageSize type) {
-                    Animation a = new AlphaAnimation(0.00f, 1.00f);
-                    a.setInterpolator(new DecelerateInterpolator());
-                    a.setDuration(700);
-                    targetView.startAnimation(a);
-                    a.start();
-                    targetView.setImageBitmap(image);
+                public void onImageDownloaded(Bitmap image, String videoId) {
+                    if ((targetView.getTag()).equals(videoId)){
+                        Animation a = new AlphaAnimation(0.00f, 1.00f);
+                        a.setInterpolator(new DecelerateInterpolator());
+                        a.setDuration(700);
+                        targetView.startAnimation(a);
+                        a.start();
+                        targetView.setImageBitmap(image);
+                    }
                 }
             });
+
+
         }
 
 

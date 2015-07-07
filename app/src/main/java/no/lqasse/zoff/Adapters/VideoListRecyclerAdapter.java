@@ -146,17 +146,11 @@ public class VideoListRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.
                 holderItem.vDeleteButton.setVisibility(View.VISIBLE);
             }
 
-
             holderItem.itemView.setTag(position);
             holderItem.vDeleteButton.setTag(position);
             holderItem.vDeleteButton.setOnClickListener(onClickDelete);
             holderItem.itemView.setOnLongClickListener(onLongClickVote);
         }
-
-
-
-
-
 
         if (ImageCache.has(currentVideo.getId())) {
             Bitmap videoImage = ImageCache.get(currentVideo.getId(),imageSize);
@@ -165,24 +159,24 @@ public class VideoListRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.
 
             final ImageView targetView = currentImageView;
             currentImageView.setImageBitmap(null);
-            BitmapDownloader.download(currentVideo.getId(), imageSize, true, new BitmapDownloader.Callback() {
+
+
+            targetView.setTag(currentVideo.getId());
+
+            BitmapDownloader.downloadTo(currentVideo.getId(), targetView, true, imageSize, new BitmapDownloader.SetImageCallback() {
                 @Override
-                public void onImageDownloaded(Bitmap image, ImageCache.ImageSize type) {
-                    Animation a = new AlphaAnimation(0.00f, 1.00f);
-                    a.setInterpolator(new DecelerateInterpolator());
-                    a.setDuration(700);
-                    targetView.startAnimation(a);
-                    a.start();
-                    targetView.setImageBitmap(image);
+                public void onImageDownloaded(Bitmap image, String videoId) {
+                    if (targetView.getTag().equals(videoId)){
+                        Animation a = new AlphaAnimation(0.00f, 1.00f);
+                        a.setInterpolator(new DecelerateInterpolator());
+                        a.setDuration(700);
+                        targetView.startAnimation(a);
+                        a.start();
+                        targetView.setImageBitmap(image);
+                    }
                 }
             });
-
-
-
         };
-
-
-
 
     }
 

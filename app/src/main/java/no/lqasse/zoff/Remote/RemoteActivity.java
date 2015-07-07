@@ -107,7 +107,7 @@ public class RemoteActivity extends ZoffActivity implements SettingsFragment.Lis
 
 
 
-        zoffController = ZoffController.getInstance(channel, this);
+        zoffController = ZoffController.getInstance(channel);
 
 
         zoff = zoffController.getZoff();
@@ -222,14 +222,11 @@ public class RemoteActivity extends ZoffActivity implements SettingsFragment.Lis
         stopNotificationService();
 
 
-        zoffController = ZoffController.getInstance(channel,this);
+        zoffController = ZoffController.getInstance(channel);
         zoff = zoffController.getZoff();
         refreshViewData(zoff);
         toolBarTitle.setText(zoff.getChannelRaisedFirstLetter());
-
         setControllerCallbacks(zoffController);
-
-
 
     }
 
@@ -344,8 +341,13 @@ public class RemoteActivity extends ZoffActivity implements SettingsFragment.Lis
 
         zoffController.setToastMessageCallback(new ZoffController.ToastMessageCallback() {
             @Override
-            public void onToastReceived(String toastkeyword) {
+            public void showToast(String toastkeyword) {
                 ToastMaster.showToast(RemoteActivity.this, toastkeyword);
+            }
+
+            @Override
+            public void showToast(ToastMaster.TYPE type, String contextual) {
+                ToastMaster.showToast(RemoteActivity.this, type, contextual);
             }
         });
 

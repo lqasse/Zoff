@@ -1,6 +1,5 @@
 package no.lqasse.zoff.Search;
 
-import android.content.Context;
 import android.os.AsyncTask;
 
 import org.apache.http.HttpResponse;
@@ -16,7 +15,6 @@ import java.util.ArrayList;
 
 import no.lqasse.zoff.Models.SearchResult;
 import no.lqasse.zoff.Models.ZoffSettings;
-import no.lqasse.zoff.SearchActivity;
 
 /**
  * Created by lassedrevland on 24.03.15.

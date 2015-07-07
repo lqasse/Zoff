@@ -64,7 +64,7 @@ public class BitmapDownloader {
         }
     }
 
-    public static void downloadTo(String id, ImageView target, ImageCache.ImageSize type, SetImageCallback callback){
+    public static void downloadTo(String id, ImageView target, Boolean flagScaleDown, ImageCache.ImageSize type, SetImageCallback callback){
 
         ViewHolder viewHolder = new ViewHolder();
         if (type == ImageCache.ImageSize.HUGE){
@@ -78,6 +78,8 @@ public class BitmapDownloader {
         viewHolder.setImageCallback = callback;
         viewHolder.imageSize = type;
         viewHolder.type = TYPE.download;
+        viewHolder.scaleDownFlag = flagScaleDown;
+        viewHolder.videoId = id;
 
         if (!isDownloading(id,type)) {
             downloading(id,type);
@@ -130,13 +132,7 @@ public class BitmapDownloader {
 
     private enum TYPE{downlaodAndSet,download}
 
-    public interface Callback{
-        void onImageDownloaded(Bitmap image,ImageCache.ImageSize type);
-    }
 
-    public interface SetImageCallback {
-        void onImageDownloaded(Bitmap image, String videoId, ImageView target);
-    }
 
 
 
@@ -185,7 +181,7 @@ public class BitmapDownloader {
 
 
                 if (viewHolder.setImageCallback != null){
-                    viewHolder.setImageCallback.onImageDownloaded(viewHolder.bitmap,viewHolder.videoId,viewHolder.imageView);
+                    viewHolder.setImageCallback.onImageDownloaded(viewHolder.bitmap,viewHolder.videoId);
 
                 }
 
@@ -215,5 +211,13 @@ public class BitmapDownloader {
         }
 
 
+    }
+
+    public interface Callback{
+        void onImageDownloaded(Bitmap image,ImageCache.ImageSize type);
+    }
+
+    public interface SetImageCallback {
+        void onImageDownloaded(Bitmap image, String videoId);
     }
 }

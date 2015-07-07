@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:id="@+id/listContainer"
+    android:background="@drawable/videolist_item_background"
+    android:elevation="2dp"
+    android:translationY="0dp">
+
+
+    <ImageView
+        android:layout_width="100dp"
+        android:layout_height="65dp"
+        android:id="@+id/playlistItemImage"
+        android:scaleType="centerCrop"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:id="@+id/playlistItemTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Title"
+        android:textSize="14dp"
+        android:textColor="@color/videolist_item_title"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/playlistItemImage"
+        android:layout_toEndOf="@+id/playlistItemImage"
+        android:maxLines="2"
+        android:shadowRadius="1"
+        android:shadowDy="1"
+        android:shadowDx="1"
+        android:shadowColor="@color/black_transparent"
+        android:typeface="sans"
+        android:fontFamily="sans-serif-thin"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="5dp">
+    </TextView>
+
+    <TextView
+        android:id="@+id/playlistItemVotes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Votes"
+        android:textSize="12dp"
+        android:lines="1"
+        android:textColor="@color/videolist_item_votes"
+        android:shadowRadius="2"
+        android:shadowDy="1"
+        android:shadowDx="1"
+        android:shadowColor="@color/black_transparent"
+        android:layout_marginTop="40dp"
+        android:typeface="sans"
+        android:layout_alignParentEnd="false"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="10dp"
+        android:visibility="visible">
+    </TextView>
+
+
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:id="@+id/playlistItemDeleteButton"
+        android:layout_alignParentEnd="false"
+        android:src="@drawable/cross"
+        android:tint="@color/videolist_item_delete_button"
+        android:padding="10dp"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
+        android:scaleType="fitCenter"
+        android:visibility="invisible" />
+
+</RelativeLayout>

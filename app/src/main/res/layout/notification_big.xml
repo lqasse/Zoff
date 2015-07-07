@@ -17,7 +17,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/titleTextView"
+        android:id="@+id/notification_title"
         android:layout_alignParentTop="true"
         android:layout_toRightOf="@+id/playlistHeaderImage"
         android:textColor="@color/white"
@@ -32,7 +32,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/viewersTextView"
+        android:id="@+id/notification_viewers"
         android:textColor="@color/gray"
         android:text="Viewers"
         android:layout_below="@+id/channelTextView"
@@ -67,7 +67,17 @@
         android:id="@+id/channelTextView"
         android:textColor="@color/gray"
         android:text="Channel"
-        android:layout_below="@+id/titleTextView"
+        android:layout_below="@+id/notification_title"
         android:layout_toRightOf="@+id/playlistHeaderImage" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/notification_toast"
+        android:textColor="@color/gray"
+        android:text="Toast"
+        android:layout_below="@+id/notification_viewers"
+        android:layout_alignLeft="@+id/notification_viewers"
+        android:layout_alignStart="@+id/notification_viewers" />
 
 </RelativeLayout>

@@ -230,10 +230,9 @@ public class ChannelChooserActivity extends ActionBarActivity  {
 
         }
 
-        if (displayedSuggestions.size()>1){
-            suggestionArrayAdapter.notifyDataSetChanged();
+        suggestionArrayAdapter.notifyDataSetChanged();
 
-        }
+
 
 
     }
