@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import no.lqasse.zoff.Models.VideoChangeMessage;
 import no.lqasse.zoff.Models.VoteMessage;
 import no.lqasse.zoff.Models.Settings;
 import no.lqasse.zoff.Models.Video;
@@ -20,6 +21,19 @@ public  class JSONTranslator {
     private static final int JSON_SETTINGS_INDEX_OFFSET = -1;
     private static final int JSON_SETTINGS_INDEX = 0;
 
+
+    public static VideoChangeMessage getVideoChangeMessage(JSONArray data){
+        VideoChangeMessage message = new VideoChangeMessage();
+        try {
+            message.videoId = data.getString(0);
+        }catch ( JSONException e){
+            e.printStackTrace();
+        }
+        message.timeChanged = getTimeAdded(data);
+
+        return message;
+
+    }
 
     public static int getTimeAdded(JSONArray data){
 
@@ -56,16 +70,9 @@ public  class JSONTranslator {
     }
 
     public static Settings createSettingsFromJSON(JSONArray data){
-
-
         JSONObject object;
-
         try {
-
             object = data.getJSONObject(JSON_SETTINGS_INDEX);
-
-
-
             return new Settings.Builder()
                     ._id(object.getString("_id"))
                     .numberOfSkips(object.getJSONArray("skips").length())
@@ -82,17 +89,10 @@ public  class JSONTranslator {
                     .build();
 
 
-
-
-
         }catch (JSONException e){
             e.printStackTrace();
             return null;
-
         }
-
-
-
     }
 
     public static ArrayList<Video> createVideoListFromJSON(JSONArray array){

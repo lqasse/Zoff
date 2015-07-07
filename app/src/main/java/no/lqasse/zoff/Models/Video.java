@@ -12,13 +12,18 @@ public class Video implements Comparable<Video>{
 
 
     private String _id = "Error";
-    private String id = "Error";
-    private String title = "Error";
+    private String id = "placeholder";
+    private String title = "Loading videos";
     private int votes = 999;
     private int durationSecs = 0;
     private int added = 0;
     private String[] guids;
     private Boolean isNowPlaying = false;
+
+
+    public static Video getPlaceholderVideo(){
+        return new Video();
+    }
 
     public Video(String title, String id, String votes, String added){
         this.title = title;
@@ -103,8 +108,9 @@ public class Video implements Comparable<Video>{
     }
 
 
-    public void addVote(){
+    public void addVote(int time){
         votes++;
+        added = time;
 
     }
 
@@ -221,7 +227,6 @@ public class Video implements Comparable<Video>{
     @Override
     public int compareTo(Video another) {
 
-
         if (this.isNowPlaying){
             return -1;
         } else if (another.isNowPlaying){
@@ -236,5 +241,21 @@ public class Video implements Comparable<Video>{
             return (this.getAdded() - another.getAdded()); //Ascending on time, ie added earlier gives higher position
         }
 
+    }
+
+
+    public boolean notSame(Video v){
+        return !this.getId().equals(v.getId());
+    }
+
+    public void nullify(){
+        this.votes = 0;
+        this.isNowPlaying = false;
+
+    }
+
+    @Override
+    public String toString() {
+        return title + " : " + getId();
     }
 }

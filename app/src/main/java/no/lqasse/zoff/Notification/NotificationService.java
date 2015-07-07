@@ -156,8 +156,8 @@ public class NotificationService extends Service {
         log("Showing notification");
         RemoteViews view = new RemoteViews(getApplicationContext().getPackageName(), R.layout.notification);
         RemoteViews bigView = new RemoteViews(getApplicationContext().getPackageName(),R.layout.notification_big);
-        String currentlyPlayingVideoID = zoffController.getZoff().getPlayingVideo().getId();
-        String nextVideoID = zoffController.getZoff().getNextVideo().getId();
+        String currentlyPlayingVideoID = zoffController.getCurrentlyPlayingVideo().getId();
+        String nextVideoID = zoffController.getZoff().getNextVideoId();
 
         if (ImageCache.has(currentlyPlayingVideoID)){
             view.setImageViewBitmap(R.id.playlistHeaderImage, ImageCache.get(currentlyPlayingVideoID));
@@ -310,11 +310,10 @@ public class NotificationService extends Service {
 
             }
 
-            Video nextVideo = zoffController.getZoff().getNextVideo();
 
 
-            if (!ImageCache.has(nextVideo.getId(), ImageCache.ImageSize.HUGE)){
-                BitmapDownloader.download(nextVideo.getId(), ImageCache.ImageSize.HUGE, false, null);
+            if (!ImageCache.has(zoffController.getZoff().getNextVideoId(), ImageCache.ImageSize.HUGE)){
+                BitmapDownloader.download(zoffController.getZoff().getNextVideoId(), ImageCache.ImageSize.HUGE, false, null);
 
             }
 

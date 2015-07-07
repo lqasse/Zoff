@@ -384,12 +384,13 @@ public class Server {
     };
     private Emitter.Listener onNewVideo = new Emitter.Listener() {
         @Override
-        public void call(Object... args) {
+        public void call(final Object... args) {
             handler.post(new Runnable() {
 
                 @Override
                 public void run() {
                     log("onNewVideo");
+                    //listener.onVideoChanged((JSONArray) args[0]);
 
                 }
             });

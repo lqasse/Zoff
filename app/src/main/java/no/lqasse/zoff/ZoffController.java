@@ -7,6 +7,7 @@ import org.json.JSONArray;
 import no.lqasse.zoff.Helpers.Sha256;
 import no.lqasse.zoff.Helpers.ToastMaster;
 import no.lqasse.zoff.ImageTools.ImageCache;
+import no.lqasse.zoff.Models.Playlist;
 import no.lqasse.zoff.Models.Video;
 import no.lqasse.zoff.Models.Zoff;
 import no.lqasse.zoff.Models.Settings;
@@ -59,6 +60,14 @@ public class ZoffController implements Server.Listener{
         zoff = new Zoff(channel);
         log(channel);
         server = new Server(channel,this);
+    }
+
+    public Playlist getPlaylist(){
+        return zoff.getPlaylist();
+    }
+
+    public Video getCurrentlyPlayingVideo(){
+        return zoff.getPlaylist().getNowPlaying();
     }
 
     public void onGotInstance(){
@@ -159,10 +168,8 @@ public class ZoffController implements Server.Listener{
     }
 
     public void onVideoChanged(JSONArray data) {
-        zoff.getPlayingVideo().setAdded(JSONTranslator.getTimeAdded(data));
-        zoff.getPlayingVideo().setNullVotes();
-        zoff.setNextNowPlaying();
-        zoff.getSettings().setNowPlayingStartTimeMillis(JSONTranslator.getTimeAdded(data));
+        zoff.getPlaylist().setNowPlaying(JSONTranslator.getVideoChangeMessage(data));
+
         if (refreshCallback != null) {
             refreshCallback.onZoffRefreshed(zoff);
         }

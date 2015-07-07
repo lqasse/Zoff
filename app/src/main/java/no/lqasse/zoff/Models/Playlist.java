@@ -1,5 +1,7 @@
 package no.lqasse.zoff.Models;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -10,6 +12,7 @@ import java.util.NoSuchElementException;
  * Created by lassedrevland on 07.07.15.
  */
 public class Playlist {
+    private static final String LOG_IDENTIFIER = "Playlist";
 
     private Map<String,Video>  videoMap  = new HashMap<>();
     private ArrayList<Video> videoList = new ArrayList<>();
@@ -24,16 +27,42 @@ public class Playlist {
         nowPlaying = findNowPlaying(videos);
     }
 
-    public ArrayList getPlaylist(){
-        return videoList;
+    public Video get(int index){
+        return videoList.get(index);
     }
 
-    public Video getNowPlaying(){
-        if (nowPlaying!=null){
-            return nowPlaying;
-        }
-        throw new NullPointerException("Now playing was null");
+    public int size(){
+        return videoList.size();
+    }
 
+
+
+    public void setNowPlaying(VideoChangeMessage message){
+
+        getNowPlaying().nullify();
+
+        Video nowPlaying = getNextVideo();
+        nowPlaying.setIsNowPlaying(true);
+        nowPlaying.setAdded(message.timeChanged);
+        sortList();
+
+    }
+
+
+    public Video getNowPlaying(){
+        if (videoList.isEmpty() == false){
+            return videoList.get(0);
+        }
+
+        return Video.getPlaceholderVideo();
+    }
+
+    public Video getNextVideo(){
+        if (videoList.size()>0){
+            return videoList.get(1);
+        }
+
+        return Video.getPlaceholderVideo();
     }
 
     public void addVideo(Video video){
@@ -47,7 +76,7 @@ public class Playlist {
         if (video == null){
             throw new NullPointerException("No such video");
         }
-        videoMap.get(message.videoid).addVote();
+        videoMap.get(message.videoid).addVote(message.added);
         sortList();
     }
 
@@ -79,6 +108,10 @@ public class Playlist {
         }
 
         throw new NoSuchElementException("isNowPlaying was false for all videos");
+    }
+
+    private void log(String message){
+        Log.i(LOG_IDENTIFIER, message);
     }
 
 }

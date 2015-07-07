@@ -58,17 +58,8 @@ public class Zoff {
 
     }
 
-    public void setNextNowPlaying(){
-        /*
-        if (videos.size()>1){
-            videos.get(0).setIsNowPlaying(false);
-            videos.get(1).setIsNowPlaying(true);
-        } else {
-            videos.get(0).setIsNowPlaying(true);
-        }
+    public void setNowPlaying(Video nowPlaying){
 
-        Collections.sort(videos);
-        */
     }
 
 
@@ -117,8 +108,8 @@ public class Zoff {
         }
     }
 
-    public ArrayList<Video> getPlaylist() {
-        return playlist.getPlaylist();
+    public Playlist getPlaylist() {
+        return playlist;
     }
 
     public ArrayList<Video> getNextVideos() {
@@ -126,19 +117,13 @@ public class Zoff {
     }
 
     public Video getPlayingVideo(){
-        if (videos.isEmpty() == false){
-            return videos.get(0);
-        }
-
-        return new Video();
+       return playlist.getNowPlaying();
     }
 
-    public Video getNextVideo(){
-        if ((videos.isEmpty() == false) && (videos.size() > 2)){
-            return videos.get(1);
-        }
+    public String getNextVideoId(){
+         return  playlist.getNextVideo().getId();
 
-        return new Video();
+
     }
 
     public float getPlayProgress(){
@@ -158,7 +143,7 @@ public class Zoff {
     public String getCurrentPlaytime(){
 
         long startTime = settings.getNowPlayingStartTimeMillis();
-        long duration = getPlayingVideo().getDurationMillis();
+        long duration = playlist.getNowPlaying().getDurationMillis();
 
         long elapsed = Calendar.getInstance().getTimeInMillis() - startTime;
 

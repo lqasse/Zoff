@@ -168,10 +168,10 @@ public class RemoteActivity extends ActionBarActivity implements SettingsFragmen
         playlistFragment.notifyDataChange(zoff);
         settingsFragment.setSettings(zoff.getSettings());
 
-        setBackgroundImage(zoff.getPlayingVideo().getId());
+        setBackgroundImage(zoffController.getCurrentlyPlayingVideo().getId());
 
-        if (!ImageCache.has(zoff.getNextVideo().getId(), ImageCache.ImageSize.HUGE)) {
-            BitmapDownloader.download(zoff.getNextVideo().getId(), ImageCache.ImageSize.HUGE, true, null);
+        if (!ImageCache.has(zoff.getNextVideoId(), ImageCache.ImageSize.HUGE)) {
+            BitmapDownloader.download(zoff.getNextVideoId(), ImageCache.ImageSize.HUGE, true, null);
         }
     }
 
