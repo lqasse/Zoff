@@ -13,7 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import no.lqasse.zoff.ImageTools.BitmapDownloader;
-import no.lqasse.zoff.ImageTools.ImageCache;
+import no.lqasse.zoff.ImageTools.BitmapCache;
 import no.lqasse.zoff.Models.Playlist;
 import no.lqasse.zoff.Models.Video;
 import no.lqasse.zoff.ZoffController;
@@ -110,7 +110,7 @@ public class VideoListRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 
         Video currentVideo;
-        ImageCache.ImageSize imageSize = ImageCache.ImageSize.REG;
+        BitmapCache.ImageSize imageSize = BitmapCache.ImageSize.REG;
         ImageView currentImageView = null;
         currentVideo = playlist.get(position);
 
@@ -125,7 +125,7 @@ public class VideoListRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.
 
             currentImageView = ((ViewHolderHeader) holder).vThumbnail;
 
-            imageSize = ImageCache.ImageSize.HUGE;
+            imageSize = BitmapCache.ImageSize.HUGE;
 
 
         } else if (holder instanceof ViewHolderItem){
@@ -138,7 +138,7 @@ public class VideoListRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.
             holderItem.vThumbnail.setTag(currentVideo.getId());
 
             currentImageView = holderItem.vThumbnail;
-            imageSize = ImageCache.ImageSize.REG;
+            imageSize = BitmapCache.ImageSize.REG;
 
             if (controller.getZoff().isUnlocked()){
                 holderItem.vDeleteButton.setVisibility(View.VISIBLE);
@@ -150,8 +150,8 @@ public class VideoListRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.
             holderItem.itemView.setOnLongClickListener(onLongClickVote);
         }
 
-        if (ImageCache.has(currentVideo.getId())) {
-            Bitmap videoImage = ImageCache.get(currentVideo.getId(),imageSize);
+        if (BitmapCache.has(currentVideo.getId())) {
+            Bitmap videoImage = BitmapCache.get(currentVideo.getId(), imageSize);
             currentImageView.setImageBitmap(videoImage);
         } else {
             currentImageView.setImageBitmap(null);
@@ -160,7 +160,7 @@ public class VideoListRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.
             BitmapDownloader.downloadTo(currentVideo.getId(), targetView, true, imageSize, new BitmapDownloader.SetImageCallback() {
                 @Override
                 public void onImageDownloaded(Bitmap image, String videoId) {
-                    if (targetView.getTag().equals(videoId)){
+                    if (targetView.getTag().equals(videoId)) {
                         Animation a = new AlphaAnimation(0.00f, 1.00f);
                         a.setInterpolator(new DecelerateInterpolator());
                         a.setDuration(700);

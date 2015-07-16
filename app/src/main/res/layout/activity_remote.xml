@@ -35,7 +35,9 @@
     android:layout_height="match_parent"
     android:weightSum="1"
     android:id="@+id/listContainer"
-    >
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="1dp"
+        android:layout_marginRight="1dp">
 
 
 
@@ -52,8 +54,8 @@
         android:elevation="5dp"/>
 
     <include
-        android:id="@+id/tool_bar"
-        layout="@layout/tool_bar" />
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar" />
 
 
 </RelativeLayout>

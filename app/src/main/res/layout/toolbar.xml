@@ -4,7 +4,7 @@
     android:background="@color/dark_gray_solid"
     android:elevation="4dp"
     android:theme="@style/ThemeOverlay.AppCompat.Dark"
-    >
+    android:id="@+id/toolbar">
 
     <TextView
         android:layout_width="fill_parent"
@@ -12,7 +12,8 @@
         android:id="@+id/toolbarTitle"
         android:textColor="@color/text_important_light"
         android:textSize="25dp"
-        android:fontFamily="sans-serif-thin" />
+        android:fontFamily="sans-serif-thin"
+        android:singleLine="true"/>
 
     <EditText
 

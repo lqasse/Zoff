@@ -11,7 +11,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,25 +21,23 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import no.lqasse.zoff.Helpers.ScreenStateReceiver;
 import no.lqasse.zoff.Helpers.ToastMaster;
 import no.lqasse.zoff.ImageTools.BackgroundGenerator;
+import no.lqasse.zoff.ImageTools.BitmapCache;
 import no.lqasse.zoff.ImageTools.BitmapColor;
 import no.lqasse.zoff.ImageTools.BitmapDownloader;
-import no.lqasse.zoff.ImageTools.ImageCache;
 import no.lqasse.zoff.LoadingAnimation;
-import no.lqasse.zoff.Notification.NotificationService;
-import no.lqasse.zoff.ZoffController;
-import no.lqasse.zoff.Models.Zoff;
 import no.lqasse.zoff.Models.Settings;
+import no.lqasse.zoff.Models.Zoff;
+import no.lqasse.zoff.Notification.NotificationService;
 import no.lqasse.zoff.PlaylistFragment;
 import no.lqasse.zoff.R;
 import no.lqasse.zoff.Search.SearchFragment;
 import no.lqasse.zoff.SettingsFragment;
+import no.lqasse.zoff.ZoffController;
 
 /**
  * Created by lassedrevland on 21.01.15.
@@ -53,18 +51,14 @@ public class RemoteActivity extends ActionBarActivity implements SettingsFragmen
     private FragmentManager fragmentManager;
     private Zoff zoff;
 
-    private RelativeLayout mainLayout;
     private DrawerLayout drawerLayout;
     private android.support.v7.widget.Toolbar toolBar;
     private EditText toolBarSearchField;
     private TextView toolBarTitle;
-    private ProgressBar loadingProgressbar;
     private ActionBarDrawerToggle drawerToggle;
     private LoadingAnimation loadingAnimation;
 
-
     private Handler handler = new Handler();
-
     private Runnable listUpdater = new Runnable() {
         @Override
         public void run() {
@@ -72,26 +66,22 @@ public class RemoteActivity extends ActionBarActivity implements SettingsFragmen
         }
     };
 
-
     private boolean isBigScreen = false;
     private boolean isNewChannel = false;
-    private Boolean isHomePressed = true;
-    private Boolean isBackPressed = false;
+    private boolean wasHomePressed = true;
+    private boolean wasBackPressed = false;
+    private boolean wasPowerPressed = false;
     private boolean isInBackground = false;
-    private boolean isScreenOrientationChanged = false;
+    private boolean wasOrientationChanged = false;
     private String channel;
     private ZoffController zoffController;
-
     private Bitmap currentBackground;
-
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_remote);
-        toolBar = (android.support.v7.widget.Toolbar) findViewById(R.id.tool_bar);
+        toolBar = (android.support.v7.widget.Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolBar);
         handler.post(listUpdater);
         fragmentManager = getFragmentManager();
@@ -110,20 +100,17 @@ public class RemoteActivity extends ActionBarActivity implements SettingsFragmen
         displayPlaylistFragment();
 
         drawerLayout = (DrawerLayout) findViewById(R.id.topLayout);
-        mainLayout = (RelativeLayout) findViewById(R.id.listContainer);
         toolBarSearchField = (EditText) findViewById(R.id.tool_bar_search_edittext);
         toolBarTitle = (TextView) findViewById(R.id.toolbarTitle);
         loadingAnimation = (LoadingAnimation) findViewById(R.id.activity_remote_loading_animation);
         isBigScreen = checkIsBigScreen();
-
-
-
 
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolBar, R.string.remote_drawer_open, R.string.remote_drawer_closed) {
             @Override
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
             }
+
             @Override
             public void onDrawerClosed(View drawerView) {
                 super.onDrawerClosed(drawerView);
@@ -131,52 +118,18 @@ public class RemoteActivity extends ActionBarActivity implements SettingsFragmen
         };
         drawerLayout.setDrawerListener(drawerToggle);
         drawerToggle.syncState();
-
-
-        if (isBigScreen) {
-            final ImageView skip = (ImageView) findViewById(R.id.skipButton);
-            ImageView settings = (ImageView) findViewById(R.id.settingsButton);
-            ImageView shuffle = (ImageView) findViewById(R.id.shuffleButton);
-            ImageView search = (ImageView) findViewById(R.id.searchButton);
-            View.OnClickListener onClickListener = new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    switch (v.getId()) {
-                        case R.id.skipButton:
-                            zoffController.skip();
-                            break;
-                        case R.id.settingsButton:
-
-                            break;
-                        case R.id.shuffleButton:
-                            zoffController.shuffle();
-                            break;
-                        case R.id.searchButton:
-                            displaySearchFragment();
-                            break;
-                    }
-                }
-            };
-            skip.setOnClickListener(onClickListener);
-            settings.setOnClickListener(onClickListener);
-            shuffle.setOnClickListener(onClickListener);
-            search.setOnClickListener(onClickListener);
-        }
     }
 
     private void refreshViewData(Zoff zoff) {
         playlistFragment.notifyDataChange(zoff);
         settingsFragment.setSettings(zoff.getSettings());
 
-        setBackgroundImage(zoffController.getCurrentlyPlayingVideo().getId());
+        setBackground(zoffController.getCurrentlyPlayingVideo().getId());
 
-        if (!ImageCache.has(zoff.getNextVideoId(), ImageCache.ImageSize.HUGE)) {
-            BitmapDownloader.download(zoff.getNextVideoId(), ImageCache.ImageSize.HUGE, true, null);
+        if (!BitmapCache.has(zoff.getNextVideoId(), BitmapCache.ImageSize.HUGE)) {
+            BitmapDownloader.download(zoff.getNextVideoId(), BitmapCache.ImageSize.HUGE, true, null);
         }
     }
-
-
-
 
     @Override
     protected void onResume() {
@@ -198,9 +151,11 @@ public class RemoteActivity extends ActionBarActivity implements SettingsFragmen
             isInBackground = false;
         }
 
-        if ((ScreenStateReceiver.wasScreenOn || isHomePressed) && !isBackPressed && !isScreenOrientationChanged) {
+        if ((ScreenStateReceiver.wasScreenOn || wasHomePressed || wasPowerPressed) && !wasBackPressed && !wasOrientationChanged) {
             NotificationService.start(this, channel);
-            isBackPressed = false;
+            wasBackPressed = false;
+            wasPowerPressed = false;
+            wasHomePressed = false;
         }
     }
 
@@ -244,7 +199,7 @@ public class RemoteActivity extends ActionBarActivity implements SettingsFragmen
                 .commit();
     }
 
-    private void displayPlaylistFragment(){
+    private void displayPlaylistFragment() {
         playlistFragment = new PlaylistFragment();
         fragmentManager
                 .beginTransaction()
@@ -252,7 +207,7 @@ public class RemoteActivity extends ActionBarActivity implements SettingsFragmen
                 .commit();
     }
 
-    private void setControllerCallbacks(ZoffController controller){
+    private void setControllerCallbacks(ZoffController controller) {
         controller.setOnRefreshListener(new ZoffController.RefreshCallback() {
             @Override
             public void onZoffRefreshed(Zoff zoff) {
@@ -276,6 +231,7 @@ public class RemoteActivity extends ActionBarActivity implements SettingsFragmen
             public void showToast(String toastkeyword) {
                 ToastMaster.showToast(RemoteActivity.this, toastkeyword);
             }
+
             @Override
             public void showToast(ToastMaster.TYPE type, String contextual) {
                 ToastMaster.showToast(RemoteActivity.this, type, contextual);
@@ -291,15 +247,15 @@ public class RemoteActivity extends ActionBarActivity implements SettingsFragmen
 
     }
 
-    private void setToolbarBackground(){
-        if (ImageCache.has(zoff.getPlayingVideo().getId(), ImageCache.ImageSize.BACKGROUND)){
+    private void setToolbarBackground() {
+        if (BitmapCache.has(zoff.getPlayingVideo().getId(), BitmapCache.ImageSize.BACKGROUND)) {
 
-            Bitmap currentBackground = ImageCache.get(zoff.getPlayingVideo().getId(), ImageCache.ImageSize.BACKGROUND);
+            Bitmap currentBackground = BitmapCache.get(zoff.getPlayingVideo().getId(), BitmapCache.ImageSize.BACKGROUND);
             BitmapDrawable drawable = BitmapColor.darkenBitmap(currentBackground);
             toolBar.setBackground(drawable);
             //drawable.setAlpha(155);
         } else {
-            ImageCache.registerListener(zoff.getPlayingVideo().getId(), ImageCache.ImageSize.BACKGROUND, new ImageCache.ImageInCacheListener() {
+            BitmapCache.registerListener(zoff.getPlayingVideo().getId(), BitmapCache.ImageSize.BACKGROUND, new BitmapCache.ImageInCacheListener() {
                 @Override
                 public void ImageInCache(Bitmap image) {
                     BitmapDrawable drawable = BitmapColor.darkenBitmap(image);
@@ -311,14 +267,14 @@ public class RemoteActivity extends ActionBarActivity implements SettingsFragmen
     }
 
 
-    private void setBackgroundImage(final String videoId) {
+    private void setBackground(final String videoId) {
 
         final ImageView background = (ImageView) findViewById(R.id.backgroundImage);
         final ImageView oldBackground = (ImageView) findViewById(R.id.backgroundImageOLD);
 
-        if (ImageCache.has(videoId, ImageCache.ImageSize.BACKGROUND)){
+        if (BitmapCache.has(videoId, BitmapCache.ImageSize.BACKGROUND)) {
 
-            Bitmap nextBackgroundImage = ImageCache.get(videoId, ImageCache.ImageSize.BACKGROUND);
+            Bitmap nextBackgroundImage = BitmapCache.get(videoId, BitmapCache.ImageSize.BACKGROUND);
             if (currentBackground != nextBackgroundImage) {
                 final Bitmap bg = nextBackgroundImage;
                 if (currentBackground != null) {
@@ -334,8 +290,8 @@ public class RemoteActivity extends ActionBarActivity implements SettingsFragmen
                 currentBackground = nextBackgroundImage;
             }
 
-        } else if (ImageCache.has(videoId)){
-            BackgroundGenerator.generateBackground(ImageCache.get(videoId), videoId, new BackgroundGenerator.Callback() {
+        } else if (BitmapCache.has(videoId)) {
+            BackgroundGenerator.generateBackground(BitmapCache.get(videoId), videoId, new BackgroundGenerator.Callback() {
                 @Override
                 public void onBackgroundCreated(Bitmap bitmap) {
                     fadeInNewBackgroundBitmap(bitmap);
@@ -343,9 +299,9 @@ public class RemoteActivity extends ActionBarActivity implements SettingsFragmen
             });
 
         } else {
-            BitmapDownloader.download(videoId, ImageCache.ImageSize.REG, true, new BitmapDownloader.Callback() {
+            BitmapDownloader.download(videoId, BitmapCache.ImageSize.REG, true, new BitmapDownloader.Callback() {
                 @Override
-                public void onImageDownloaded(Bitmap image, ImageCache.ImageSize type) {
+                public void onImageDownloaded(Bitmap image, BitmapCache.ImageSize type) {
                     BackgroundGenerator.generateBackground(image, videoId, new BackgroundGenerator.Callback() {
                         @Override
                         public void onBackgroundCreated(Bitmap bitmap) {
@@ -357,7 +313,7 @@ public class RemoteActivity extends ActionBarActivity implements SettingsFragmen
         }
     }
 
-    private void fadeInNewBackgroundBitmap(Bitmap nextBackgroundBitmap){
+    private void fadeInNewBackgroundBitmap(Bitmap nextBackgroundBitmap) {
         final ImageView background = (ImageView) findViewById(R.id.backgroundImage);
         final ImageView oldBackground = (ImageView) findViewById(R.id.backgroundImageOLD);
         oldBackground.setImageBitmap(currentBackground);
@@ -371,7 +327,6 @@ public class RemoteActivity extends ActionBarActivity implements SettingsFragmen
         background.setVisibility(View.VISIBLE);
         currentBackground = nextBackgroundBitmap;
     }
-
 
 
     @Override
@@ -389,21 +344,18 @@ public class RemoteActivity extends ActionBarActivity implements SettingsFragmen
         zoffController.savePassword(password);
     }
 
-
-    private void log(String log) {
-        Log.i(LOG_IDENTIFIER, log);
-    }
-
     @Override
     public String toString() {
         return "RemoteActivity";
     }
 
     private boolean checkIsBigScreen() {
-        if (findViewById(R.id.listContainer).getTag() != null) {
-            return (findViewById(R.id.listContainer).getTag().equals("big_screen"));
+        if (drawerLayout.getTag()!=null){
+            return drawerLayout.getTag().equals("big_screen");
         }
+
         return false;
+
     }
 
     @Override
@@ -418,14 +370,14 @@ public class RemoteActivity extends ActionBarActivity implements SettingsFragmen
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
-        isScreenOrientationChanged = true;
+        wasOrientationChanged = true;
         super.onConfigurationChanged(newConfig);
     }
 
     @Override
     public void onBackPressed() {
-        isHomePressed = false;
-        isBackPressed = true;
+        wasHomePressed = false;
+        wasBackPressed = true;
 
         if (fragmentManager.getBackStackEntryCount() > 0) {
             fragmentManager.popBackStack();
@@ -438,7 +390,7 @@ public class RemoteActivity extends ActionBarActivity implements SettingsFragmen
 
     @Override
     protected void onUserLeaveHint() {
-        isHomePressed = true;
+        wasHomePressed = true;
         super.onUserLeaveHint();
     }
 
@@ -446,10 +398,18 @@ public class RemoteActivity extends ActionBarActivity implements SettingsFragmen
     @Override
     protected void onDestroy() {
         NotificationService.stop(this);
-        if (!isScreenOrientationChanged){
+        if (!wasOrientationChanged) {
             zoffController.disconnect();
         }
         super.onDestroy();
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_POWER){
+            wasPowerPressed = true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 }
 

@@ -21,7 +21,7 @@ public class SettingsFragment extends Fragment {
 
     private Listener activity;
 
-    private TextView                passwordField;
+    private TextView passwordField;
 
     private Switch voteSwitch;
     private Switch addsongsSwitch;
@@ -58,24 +58,9 @@ public class SettingsFragment extends Fragment {
     private String skipDisabled;
     private String shuffleDisabled;
 
-
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-
-
-
-    }
-
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
-
         View layout = inflater.inflate(R.layout.fragment_settings,container,false);
-
 
         passwordField       = (TextView) layout.findViewById(R.id.passwordField);
 
@@ -124,26 +109,16 @@ public class SettingsFragment extends Fragment {
         skipDisabled        = getResources().getString(R.string.switch_skip_description_disabled);
         shuffleDisabled     = getResources().getString(R.string.switch_shuffle_description_disabled);
 
-
-        //Listeners
         passwordField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_GO){
                     activity.savePassword(passwordField.getText().toString());
                 }
-
                 return true;
             }
         });
-
-
-
-
         return layout;
-
-
-
     }
 
     @Override
@@ -162,18 +137,9 @@ public class SettingsFragment extends Fragment {
         removeplaySwitch.setEnabled(true);
         skipSwitch.setEnabled(true);
         shuffleSwitch.setEnabled(true);
-
-
-
-
-
-
         CompoundButton.OnCheckedChangeListener changeListener = new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
-
-
                 Settings settings = new Settings.Builder()
                         .allowsAddsongs(addsongsSwitch.isChecked())
                         .allvideos(allvideosSwitch.isChecked())
@@ -186,9 +152,7 @@ public class SettingsFragment extends Fragment {
                         .build();
                 activity.saveSettings(settings);
 
-                toggleSettingsLabels();
-
-
+                setSettingsLabels();
             }
 
 
@@ -203,13 +167,9 @@ public class SettingsFragment extends Fragment {
         removeplaySwitch.setOnCheckedChangeListener(changeListener);
         skipSwitch.setOnCheckedChangeListener(changeListener);
         shuffleSwitch.setOnCheckedChangeListener(changeListener);
-
     }
 
     public void setSettings(Settings settings){
-
-
-
         voteSwitch.setChecked(          settings.isVote());
         addsongsSwitch.setChecked(      settings.isAddsongs());
         allvideosSwitch.setChecked(     settings.isAllvideos());
@@ -219,12 +179,10 @@ public class SettingsFragment extends Fragment {
         shuffleSwitch.setChecked(       settings.isShuffle());
         removeplaySwitch.setChecked(    settings.isRemoveplay());
 
-
-        toggleSettingsLabels();
+        setSettingsLabels();
     }
 
-    private void toggleSettingsLabels(){
-
+    private void setSettingsLabels(){
         if (addsongsSwitch.isChecked()){
             addsongsDescription.setText(addsongsEnabled);
         } else {
@@ -271,14 +229,11 @@ public class SettingsFragment extends Fragment {
         } else {
             removeplayDescription.setText(removeplayDisabled);
         }
-
-
     }
 
     public interface Listener {
         void savePassword(String password);
         void setFragment(SettingsFragment fragment);
         void saveSettings(Settings settings);
-
     }
 }

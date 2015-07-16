@@ -12,7 +12,7 @@
         android:imeActionLabel="Save"
         android:textColorHint="@color/settings_adminpass_hint"
         android:hint="Password"
-        android:typeface="sans" />
+        android:fontFamily="sans-serif-thin" />
 
     <Switch
         android:layout_width="fill_parent"

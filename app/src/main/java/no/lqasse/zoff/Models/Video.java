@@ -13,7 +13,7 @@ public class Video implements Comparable<Video>{
 
     private String _id = "Error";
     private String id = "placeholder";
-    private String title = "Loading videos";
+    private String title = "Loading videos...";
     private int votes = 999;
     private int durationSecs = 0;
     private int added = 0;

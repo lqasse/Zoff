@@ -20,12 +20,11 @@
         android:id="@+id/notification_title"
         android:layout_alignParentTop="true"
         android:layout_toRightOf="@+id/playlistHeaderImage"
-        android:layout_toEndOf="@+id/playlistHeaderImage"
         android:textColor="@color/white"
         android:text="Title"
         android:layout_marginTop="3dp"
-        android:layout_toLeftOf="@+id/closeImageView"
-        android:lines="1" />
+        android:singleLine="true"
+        android:layout_marginRight="3dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -39,23 +38,23 @@
 
     <ImageView
         android:layout_width="wrap_content"
-        android:layout_height="40dp"
+        android:layout_height="wrap_content"
         android:id="@+id/closeImageView"
         android:src="@drawable/cross"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
         android:scaleType="fitCenter"
-        android:layout_centerVertical="true"
-        android:padding="10dp" />
+        android:padding="10dp"
+        android:layout_alignTop="@+id/skipImageView"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
     <ImageView
         android:layout_width="wrap_content"
-        android:layout_height="40dp"
+        android:layout_height="wrap_content"
         android:id="@+id/skipImageView"
         android:src="@drawable/skip"
         android:scaleType="fitCenter"
         android:padding="10dp"
-        android:layout_alignTop="@+id/closeImageView"
+        android:layout_centerVertical="true"
         android:layout_toLeftOf="@+id/closeImageView"
         android:layout_toStartOf="@+id/closeImageView" />
 

@@ -31,20 +31,20 @@ public class BitmapDownloader {
         String altimageUrl;
         String videoId;
         TYPE type;
-        ImageCache.ImageSize imageSize;
+        BitmapCache.ImageSize imageSize;
         Callback callback;
         SetImageCallback setImageCallback;
         Boolean scaleDownFlag;
 
     }
 
-    public static void download(String videoId, ImageCache.ImageSize type, Boolean flagScaleDown, Callback callback) throws IllegalArgumentException{
+    public static void download(String videoId, BitmapCache.ImageSize type, Boolean flagScaleDown, Callback callback) throws IllegalArgumentException{
 
         if (videoId.equals("")){
             throw new IllegalArgumentException("VideoID can not be empty");
         }
         ViewHolder viewHolder = new ViewHolder();
-        if (type == ImageCache.ImageSize.HUGE){
+        if (type == BitmapCache.ImageSize.HUGE){
             viewHolder.imageURL = Video.getThumbHuge(videoId);
             viewHolder.altimageUrl = Video.getThumbMed(videoId);
         } else {
@@ -64,10 +64,10 @@ public class BitmapDownloader {
         }
     }
 
-    public static void downloadTo(String id, ImageView target, Boolean flagScaleDown, ImageCache.ImageSize type, SetImageCallback callback){
+    public static void downloadTo(String id, ImageView target, Boolean flagScaleDown, BitmapCache.ImageSize type, SetImageCallback callback){
 
         ViewHolder viewHolder = new ViewHolder();
-        if (type == ImageCache.ImageSize.HUGE){
+        if (type == BitmapCache.ImageSize.HUGE){
             viewHolder.imageURL = Video.getThumbHuge(id);
             viewHolder.altimageUrl = Video.getThumbMed(id);
         } else {
@@ -90,7 +90,7 @@ public class BitmapDownloader {
 
     }
 
-    public static void downloadAndSet(String url, String altUrl, String videoID, ImageView imageView, ImageCache.ImageSize imageSize,Boolean scaleDownFlag){
+    public static void downloadAndSet(String url, String altUrl, String videoID, ImageView imageView, BitmapCache.ImageSize imageSize,Boolean scaleDownFlag){
         ViewHolder viewHolder = new ViewHolder();
         viewHolder.imageURL = url;
         viewHolder.altimageUrl = altUrl;
@@ -114,16 +114,16 @@ public class BitmapDownloader {
 
     }
 
-    private static boolean isDownloading(String id, ImageCache.ImageSize type){
-        return downloading.contains(ImageCache.getIDWithTypeSuffix(id, type));
+    private static boolean isDownloading(String id, BitmapCache.ImageSize type){
+        return downloading.contains(BitmapCache.getIDWithTypeSuffix(id, type));
     }
 
-    private static void downloading(String id, ImageCache.ImageSize type){
-        downloading.add(ImageCache.getIDWithTypeSuffix(id,type));
+    private static void downloading(String id, BitmapCache.ImageSize type){
+        downloading.add(BitmapCache.getIDWithTypeSuffix(id, type));
     }
 
-    private static void finishedDownloading(String id, ImageCache.ImageSize type){
-        downloading.remove(ImageCache.getIDWithTypeSuffix(id,type));
+    private static void finishedDownloading(String id, BitmapCache.ImageSize type){
+        downloading.remove(BitmapCache.getIDWithTypeSuffix(id, type));
     }
 
     private void log(String log){
@@ -171,7 +171,7 @@ public class BitmapDownloader {
 
                 finishedDownloading(viewHolder.videoId, viewHolder.imageSize);
 
-                ImageCache.put(viewHolder.videoId, viewHolder.imageSize, viewHolder.bitmap,viewHolder.scaleDownFlag);
+                BitmapCache.put(viewHolder.videoId, viewHolder.imageSize, viewHolder.bitmap, viewHolder.scaleDownFlag);
 
                 if (viewHolder.callback != null){
 
@@ -214,7 +214,7 @@ public class BitmapDownloader {
     }
 
     public interface Callback{
-        void onImageDownloaded(Bitmap image,ImageCache.ImageSize type);
+        void onImageDownloaded(Bitmap image,BitmapCache.ImageSize type);
     }
 
     public interface SetImageCallback {

@@ -259,7 +259,7 @@ public class BackgroundGenerator {
 
 
             image = BitmapColor.lightenBitmap(image);
-            ImageCache.put(viewHolder.videoID, ImageCache.ImageSize.BACKGROUND,image,false);
+            BitmapCache.put(viewHolder.videoID, BitmapCache.ImageSize.BACKGROUND, image, false);
 
             if (viewHolder.callback != null){
                 viewHolder.callback.onBackgroundCreated(image);
