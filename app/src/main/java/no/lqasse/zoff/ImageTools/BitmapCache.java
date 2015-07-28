@@ -12,7 +12,7 @@ import java.util.Map;
 /**
  * Created by lassedrevland on 23.03.15.
  */
-public class ImageCache {
+public class BitmapCache {
     private static final String LOG_IDENTIFIER = "ImageCache";
     private static final String HUGE_APPENDIX = "_huge";
     private static final String BLUR_APPENDIX = "_blur";
@@ -84,24 +84,17 @@ public class ImageCache {
 
     }
 
-    public static void put(String id,Bitmap image){
-
-        mMemoryCache.put(id, image);
-        if (id.contains("_blur") && currentBlurBG!=image){
-            currentBlurBG = image;
-        }
-
-
-
-
-
-    }
-
     public static void put(String id, ImageSize type, Bitmap bitmap, Boolean flagScaleDown){
+        Boolean aggressive = false;
+        Boolean scaled = false;
+        Boolean hadLister = false;
+
+
 
         if (cacheSize < LOWER_MEMORY_THRESHOLD){
 
             BitmapScaler.setAggressiveScaling(0.75f);
+            aggressive = true;
         }
 
 
@@ -121,6 +114,7 @@ public class ImageCache {
 
         if (flagScaleDown){
             bitmap = BitmapScaler.Scale(bitmap, type);
+            scaled = true;
         }
 
 
@@ -129,12 +123,15 @@ public class ImageCache {
 
         if (hasListener(id,type)){
             cacheListeners.get(getIDWithTypeSuffix(id,type)).ImageInCache(bitmap);
+            hadLister = true;
         }
 
         int FILL_PERCENTAGE =  (int) (((float)mMemoryCache.size()/(float)mMemoryCache.maxSize()*100));
         if (FILL_PERCENTAGE > 70){
             log();
         }
+
+        log("id: " + id + " type: " + type + ", listener: "+hadLister + ", scaled: "+scaled+", agressive: "+aggressive);
 
 
     }
@@ -163,9 +160,7 @@ public class ImageCache {
         int FILL_PERCENTAGE =  (int) (((float)mMemoryCache.size()/(float)mMemoryCache.maxSize()*100));
         Log.i(LOG_IDENTIFIER,  FILL_PERCENTAGE +"%: " + mMemoryCache.size() + "/" + mMemoryCache.maxSize() +" Size: " + mMemoryCache.putCount());
     }
-    private static void log(String data){
-        Log.i(LOG_IDENTIFIER, data);
-    }
+
 
     public static String getIDWithTypeSuffix(String id, ImageSize type){
         return id + getSuffix(type);
@@ -190,8 +185,8 @@ public class ImageCache {
 
     public static void registerListener(String videoId, ImageSize size, ImageInCacheListener listener){
 
-        if (ImageCache.has(videoId,size)){
-            listener.ImageInCache(ImageCache.get(videoId,size));
+        if (BitmapCache.has(videoId, size)){
+            listener.ImageInCache(BitmapCache.get(videoId, size));
         } else {
             cacheListeners.put(getIDWithTypeSuffix(videoId,size),listener);
         }
@@ -200,6 +195,10 @@ public class ImageCache {
 
     private static boolean hasListener(String videoID, ImageSize type){
         return cacheListeners.containsKey(getIDWithTypeSuffix(videoID,type));
+    }
+
+    private static void log(String data){
+       // Log.i(LOG_IDENTIFIER, data);
     }
 
 

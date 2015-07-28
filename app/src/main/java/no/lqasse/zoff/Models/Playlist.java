@@ -24,7 +24,6 @@ public class Playlist {
         this.videoList.addAll(videos);
         sortList();
         addToMap(videos);
-        nowPlaying = findNowPlaying(videos);
     }
 
     public Video get(int index){
@@ -58,7 +57,7 @@ public class Playlist {
     }
 
     public Video getNextVideo(){
-        if (videoList.size()>0){
+        if (videoList.size()>1){
             return videoList.get(1);
         }
 
@@ -100,15 +99,7 @@ public class Playlist {
         Collections.sort(videoList);
     }
 
-    private Video findNowPlaying(ArrayList<Video> videos){
-        for (Video v:videos){
-            if (v.isNowPlaying()){
-                return v;
-            }
-        }
 
-        throw new NoSuchElementException("isNowPlaying was false for all videos");
-    }
 
     private void log(String message){
         Log.i(LOG_IDENTIFIER, message);

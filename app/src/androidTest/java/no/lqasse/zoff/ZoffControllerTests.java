@@ -8,13 +8,17 @@ import no.lqasse.zoff.Models.Zoff;
  * Created by lassedrevland on 06.07.15.
  */
 public class ZoffControllerTests extends TestCase {
-    public void testGetInstance() throws Exception {
-        ZoffController firstInstance = ZoffController.getInstance("lqasse");
-        ZoffController secondInstance = ZoffController.getInstance("NOTSAME");
+    MockController controller;
+    MockServer server;
 
-        assertNotSame(firstInstance,secondInstance);
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+        controller = new MockController("lqasse");
+        server = controller.getServer();
 
     }
+
 
 
 }

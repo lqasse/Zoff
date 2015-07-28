@@ -23,12 +23,9 @@ import no.lqasse.zoff.Models.Zoff;
 public class PlaylistFragment extends Fragment {
     private RecyclerView videoList;
     private Toolbar toolbar;
-    private View header;
     private Activity activity;
-    private RelativeLayout layout;
     private ZoffController zoffController;
     private VideoListRecyclerAdapter recyclerAdapter;
-
 
     @Override
     public void onAttach(Activity activity) {
@@ -41,7 +38,6 @@ public class PlaylistFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -52,7 +48,6 @@ public class PlaylistFragment extends Fragment {
 
         return v;
     }
-
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -67,7 +62,6 @@ public class PlaylistFragment extends Fragment {
     }
 
     private void setUpRecyclerView(){
-
         recyclerAdapter = new VideoListRecyclerAdapter(zoffController);
         final LinearLayoutManager layoutManager = new LinearLayoutManager(activity);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -82,7 +76,6 @@ public class PlaylistFragment extends Fragment {
             }
         });
     }
-
 
     public void invalidateListviewViews(){
         if (videoList != null){

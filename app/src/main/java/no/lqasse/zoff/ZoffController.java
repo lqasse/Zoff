@@ -6,7 +6,7 @@ import org.json.JSONArray;
 
 import no.lqasse.zoff.Helpers.Sha256;
 import no.lqasse.zoff.Helpers.ToastMaster;
-import no.lqasse.zoff.ImageTools.ImageCache;
+import no.lqasse.zoff.ImageTools.BitmapCache;
 import no.lqasse.zoff.Models.Playlist;
 import no.lqasse.zoff.Models.Video;
 import no.lqasse.zoff.Models.Zoff;
@@ -18,15 +18,13 @@ import no.lqasse.zoff.Server.Server;
  * Created by lassedrevland on 11.01.15.
  */
 public class ZoffController implements Server.Listener{
-
-
-    private static final String LOG_IDENTIFIER = "ZoffController";
-    private static ZoffController controller;
     public static final String BUNDLEKEY_CHANNEL = "channel";
     public static final String BUNDLEKEY_IS_NEW_CHANNEL = "NEW";
+    private static final String LOG_IDENTIFIER = "ZoffController";
+    private static ZoffController controller;
 
     private Zoff zoff;
-    private Server server;
+    protected Server server;
     private RefreshCallback refreshCallback;
     private CorrectPasswordCallback correctPasswordCallback;
     private ToastMessageCallback toastMessageCallback;
@@ -43,7 +41,7 @@ public class ZoffController implements Server.Listener{
             }
         }
 
-        ImageCache.empty();
+        BitmapCache.empty();
         controller = new ZoffController(channel);
         Log.i(LOG_IDENTIFIER,  " got NEW instance " + controller.toString());
         return controller;
@@ -54,7 +52,6 @@ public class ZoffController implements Server.Listener{
         controller = null;
         Log.i(LOG_IDENTIFIER, "Instance stopped");
     }
-
 
     public ZoffController(String channel) {
         zoff = new Zoff(channel);
@@ -96,7 +93,6 @@ public class ZoffController implements Server.Listener{
         this.toastMessageCallback = null;
     }
 
-
     public void vote(Video video) {
         server.vote(video, zoff.getAdminpass());
         toastMessageCallback.showToast(ToastMaster.TYPE.VIDEO_VOTED, video.getTitle());
@@ -119,10 +115,26 @@ public class ZoffController implements Server.Listener{
         toastMessageCallback.showToast(ToastMaster.TYPE.VIDEO_DELETED, video.getTitle());
     }
 
-    public Zoff getZoff() {
-        return zoff;
+    public void savePassword(String password) {
+        server.savePassword(Sha256.getHash(password));
     }
 
+    public void saveSettings(Settings settings) {
+        server.saveSettings(zoff.getAdminpass(), settings);
+    }
+
+    public void refreshPlaylist() {
+        server.getPlaylist();
+    }
+
+    public void disconnect() {
+        StopInstance();
+        try {
+            finalize();
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+    }
 
     public void onToast(String toastKeyword) {
         if (toastMessageCallback != null) {
@@ -144,7 +156,6 @@ public class ZoffController implements Server.Listener{
             refreshCallback.onZoffRefreshed(zoff);
         }
     }
-
 
     public void onVideoGotVote(JSONArray data) {
         zoff.addVote(JSONTranslator.getVoteMessage(data));
@@ -189,27 +200,8 @@ public class ZoffController implements Server.Listener{
         }
     }
 
-
-
-    public void savePassword(String password) {
-        server.savePassword(Sha256.getHash(password));
-    }
-
-    public void saveSettings(Settings settings) {
-        server.saveSettings(zoff.getAdminpass(), settings);
-    }
-
-    public void refreshPlaylist() {
-        server.getPlaylist();
-    }
-
-    public void disconnect() {
-        StopInstance();
-        try {
-            finalize();
-        } catch (Throwable t) {
-            t.printStackTrace();
-        }
+    public Zoff getZoff() {
+        return zoff;
     }
 
     public interface PlaylistCallback {
@@ -228,7 +220,6 @@ public class ZoffController implements Server.Listener{
         void showToast(String toastkeyword);
         void showToast(ToastMaster.TYPE type, String contextual);
     }
-
 
     @Override
     public String toString() {

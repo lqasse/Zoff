@@ -14,7 +14,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import no.lqasse.zoff.ImageTools.ImageCache;
+import no.lqasse.zoff.ImageTools.BitmapCache;
 import no.lqasse.zoff.ImageTools.BitmapDownloader;
 import no.lqasse.zoff.Models.Channel;
 import no.lqasse.zoff.Models.Video;
@@ -97,16 +97,16 @@ public class ChannelGridAdapter extends ArrayAdapter<Channel> {
         }
 
 
-        if (ImageCache.has(videoId, ImageCache.ImageSize.REG)){
-            viewholder.headerImage.setImageBitmap(ImageCache.get(videoId, ImageCache.ImageSize.REG));
+        if (BitmapCache.has(videoId, BitmapCache.ImageSize.REG)){
+            viewholder.headerImage.setImageBitmap(BitmapCache.get(videoId, BitmapCache.ImageSize.REG));
         }else {
             final ImageView targetView = viewholder.headerImage;
             targetView.setTag(videoId);
 
-            BitmapDownloader.downloadTo(videoId, targetView,false, ImageCache.ImageSize.REG, new BitmapDownloader.SetImageCallback() {
+            BitmapDownloader.downloadTo(videoId, targetView, false, BitmapCache.ImageSize.REG, new BitmapDownloader.SetImageCallback() {
                 @Override
                 public void onImageDownloaded(Bitmap image, String videoId) {
-                    if ((targetView.getTag()).equals(videoId)){
+                    if ((targetView.getTag()).equals(videoId)) {
                         Animation a = new AlphaAnimation(0.00f, 1.00f);
                         a.setInterpolator(new DecelerateInterpolator());
                         a.setDuration(700);

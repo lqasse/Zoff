@@ -17,7 +17,7 @@ import android.util.Log;
 import android.widget.RemoteViews;
 
 import no.lqasse.zoff.Helpers.ToastMaster;
-import no.lqasse.zoff.ImageTools.ImageCache;
+import no.lqasse.zoff.ImageTools.BitmapCache;
 import no.lqasse.zoff.ImageTools.BitmapDownloader;
 import no.lqasse.zoff.Models.Video;
 import no.lqasse.zoff.Models.Zoff;
@@ -44,7 +44,6 @@ public class NotificationService extends Service {
     private String currentToast = "";
     private boolean shouldBeVisible = false;
 
-
     public static void start(Context context, String channel){
         Intent notificationIntent = new Intent(context, NotificationService.class);
         notificationIntent.putExtra(ZoffController.BUNDLEKEY_CHANNEL, channel);
@@ -57,8 +56,6 @@ public class NotificationService extends Service {
         notificationIntent.setAction(NotificationService.INTENT_KEY_CLOSE);
         context.startService(notificationIntent);
     }
-
-
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -100,15 +97,11 @@ public class NotificationService extends Service {
         zoffController.skip();
     }
 
-
-
     private void startService(String channel){
-
         shouldBeVisible = true;
         this.channel = channel;
         zoffController = ZoffController.getInstance(channel);
-        ImageCache.removeImage(zoffController.getZoff().getPlayingVideo().getId(), ImageCache.ImageSize.HUGE);
-
+        BitmapCache.removeImage(zoffController.getZoff().getPlayingVideo().getId(), BitmapCache.ImageSize.HUGE);
         showNotification();
         zoffController.setOnRefreshListener(new ZoffController.RefreshCallback() {
             @Override
@@ -151,7 +144,6 @@ public class NotificationService extends Service {
         stopSelf();
     }
 
-
     private void showNotification() {
         log("Showing notification");
         RemoteViews view = new RemoteViews(getApplicationContext().getPackageName(), R.layout.notification);
@@ -159,14 +151,14 @@ public class NotificationService extends Service {
         String currentlyPlayingVideoID = zoffController.getCurrentlyPlayingVideo().getId();
         String nextVideoID = zoffController.getZoff().getNextVideoId();
 
-        if (ImageCache.has(currentlyPlayingVideoID)){
-            view.setImageViewBitmap(R.id.playlistHeaderImage, ImageCache.get(currentlyPlayingVideoID));
-            bigView.setImageViewBitmap(R.id.playlistHeaderImage, ImageCache.get(currentlyPlayingVideoID));
+        if (BitmapCache.has(currentlyPlayingVideoID)){
+            view.setImageViewBitmap(R.id.playlistHeaderImage, BitmapCache.get(currentlyPlayingVideoID));
+            bigView.setImageViewBitmap(R.id.playlistHeaderImage, BitmapCache.get(currentlyPlayingVideoID));
 
         } else {
-            BitmapDownloader.download(nextVideoID, ImageCache.ImageSize.REG, true, new BitmapDownloader.Callback() {
+            BitmapDownloader.download(nextVideoID, BitmapCache.ImageSize.REG, true, new BitmapDownloader.Callback() {
                 @Override
-                public void onImageDownloaded(Bitmap image, ImageCache.ImageSize type) {
+                public void onImageDownloaded(Bitmap image, BitmapCache.ImageSize type) {
                     if (shouldBeVisible){
                         showNotification();
                     }
@@ -176,7 +168,7 @@ public class NotificationService extends Service {
 
         if (nextVideoID != null){
 
-            BitmapDownloader.download(nextVideoID, ImageCache.ImageSize.REG, true, null);
+            BitmapDownloader.download(nextVideoID, BitmapCache.ImageSize.REG, true, null);
 
         }
 
@@ -244,14 +236,6 @@ public class NotificationService extends Service {
 
     }
 
-    @Override
-    public void onDestroy() {
-        closeNotification();
-        releaseMediaSession();
-
-        super.onDestroy();
-    }
-
     private void closeNotification(){
         shouldBeVisible = false;
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -260,84 +244,54 @@ public class NotificationService extends Service {
         log("Notification cleared");
     }
 
-
     private void startMediaSession(){
         if (Build.VERSION.SDK_INT >= 21){
             if (mediaSession == null){
                 mediaSession = new MediaSession(getBaseContext(), TAG);
                 mediaSession.setCallback(new MediaSession.Callback() {
-
                     @Override
                     public void onSkipToNext() {
                         zoffController.skip();
                         super.onSkipToNext();
                     }
-
-
                 });
-
             }
-
-
-
-            MediaMetadata.Builder metadataBuilder = new MediaMetadata.Builder();
 
             Video currentlyPlayingVideo = zoffController.getZoff().getPlayingVideo();
 
+            MediaMetadata.Builder metadataBuilder = new MediaMetadata.Builder()
+                    .putString(MediaMetadata.METADATA_KEY_TITLE, currentlyPlayingVideo.getTitle())
+                    .putString(MediaMetadata.METADATA_KEY_ARTIST, zoffController.getZoff().getChannel());
 
-            metadataBuilder.putString(MediaMetadata.METADATA_KEY_TITLE, currentlyPlayingVideo.getTitle());
-            metadataBuilder.putString(MediaMetadata.METADATA_KEY_ARTIST, zoffController.getZoff().getChannel());
-
-
-            if (ImageCache.has(currentlyPlayingVideo.getId(), ImageCache.ImageSize.HUGE)){
-                metadataBuilder.putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, ImageCache.get(currentlyPlayingVideo.getId(), ImageCache.ImageSize.HUGE));
+            if (BitmapCache.has(currentlyPlayingVideo.getId(), BitmapCache.ImageSize.HUGE)){
+                metadataBuilder.putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, BitmapCache.get(currentlyPlayingVideo.getId(), BitmapCache.ImageSize.HUGE));
 
             } else{
-
-                BitmapDownloader.download(currentlyPlayingVideo.getId(), ImageCache.ImageSize.HUGE, false, new BitmapDownloader.Callback() {
+                BitmapDownloader.download(currentlyPlayingVideo.getId(), BitmapCache.ImageSize.HUGE, false, new BitmapDownloader.Callback() {
                     @Override
-                    public void onImageDownloaded(Bitmap image, ImageCache.ImageSize type) {
+                    public void onImageDownloaded(Bitmap image, BitmapCache.ImageSize type) {
                         if (shouldBeVisible) {
                             showNotification();
                         }
-
                     }
                 });
-
-
-
-
-
             }
 
-
-
-            if (!ImageCache.has(zoffController.getZoff().getNextVideoId(), ImageCache.ImageSize.HUGE)){
-                BitmapDownloader.download(zoffController.getZoff().getNextVideoId(), ImageCache.ImageSize.HUGE, false, null);
-
+            if (!BitmapCache.has(zoffController.getZoff().getNextVideoId(), BitmapCache.ImageSize.HUGE)){
+                BitmapDownloader.download(zoffController.getZoff().getNextVideoId(), BitmapCache.ImageSize.HUGE, false, null);
             }
 
             mediaSession.setFlags(MediaSession.FLAG_HANDLES_MEDIA_BUTTONS|MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS);
             mediaSession.setMetadata(metadataBuilder.build());
 
-            PlaybackState.Builder stateBuilder = new PlaybackState.Builder();
-            stateBuilder.setActions(PlaybackState.ACTION_SKIP_TO_NEXT);
+            PlaybackState.Builder stateBuilder = new PlaybackState.Builder()
+                    .setActions(PlaybackState.ACTION_SKIP_TO_NEXT)
+                    .setState(PlaybackState.STATE_PLAYING, PlaybackState.PLAYBACK_POSITION_UNKNOWN, 1.0f);
 
-
-
-            //stateBuilder.addCustomAction(actionBuilder.build());
-            stateBuilder.setState(PlaybackState.STATE_PLAYING, PlaybackState.PLAYBACK_POSITION_UNKNOWN, 1.0f);
             mediaSession.setPlaybackState(stateBuilder.build());
-
-
             mediaSession.setActive(true);
-
-
-
-
         }
     }
-
 
     private void releaseMediaSession(){
         if (Build.VERSION.SDK_INT >= 21) {
@@ -350,6 +304,14 @@ public class NotificationService extends Service {
     @Override
     public String toString() {
         return "NotificationService";
+    }
+
+    @Override
+    public void onDestroy() {
+        closeNotification();
+        releaseMediaSession();
+
+        super.onDestroy();
     }
 
     private void log(String data){

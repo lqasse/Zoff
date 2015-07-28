@@ -22,12 +22,13 @@
         android:layout_toRightOf="@+id/playlistHeaderImage"
         android:textColor="@color/white"
         android:text="Title"
-        android:lines="1"
         android:layout_marginTop="3dp"
         android:layout_toLeftOf="@+id/closeImageView"
         android:layout_toStartOf="@+id/closeImageView"
         android:scrollHorizontally="false"
-        android:layout_toEndOf="@+id/playlistHeaderImage" />
+        android:layout_toEndOf="@+id/playlistHeaderImage"
+        android:maxLines="2"
+        android:singleLine="false" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -41,7 +42,7 @@
 
     <ImageView
         android:layout_width="wrap_content"
-        android:layout_height="40dp"
+        android:layout_height="wrap_content"
         android:id="@+id/closeImageView"
         android:src="@drawable/cross"
         android:scaleType="fitCenter"

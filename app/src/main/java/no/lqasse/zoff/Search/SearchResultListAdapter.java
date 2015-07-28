@@ -14,7 +14,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import no.lqasse.zoff.ImageTools.BitmapDownloader;
-import no.lqasse.zoff.ImageTools.ImageCache;
+import no.lqasse.zoff.ImageTools.BitmapCache;
 import no.lqasse.zoff.Models.SearchResult;
 import no.lqasse.zoff.R;
 
@@ -95,13 +95,13 @@ public class SearchResultListAdapter extends ArrayAdapter<SearchResult> {
 
 
 
-        if (ImageCache.has(currentVideo.getVideoID())) {
-            Bitmap videoImage = ImageCache.get(currentVideo.getVideoID());
+        if (BitmapCache.has(currentVideo.getVideoID())) {
+            Bitmap videoImage = BitmapCache.get(currentVideo.getVideoID());
             holder.imageView.setImageBitmap(videoImage);
         } else {
 
             holder.imageView.setImageBitmap(null);
-            BitmapDownloader.downloadAndSet(currentVideo.getThumbMed(), currentVideo.getThumbSmall(), currentVideo.getVideoID(), holder.imageView, ImageCache.ImageSize.REG, true);
+            BitmapDownloader.downloadAndSet(currentVideo.getThumbMed(), currentVideo.getThumbSmall(), currentVideo.getVideoID(), holder.imageView, BitmapCache.ImageSize.REG, true);
         };
 
 
