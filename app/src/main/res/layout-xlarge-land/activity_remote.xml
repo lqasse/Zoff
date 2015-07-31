@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<android.support.v4.widget.DrawerLayout
+
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/topLayout"
+    android:tag="big_screen">
+    <RelativeLayout
+
+
+
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:id="@+id/backgroundImageOLD"
+            android:layout_gravity="center_horizontal"
+            android:scaleType="fitXY" />
+
+        <ImageView
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:id="@+id/backgroundImage"
+            android:layout_gravity="center_horizontal"
+            android:scaleType="fitXY" />
+
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:orientation="vertical" android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:weightSum="1"
+            android:id="@+id/listContainer"
+            >
+
+
+
+
+        </RelativeLayout>
+
+        <no.lqasse.zoff.LoadingAnimation
+            android:id="@+id/activity_remote_loading_animation"
+            android:layout_height="60dp"
+            android:layout_width="60dp"
+            app:visible="true"
+            app:styling="dark"
+            android:layout_centerInParent="true"
+            android:elevation="5dp"/>
+
+        <include
+            android:id="@+id/toolbar"
+            layout="@layout/toolbar" />
+
+
+    </RelativeLayout>
+
+
+    <LinearLayout
+        android:layout_marginTop="?attr/actionBarSize"
+        android:orientation="vertical"
+        android:layout_width="250dp"
+        android:choiceMode="singleChoice"
+        android:layout_gravity="start"
+        android:layout_height="fill_parent"
+        android:id="@+id/settingsDrawer"
+        android:padding="10dp"
+        android:background="@color/settings_drawer_background"
+        android:elevation="5dp"
+
+        >
+
+        <fragment
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:name="no.lqasse.zoff.SettingsFragment"
+            tools:layout="@layout/fragment_settings"></fragment>
+
+
+    </LinearLayout>
+
+
+
+</android.support.v4.widget.DrawerLayout>
