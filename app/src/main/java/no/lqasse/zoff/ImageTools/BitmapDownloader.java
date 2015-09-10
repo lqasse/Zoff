@@ -174,18 +174,14 @@ public class BitmapDownloader {
                 BitmapCache.put(viewHolder.videoId, viewHolder.imageSize, viewHolder.bitmap, viewHolder.scaleDownFlag);
 
                 if (viewHolder.callback != null){
-
                     viewHolder.callback.onImageDownloaded(viewHolder.bitmap, viewHolder.imageSize);
                 }
-
 
 
                 if (viewHolder.setImageCallback != null){
                     viewHolder.setImageCallback.onImageDownloaded(viewHolder.bitmap,viewHolder.videoId);
 
                 }
-
-
 
                 switch (viewHolder.type){
                     case downlaodAndSet:

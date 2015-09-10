@@ -15,8 +15,6 @@ public class BackgroundGenerator {
         holder.videoID = videoID;
         holder.callback = callback;
 
-
-
         blurTask blurTask = new blurTask();
         blurTask.execute(holder);
     }
@@ -29,7 +27,6 @@ public class BackgroundGenerator {
         public Bitmap getBitmap() {
             return bitmap;
         }
-
         public void setBitmap(Bitmap bitmap) {
             this.bitmap = bitmap;
         }

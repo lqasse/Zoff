@@ -33,7 +33,7 @@ import no.lqasse.zoff.Models.Settings;
 public class Server {
 
     private static final int PING_TIMEOUT_DELAY = (int) TimeUnit.SECONDS.toMillis(20);
-    private static final String ZOFF_URL = "https://zoff.no:3000";
+    private static final String ZOFF_URL = "http://zoff.no:8880";
     private static final String LOG_IDENTIFIER = "Server";
 
     private static final String SOCKET_KEY_EMIT_FRONTPAGE_LIST = "frontpage_lists";
@@ -70,7 +70,8 @@ public class Server {
     public static void getChannelSuggestions(final ChannelChooserActivity main, final SuggestionsCallback suggestionsCallback) {
         try {
             IO.Options options = new IO.Options();
-            options.secure = true;
+            //SSL Disabled for now
+       /*     options.secure = true;
             SSLContext ctx = SSLContext.getInstance("TLS");
             ctx.init(null, new TrustManager[]{
                     new X509TrustManager() {
@@ -82,8 +83,8 @@ public class Server {
                     }
             }, null);
 
-            options.sslContext = ctx;
-            final Socket tempSocket = IO.socket(ZOFF_URL, options);
+            options.sslContext = ctx;*/
+            final Socket tempSocket = IO.socket(ZOFF_URL);
             tempSocket.connect();
             tempSocket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
                 @Override
@@ -133,9 +134,9 @@ public class Server {
         } catch (URISyntaxException e) {
             e.printStackTrace();
             return;
-        } catch (NoSuchAlgorithmException e) {
+        }/* catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
-        } catch (Exception e) {
+        }*/ catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -161,6 +162,7 @@ public class Server {
     private void connect() {
         try {
             IO.Options options = new IO.Options();
+            /* DISABLED SSL FOR NOW
             options.secure = true;
             SSLContext ctx = SSLContext.getInstance("TLS");
             ctx.init(null, new TrustManager[]{
@@ -179,6 +181,7 @@ public class Server {
             options.sslContext = ctx;
             options.forceNew = true;
             options.reconnection = true;
+            */
             socket = IO.socket(ZOFF_URL, options);
 
         } catch (Exception e) {
